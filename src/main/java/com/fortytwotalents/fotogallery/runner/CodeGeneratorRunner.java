@@ -39,7 +39,7 @@ public class CodeGeneratorRunner implements CommandLineRunner {
         int codeCount = appProperties.codeCount();
         Path outputPath = Path.of(appProperties.csvOutputPath());
 
-        if (eventCode == null || eventCode.isBlank()) {
+        if (eventCode.isBlank()) {
             LOGGER.error("Event code is required. Set --app.event-code=XXXX or pass as first argument.");
             return;
         }
