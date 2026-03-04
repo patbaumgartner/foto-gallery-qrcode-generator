@@ -10,7 +10,6 @@ import com.fortytwotalents.fotogallery.service.QrCodeGeneratorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;
@@ -20,7 +19,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 @Component
-@ConditionalOnProperty(name = "app.mode", havingValue = "generate-pdf", matchIfMissing = true)
 public class QrCodeGeneratorRunner implements CommandLineRunner {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(QrCodeGeneratorRunner.class);
@@ -43,6 +41,10 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws IOException {
+		if (!"generate-pdf".equals(appProperties.mode())) {
+			return;
+		}
+
 		Path inputPath = Path.of(appProperties.csvInputPath());
 		Path outputPath = Path.of(appProperties.outputPath());
 

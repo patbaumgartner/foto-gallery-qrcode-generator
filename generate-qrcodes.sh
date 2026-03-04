@@ -28,9 +28,7 @@ elif [[ -f "$SCRIPT_DIR/$JAR_NAME" ]]; then
 elif [[ -f "$SCRIPT_DIR/target/$JAR_NAME" ]]; then
   RUN=(java -jar "$SCRIPT_DIR/target/$JAR_NAME")
 else
-  echo "ERROR: No executable found. Build the project first:" >&2
-  echo "  mvn clean package -DskipTests          (JAR)" >&2
-  echo "  mvn clean package -Pnative -DskipTests  (native)" >&2
+  echo "ERROR: No executable found ('$NATIVE_NAME')." >&2
   exit 1
 fi
 
