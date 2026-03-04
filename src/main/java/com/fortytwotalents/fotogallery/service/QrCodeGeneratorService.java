@@ -38,7 +38,7 @@ public class QrCodeGeneratorService {
             drawNumberOverlay(hiResImage, number);
             return hiResImage;
         } catch (WriterException e) {
-            throw new RuntimeException("Failed to generate QR code for: " + url, e);
+            throw new IllegalStateException("Failed to generate QR code for: " + url, e);
         }
     }
 
