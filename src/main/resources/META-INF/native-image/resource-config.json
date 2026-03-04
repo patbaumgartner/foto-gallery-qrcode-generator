@@ -1,0 +1,11 @@
+{
+  "resources": {
+    "includes": [
+      {"pattern": "org/apache/pdfbox/.*"},
+      {"pattern": "META-INF/services/.*"},
+      {"pattern": "application\\.properties"},
+      {"pattern": ".*\\.afm"},
+      {"pattern": ".*\\.pfb"}
+    ]
+  }
+}

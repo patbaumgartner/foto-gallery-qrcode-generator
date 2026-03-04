@@ -1,0 +1,54 @@
+[
+  {
+    "name": "sun.awt.X11GraphicsEnvironment",
+    "condition": {"typeReachable": "sun.awt.X11GraphicsEnvironment"},
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "sun.awt.X11.XToolkit",
+    "condition": {"typeReachable": "sun.awt.X11.XToolkit"},
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.awt.GraphicsEnvironment",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.awt.Font",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "javax.imageio.spi.ImageReaderSpi",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "javax.imageio.spi.ImageWriterSpi",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.imageio.plugins.png.PNGImageWriterSpi",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.imageio.plugins.png.PNGImageReaderSpi",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.imageio.plugins.png.PNGImageWriter",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.imageio.plugins.png.PNGImageReader",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  }
+]

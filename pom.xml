@@ -118,6 +118,15 @@
           <plugin>
             <groupId>org.graalvm.buildtools</groupId>
             <artifactId>native-maven-plugin</artifactId>
+            <configuration>
+              <buildArgs>
+                <buildArg>--initialize-at-run-time=java.awt,javax.imageio,sun.awt,sun.font,sun.java2d</buildArg>
+                <buildArg>-H:+AddAllCharsets</buildArg>
+              </buildArgs>
+              <metadataRepository>
+                <enabled>true</enabled>
+              </metadataRepository>
+            </configuration>
           </plugin>
         </plugins>
       </build>
