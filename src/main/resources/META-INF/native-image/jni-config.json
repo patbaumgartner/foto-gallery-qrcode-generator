@@ -1,8 +1,11 @@
 [
-  {
-    "name": "java.awt.GraphicsEnvironment",
-    "methods": [
-      {"name": "createGraphicsEnvironment", "parameterTypes": []}
-    ]
-  }
+    {
+        "name": "java.awt.GraphicsEnvironment",
+        "methods": [
+            {
+                "name": "createGraphicsEnvironment",
+                "parameterTypes": []
+            }
+        ]
+    }
 ]

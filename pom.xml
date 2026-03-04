@@ -17,18 +17,17 @@
 
   <properties>
     <commons-csv.version>1.14.1</commons-csv.version>
+    <jacoco.version>0.8.14</jacoco.version>
     <java.version>21</java.version>
-    <jacoco.version>0.8.13</jacoco.version>
     <pdfbox.version>3.0.6</pdfbox.version>
+    <rewrite-maven-plugin.version>6.32.0</rewrite-maven-plugin.version>
+    <sortpom-maven-plugin.version>4.0.0</sortpom-maven-plugin.version>
+    <spring-javaformat-maven-plugin.version>0.0.47</spring-javaformat-maven-plugin.version>
     <taikai.version>1.60.0</taikai.version>
     <zxing.version>3.5.4</zxing.version>
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -61,6 +60,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation-test</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -100,10 +104,10 @@
           </execution>
           <execution>
             <id>report</id>
-            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>
+            <phase>verify</phase>
           </execution>
         </executions>
       </plugin>
@@ -111,6 +115,109 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>code-cleanup</id>
+      <properties>
+        <cyclonedx.skip>true</cyclonedx.skip>
+        <maven.gitcommitid.skip>true</maven.gitcommitid.skip>
+      </properties>
+      <build>
+        <plugins>
+          <!-- Step 1: Apply Spring Java Format -->
+          <plugin>
+            <groupId>io.spring.javaformat</groupId>
+            <artifactId>spring-javaformat-maven-plugin</artifactId>
+            <version>${spring-javaformat-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>spring-format</id>
+                <goals>
+                  <goal>apply</goal>
+                </goals>
+                <phase>validate</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Step 2: Sort pom.xml -->
+          <plugin>
+            <groupId>com.github.ekryd.sortpom</groupId>
+            <artifactId>sortpom-maven-plugin</artifactId>
+            <version>${sortpom-maven-plugin.version}</version>
+            <configuration>
+              <predefinedSortOrder>custom_1</predefinedSortOrder>
+              <createBackupFile>false</createBackupFile>
+              <sortProperties>true</sortProperties>
+            </configuration>
+            <executions>
+              <execution>
+                <id>sort-pom</id>
+                <goals>
+                  <goal>sort</goal>
+                </goals>
+                <phase>validate</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Step 3: OpenRewrite recipes -->
+          <plugin>
+            <groupId>org.openrewrite.maven</groupId>
+            <artifactId>rewrite-maven-plugin</artifactId>
+            <version>${rewrite-maven-plugin.version}</version>
+            <configuration>
+              <activeRecipes>
+                <recipe>org.openrewrite.staticanalysis.CodeCleanup</recipe>
+                <recipe>org.openrewrite.java.logging.slf4j.Slf4jBestPractices</recipe>
+                <recipe>org.openrewrite.java.testing.junit5.JUnit5BestPractices</recipe>
+                <recipe>org.openrewrite.java.testing.mockito.MockitoBestPractices</recipe>
+                <recipe>org.openrewrite.java.RemoveUnusedImports</recipe>
+                <recipe>org.openrewrite.java.OrderImports</recipe>
+                <recipe>io.moderne.java.spring.boot4.UpgradeSpringBoot_4_0</recipe>
+              </activeRecipes>
+              <recipeArtifactCoordinates>org.openrewrite.recipe:rewrite-static-analysis:LATEST,org.openrewrite.recipe:rewrite-logging-frameworks:LATEST,org.openrewrite.recipe:rewrite-testing-frameworks:LATEST,io.moderne.recipe:rewrite-spring:LATEST</recipeArtifactCoordinates>
+              <exportDatatables>true</exportDatatables>
+            </configuration>
+            <executions>
+              <execution>
+                <id>rewrite</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>validate</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Steps 4 & 5: Update parent and dependency versions -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>versions-maven-plugin</artifactId>
+            <configuration>
+              <allowSnapshots>false</allowSnapshots>
+              <generateBackupPoms>false</generateBackupPoms>
+              <allowMajorUpdates>true</allowMajorUpdates>
+              <allowMinorUpdates>true</allowMinorUpdates>
+              <allowIncrementalUpdates>true</allowIncrementalUpdates>
+              <rulesUri>file://${project.basedir}/version-rules.xml</rulesUri>
+            </configuration>
+            <executions>
+              <execution>
+                <id>update-parent</id>
+                <goals>
+                  <goal>update-parent</goal>
+                </goals>
+                <phase>validate</phase>
+              </execution>
+              <execution>
+                <id>update-properties</id>
+                <goals>
+                  <goal>update-properties</goal>
+                </goals>
+                <phase>validate</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>native</id>
       <build>

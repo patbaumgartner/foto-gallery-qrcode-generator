@@ -23,60 +23,60 @@ import java.util.List;
 @ConditionalOnProperty(name = "app.mode", havingValue = "generate-pdf", matchIfMissing = true)
 public class QrCodeGeneratorRunner implements CommandLineRunner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(QrCodeGeneratorRunner.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(QrCodeGeneratorRunner.class);
 
-    private final CsvReaderService csvReaderService;
+	private final CsvReaderService csvReaderService;
 
-    private final QrCodeGeneratorService qrCodeGeneratorService;
+	private final QrCodeGeneratorService qrCodeGeneratorService;
 
-    private final PdfGeneratorService pdfGeneratorService;
+	private final PdfGeneratorService pdfGeneratorService;
 
-    private final AppProperties appProperties;
+	private final AppProperties appProperties;
 
-    public QrCodeGeneratorRunner(CsvReaderService csvReaderService, QrCodeGeneratorService qrCodeGeneratorService,
-            PdfGeneratorService pdfGeneratorService, AppProperties appProperties) {
-        this.csvReaderService = csvReaderService;
-        this.qrCodeGeneratorService = qrCodeGeneratorService;
-        this.pdfGeneratorService = pdfGeneratorService;
-        this.appProperties = appProperties;
-    }
+	public QrCodeGeneratorRunner(CsvReaderService csvReaderService, QrCodeGeneratorService qrCodeGeneratorService,
+			PdfGeneratorService pdfGeneratorService, AppProperties appProperties) {
+		this.csvReaderService = csvReaderService;
+		this.qrCodeGeneratorService = qrCodeGeneratorService;
+		this.pdfGeneratorService = pdfGeneratorService;
+		this.appProperties = appProperties;
+	}
 
-    @Override
-    public void run(String... args) throws IOException {
-        Path inputPath = Path.of(appProperties.csvInputPath());
-        Path outputPath = Path.of(appProperties.outputPath());
+	@Override
+	public void run(String... args) throws IOException {
+		Path inputPath = Path.of(appProperties.csvInputPath());
+		Path outputPath = Path.of(appProperties.outputPath());
 
-        LOGGER.atInfo().addArgument(() -> inputPath.toAbsolutePath()).log("Reading gallery codes from: {}");
+		LOGGER.atInfo().addArgument(() -> inputPath.toAbsolutePath()).log("Reading gallery codes from: {}");
 
-        CsvReadResult csvResult = csvReaderService.readCodes(inputPath);
-        List<GalleryCode> codes = csvResult.codes();
-        String eventName = csvResult.eventName();
+		CsvReadResult csvResult = csvReaderService.readCodes(inputPath);
+		List<GalleryCode> codes = csvResult.codes();
+		String eventName = csvResult.eventName();
 
-        if (codes.isEmpty()) {
-            LOGGER.warn("No valid gallery codes found in {}. No PDF generated.", inputPath);
-            return;
-        }
+		if (codes.isEmpty()) {
+			LOGGER.warn("No valid gallery codes found in {}. No PDF generated.", inputPath);
+			return;
+		}
 
-        LOGGER.atInfo().addArgument(() -> codes.size()).log("Generating QR codes for {} gallery codes...");
+		LOGGER.atInfo().addArgument(() -> codes.size()).log("Generating QR codes for {} gallery codes...");
 
-        LinkedHashMap<GalleryCode, BufferedImage> qrImages = new LinkedHashMap<>();
-        for (int i = 0; i < codes.size(); i++) {
-            GalleryCode code = codes.get(i);
-            BufferedImage qrImage = qrCodeGeneratorService.generateQrCode(code, appProperties.baseUrl(),
-                    appProperties.qrSize(), i + 1);
-            qrImages.put(code, qrImage);
-        }
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = new LinkedHashMap<>();
+		for (int i = 0; i < codes.size(); i++) {
+			GalleryCode code = codes.get(i);
+			BufferedImage qrImage = qrCodeGeneratorService.generateQrCode(code, appProperties.baseUrl(),
+					appProperties.qrSize(), i + 1);
+			qrImages.put(code, qrImage);
+		}
 
-        PdfOptions pdfOptions = new PdfOptions(outputPath, appProperties.gridColumns(),
-                appProperties.gridRows(), appProperties.showCuttingLines(), eventName);
+		PdfOptions pdfOptions = new PdfOptions(outputPath, appProperties.gridColumns(), appProperties.gridRows(),
+				appProperties.showCuttingLines(), eventName);
 
-        int pages = pdfGeneratorService.createPdf(codes, qrImages, appProperties.baseUrl(), pdfOptions);
+		int pages = pdfGeneratorService.createPdf(codes, qrImages, appProperties.baseUrl(), pdfOptions);
 
-        LOGGER.atInfo()
-                .addArgument(() -> codes.size())
-                .addArgument(pages)
-                .addArgument(() -> outputPath.toAbsolutePath())
-                .log("Done! Generated PDF with {} QR codes on {} page(s): {}");
-    }
+		LOGGER.atInfo()
+			.addArgument(() -> codes.size())
+			.addArgument(pages)
+			.addArgument(() -> outputPath.toAbsolutePath())
+			.log("Done! Generated PDF with {} QR codes on {} page(s): {}");
+	}
 
 }

@@ -18,41 +18,41 @@ import java.util.List;
 @ConditionalOnProperty(name = "app.mode", havingValue = "generate-codes")
 public class CodeGeneratorRunner implements CommandLineRunner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodeGeneratorRunner.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CodeGeneratorRunner.class);
 
-    private final CodeGeneratorService codeGeneratorService;
+	private final CodeGeneratorService codeGeneratorService;
 
-    private final CsvWriterService csvWriterService;
+	private final CsvWriterService csvWriterService;
 
-    private final AppProperties appProperties;
+	private final AppProperties appProperties;
 
-    public CodeGeneratorRunner(CodeGeneratorService codeGeneratorService, CsvWriterService csvWriterService,
-            AppProperties appProperties) {
-        this.codeGeneratorService = codeGeneratorService;
-        this.csvWriterService = csvWriterService;
-        this.appProperties = appProperties;
-    }
+	public CodeGeneratorRunner(CodeGeneratorService codeGeneratorService, CsvWriterService csvWriterService,
+			AppProperties appProperties) {
+		this.codeGeneratorService = codeGeneratorService;
+		this.csvWriterService = csvWriterService;
+		this.appProperties = appProperties;
+	}
 
-    @Override
-    public void run(String... args) throws IOException {
-        String eventCode = appProperties.eventCode();
-        int codeCount = appProperties.codeCount();
-        Path outputPath = Path.of(appProperties.csvOutputPath());
+	@Override
+	public void run(String... args) throws IOException {
+		String eventCode = appProperties.eventCode();
+		int codeCount = appProperties.codeCount();
+		Path outputPath = Path.of(appProperties.csvOutputPath());
 
-        if (eventCode.isBlank()) {
-            LOGGER.error("Event code is required. Set --app.event-code=XXXX or pass as first argument.");
-            return;
-        }
+		if (eventCode.isBlank()) {
+			LOGGER.error("Event code is required. Set --app.event-code=XXXX or pass as first argument.");
+			return;
+		}
 
-        LOGGER.info("Generating {} gallery codes with event prefix '{}'...", codeCount, eventCode);
+		LOGGER.info("Generating {} gallery codes with event prefix '{}'...", codeCount, eventCode);
 
-        List<GalleryCode> codes = codeGeneratorService.generateCodes(eventCode, codeCount);
-        csvWriterService.writeCodes(codes, outputPath, appProperties.eventName());
+		List<GalleryCode> codes = codeGeneratorService.generateCodes(eventCode, codeCount);
+		csvWriterService.writeCodes(codes, outputPath, appProperties.eventName());
 
-        LOGGER.atInfo()
-                .addArgument(() -> codes.size())
-                .addArgument(() -> outputPath.toAbsolutePath())
-                .log("Done! Generated {} codes written to: {}");
-    }
+		LOGGER.atInfo()
+			.addArgument(() -> codes.size())
+			.addArgument(() -> outputPath.toAbsolutePath())
+			.log("Done! Generated {} codes written to: {}");
+	}
 
 }
