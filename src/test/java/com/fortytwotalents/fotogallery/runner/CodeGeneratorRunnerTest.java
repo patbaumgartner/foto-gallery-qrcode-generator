@@ -33,7 +33,7 @@ class CodeGeneratorRunnerTest {
 
     @BeforeEach
     void setUp() {
-        AppProperties props = new AppProperties("generate-codes", "codes.csv", "qr-codes.pdf",
+        AppProperties props = new AppProperties("generate-codes", "codes.csv", "codes.csv", "qr-codes.pdf",
                 "https://my.site/gallery/", 200, 3, 4, "XY9G", 50, false, "");
         runner = new CodeGeneratorRunner(codeGeneratorService, csvWriterService, props);
     }
@@ -51,7 +51,7 @@ class CodeGeneratorRunnerTest {
 
     @Test
     void usesPropertiesForConfig() throws Exception {
-        AppProperties props = new AppProperties("generate-codes", "custom.csv", "qr-codes.pdf",
+        AppProperties props = new AppProperties("generate-codes", "custom.csv", "custom.csv", "qr-codes.pdf",
                 "https://my.site/gallery/", 200, 3, 4, "AB1C", 25, false, "");
         runner = new CodeGeneratorRunner(codeGeneratorService, csvWriterService, props);
 
@@ -66,7 +66,7 @@ class CodeGeneratorRunnerTest {
 
     @Test
     void doesNothingWhenEventCodeIsEmpty() throws Exception {
-        AppProperties props = new AppProperties("generate-codes", "codes.csv", "qr-codes.pdf",
+        AppProperties props = new AppProperties("generate-codes", "codes.csv", "codes.csv", "qr-codes.pdf",
                 "https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
         runner = new CodeGeneratorRunner(codeGeneratorService, csvWriterService, props);
 

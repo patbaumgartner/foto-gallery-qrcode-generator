@@ -42,7 +42,7 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws IOException {
-        Path inputPath = Path.of(appProperties.inputPath());
+        Path inputPath = Path.of(appProperties.csvInputPath());
         Path outputPath = Path.of(appProperties.outputPath());
 
         LOGGER.atInfo().addArgument(() -> inputPath.toAbsolutePath()).log("Reading gallery codes from: {}");

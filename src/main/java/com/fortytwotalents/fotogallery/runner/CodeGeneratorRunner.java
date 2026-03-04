@@ -37,7 +37,7 @@ public class CodeGeneratorRunner implements CommandLineRunner {
     public void run(String... args) throws IOException {
         String eventCode = appProperties.eventCode();
         int codeCount = appProperties.codeCount();
-        Path outputPath = Path.of(appProperties.inputPath());
+        Path outputPath = Path.of(appProperties.csvOutputPath());
 
         if (eventCode == null || eventCode.isBlank()) {
             LOGGER.error("Event code is required. Set --app.event-code=XXXX or pass as first argument.");

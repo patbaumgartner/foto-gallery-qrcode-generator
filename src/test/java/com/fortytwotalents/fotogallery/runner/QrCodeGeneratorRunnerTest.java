@@ -40,7 +40,7 @@ class QrCodeGeneratorRunnerTest {
 
     @BeforeEach
     void setUp() {
-        AppProperties props = new AppProperties("generate-pdf", "codes.csv", "qr-codes.pdf",
+        AppProperties props = new AppProperties("generate-pdf", "codes.csv", "codes.csv", "qr-codes.pdf",
                 "https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
         runner = new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, props);
     }
@@ -81,7 +81,7 @@ class QrCodeGeneratorRunnerTest {
 
     @Test
     void usesPropertiesForPaths() throws Exception {
-        AppProperties props = new AppProperties("generate-pdf", "custom-input.csv", "custom-output.pdf",
+        AppProperties props = new AppProperties("generate-pdf", "custom-input.csv", "custom-input.csv", "custom-output.pdf",
                 "https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
         runner = new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, props);
 

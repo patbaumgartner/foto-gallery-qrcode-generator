@@ -3,15 +3,18 @@ package com.fortytwotalents.fotogallery.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app")
-public record AppProperties(String mode, String inputPath, String outputPath, String baseUrl, int qrSize,
-        int gridColumns, int gridRows, String eventCode, int codeCount, boolean showCuttingLines,
+public record AppProperties(String mode, String csvInputPath, String csvOutputPath, String outputPath, String baseUrl,
+        int qrSize, int gridColumns, int gridRows, String eventCode, int codeCount, boolean showCuttingLines,
         String eventName) {
     public AppProperties {
         if (mode == null || mode.isBlank()) {
             mode = "generate-pdf";
         }
-        if (inputPath == null || inputPath.isBlank()) {
-            inputPath = "codes.csv";
+        if (csvInputPath == null || csvInputPath.isBlank()) {
+            csvInputPath = "codes.csv";
+        }
+        if (csvOutputPath == null || csvOutputPath.isBlank()) {
+            csvOutputPath = "codes.csv";
         }
         if (outputPath == null || outputPath.isBlank()) {
             outputPath = "qr-codes.pdf";
