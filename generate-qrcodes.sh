@@ -64,12 +64,12 @@ echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
   --app.event-code="$EVENT_CODE" \
   --app.code-count="$CODE_COUNT" \
   --app.event-name="$EVENT_NAME" \
-  "${EXTRA_ARGS[@]}"
+  ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 # --- Step 2: Generate PDF -----------------------------------------------------
 echo "==> Generating QR-code PDF ..."
 "${RUN[@]}" \
   --app.mode=generate-pdf \
-  "${EXTRA_ARGS[@]}"
+  ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 echo "==> Done."
