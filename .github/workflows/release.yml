@@ -39,14 +39,31 @@ jobs:
         shell: bash
         run: ./mvnw package -Pnative -DskipTests
 
+      - name: List build output
+        shell: bash
+        run: |
+          echo "=== target/ contents ==="
+          ls -la target/ || true
+          echo "=== searching for native binary ==="
+          find target -maxdepth 1 -name "foto-gallery*" -not -name "*.jar" -not -name "*.jar.original" | head -10
+
       - name: Assemble release archive
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME}"
           ARCHIVE="foto-gallery-qrcode-generator-${VERSION}-${{ matrix.platform }}.zip"
 
+          # Find the native binary (name may vary by platform/plugin version)
+          BINARY=$(find target -maxdepth 1 -name "foto-gallery*" -not -name "*.jar" -not -name "*.jar.original" -type f | head -1)
+          if [ -z "$BINARY" ]; then
+            echo "ERROR: Native binary not found in target/" >&2
+            ls -la target/
+            exit 1
+          fi
+          echo "Found binary: $BINARY"
+
           mkdir -p staging
-          cp "target/${{ matrix.binary }}" staging/
+          cp "$BINARY" "staging/${{ matrix.binary }}"
           cp "${{ matrix.script }}" staging/
 
           cd staging
