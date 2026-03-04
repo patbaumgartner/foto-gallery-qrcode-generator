@@ -23,7 +23,7 @@ This is a **Spring Boot CLI application** (Java 21) that generates gallery acces
 ```
 src/main/java/com/fortytwotalents/fotogallery/
 ├── config/       - AppProperties (Spring @ConfigurationProperties)
-├── model/        - GalleryCode, CsvReadResult (domain model)
+├── model/        - GalleryCode, CsvReadResult, PdfOptions (domain model)
 ├── runner/       - CodeGeneratorRunner, QrCodeGeneratorRunner (CLI runners)
 └── service/      - Business logic services (CSV, QR code, PDF generation)
 
@@ -54,7 +54,7 @@ src/test/java/com/fortytwotalents/fotogallery/
 ## Code Conventions
 
 - **Package**: `com.fortytwotalents.fotogallery`
-- **Configuration**: All app settings live in `AppProperties` and are bound via `@ConfigurationProperties(prefix = "app")`
+- **Configuration**: All app settings live in `AppProperties` (validated with Jakarta Bean Validation) and are bound via `@ConfigurationProperties(prefix = "app")`
 - **Services**: Stateless Spring `@Service` beans; use constructor injection
 - **Runners**: `CodeGeneratorRunner` and `QrCodeGeneratorRunner` implement Spring's `ApplicationRunner` and are conditional on `app.mode`
 - **Testing**: JUnit 5 with Spring Boot Test; Mockito for mocking; Taikai for architecture verification
@@ -74,7 +74,8 @@ src/test/java/com/fortytwotalents/fotogallery/
 | `app.event-code` | *(required for generate-codes)* | 4-character event prefix |
 | `app.event-name` | *(empty)* | Event name for CSV and PDF labels |
 | `app.code-count` | `50` | Number of codes to generate |
-| `app.input-path` | `codes.csv` | CSV input/output file path |
+| `app.csv-input-path` | `codes.csv` | CSV input file path (used by generate-pdf) |
+| `app.csv-output-path` | `codes.csv` | CSV output file path (used by generate-codes) |
 | `app.output-path` | `qr-codes.pdf` | PDF output file path |
 | `app.base-url` | `https://my.site/gallery/` | Base URL embedded in QR codes |
 | `app.qr-size` | `200` | QR code image size in pixels |
