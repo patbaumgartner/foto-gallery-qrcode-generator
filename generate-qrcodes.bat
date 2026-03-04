@@ -2,12 +2,13 @@
 rem generate-qrcodes.bat — Generate gallery codes and produce a QR-code PDF in one go.
 rem
 rem Usage:
-rem   generate-qrcodes.bat <EVENT_CODE> [CODE_COUNT] [EXTRA_ARGS...]
+rem   generate-qrcodes.bat <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
 rem
 rem Examples:
 rem   generate-qrcodes.bat XY9G
 rem   generate-qrcodes.bat XY9G 100
-rem   generate-qrcodes.bat XY9G 100 --app.base-url=https://my.site/gallery/
+rem   generate-qrcodes.bat XY9G 100 "My Photo Event"
+rem   generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
 
 setlocal enabledelayedexpansion
 
@@ -34,7 +35,7 @@ if exist "%SCRIPT_DIR%%NATIVE_NAME%" (
 
 rem --- Parse arguments --------------------------------------------------------
 if "%~1"=="" (
-    echo Usage: %~nx0 ^<EVENT_CODE^> [CODE_COUNT] [EXTRA_ARGS...] >&2
+    echo Usage: %~nx0 ^<EVENT_CODE^> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...] >&2
     exit /b 1
 )
 
@@ -51,6 +52,16 @@ if defined NEXT (
     )
 )
 
+set "EVENT_NAME="
+set "NEXT2=%~1"
+if defined NEXT2 (
+    echo %NEXT2%| findstr /r "^--" >nul 2>&1
+    if errorlevel 1 (
+        set "EVENT_NAME=%NEXT2%"
+        shift
+    )
+)
+
 rem Collect remaining extra arguments
 set "EXTRA_ARGS="
 :parse_extra
@@ -62,7 +73,7 @@ goto parse_extra
 
 rem --- Step 1: Generate codes -------------------------------------------------
 echo ==^> Generating %CODE_COUNT% codes for event %EVENT_CODE% ...
-%RUN% --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% %EXTRA_ARGS%
+%RUN% --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" %EXTRA_ARGS%
 if errorlevel 1 (
     echo ERROR: Code generation failed. >&2
     exit /b 1

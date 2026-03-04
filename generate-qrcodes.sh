@@ -3,12 +3,13 @@
 # generate-qrcodes.sh — Generate gallery codes and produce a QR-code PDF in one go.
 #
 # Usage:
-#   ./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EXTRA_ARGS...]
+#   ./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
 #
 # Examples:
 #   ./generate-qrcodes.sh XY9G
 #   ./generate-qrcodes.sh XY9G 100
-#   ./generate-qrcodes.sh XY9G 100 --app.base-url=https://my.site/gallery/
+#   ./generate-qrcodes.sh XY9G 100 "My Photo Event"
+#   ./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
 #
 set -euo pipefail
 
@@ -35,7 +36,7 @@ fi
 
 # --- Parse arguments ----------------------------------------------------------
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <EVENT_CODE> [CODE_COUNT] [EXTRA_ARGS...]" >&2
+  echo "Usage: $0 <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]" >&2
   exit 1
 fi
 
@@ -48,6 +49,12 @@ if [[ $# -gt 0 && "$1" =~ ^[0-9]+$ ]]; then
   shift
 fi
 
+EVENT_NAME=""
+if [[ $# -gt 0 && ! "$1" =~ ^-- ]]; then
+  EVENT_NAME="$1"
+  shift
+fi
+
 EXTRA_ARGS=("$@")
 
 # --- Step 1: Generate codes ---------------------------------------------------
@@ -56,6 +63,7 @@ echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
   --app.mode=generate-codes \
   --app.event-code="$EVENT_CODE" \
   --app.code-count="$CODE_COUNT" \
+  --app.event-name="$EVENT_NAME" \
   "${EXTRA_ARGS[@]}"
 
 # --- Step 2: Generate PDF -----------------------------------------------------

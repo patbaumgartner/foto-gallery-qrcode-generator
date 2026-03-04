@@ -1,6 +1,7 @@
 package com.fortytwotalents.fotogallery.runner;
 
 import com.fortytwotalents.fotogallery.config.AppProperties;
+import com.fortytwotalents.fotogallery.model.CsvReadResult;
 import com.fortytwotalents.fotogallery.model.GalleryCode;
 import com.fortytwotalents.fotogallery.service.CsvReaderService;
 import com.fortytwotalents.fotogallery.service.PdfGeneratorService;
@@ -46,7 +47,9 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
 
         LOGGER.atInfo().addArgument(() -> inputPath.toAbsolutePath()).log("Reading gallery codes from: {}");
 
-        List<GalleryCode> codes = csvReaderService.readCodes(inputPath);
+        CsvReadResult csvResult = csvReaderService.readCodes(inputPath);
+        List<GalleryCode> codes = csvResult.codes();
+        String eventName = csvResult.eventName();
 
         if (codes.isEmpty()) {
             LOGGER.warn("No valid gallery codes found in {}. No PDF generated.", inputPath);
@@ -56,14 +59,16 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
         LOGGER.atInfo().addArgument(() -> codes.size()).log("Generating QR codes for {} gallery codes...");
 
         LinkedHashMap<GalleryCode, BufferedImage> qrImages = new LinkedHashMap<>();
-        for (GalleryCode code : codes) {
+        for (int i = 0; i < codes.size(); i++) {
+            GalleryCode code = codes.get(i);
             BufferedImage qrImage = qrCodeGeneratorService.generateQrCode(code, appProperties.baseUrl(),
-                    appProperties.qrSize());
+                    appProperties.qrSize(), i + 1);
             qrImages.put(code, qrImage);
         }
 
         int pages = pdfGeneratorService.createPdf(codes, qrImages, appProperties.baseUrl(), outputPath,
-                appProperties.gridColumns(), appProperties.gridRows(), appProperties.showCuttingLines());
+                appProperties.gridColumns(), appProperties.gridRows(), appProperties.showCuttingLines(),
+                eventName);
 
         LOGGER.atInfo()
                 .addArgument(() -> codes.size())

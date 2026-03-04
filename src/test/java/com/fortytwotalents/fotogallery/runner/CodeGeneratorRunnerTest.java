@@ -34,7 +34,7 @@ class CodeGeneratorRunnerTest {
     @BeforeEach
     void setUp() {
         AppProperties props = new AppProperties("generate-codes", "codes.csv", "qr-codes.pdf",
-                "https://my.site/gallery/", 200, 3, 4, "XY9G", 50, false);
+                "https://my.site/gallery/", 200, 3, 4, "XY9G", 50, false, "");
         runner = new CodeGeneratorRunner(codeGeneratorService, csvWriterService, props);
     }
 
@@ -46,13 +46,13 @@ class CodeGeneratorRunnerTest {
         runner.run();
 
         verify(codeGeneratorService).generateCodes("XY9G", 50);
-        verify(csvWriterService).writeCodes(codes, Path.of("codes.csv"));
+        verify(csvWriterService).writeCodes(codes, Path.of("codes.csv"), "");
     }
 
     @Test
     void usesPropertiesForConfig() throws Exception {
         AppProperties props = new AppProperties("generate-codes", "custom.csv", "qr-codes.pdf",
-                "https://my.site/gallery/", 200, 3, 4, "AB1C", 25, false);
+                "https://my.site/gallery/", 200, 3, 4, "AB1C", 25, false, "");
         runner = new CodeGeneratorRunner(codeGeneratorService, csvWriterService, props);
 
         List<GalleryCode> codes = List.of(new GalleryCode("AB1C-XY7K-92QF"));
@@ -61,19 +61,19 @@ class CodeGeneratorRunnerTest {
         runner.run();
 
         verify(codeGeneratorService).generateCodes("AB1C", 25);
-        verify(csvWriterService).writeCodes(codes, Path.of("custom.csv"));
+        verify(csvWriterService).writeCodes(codes, Path.of("custom.csv"), "");
     }
 
     @Test
     void doesNothingWhenEventCodeIsEmpty() throws Exception {
         AppProperties props = new AppProperties("generate-codes", "codes.csv", "qr-codes.pdf",
-                "https://my.site/gallery/", 200, 3, 4, "", 50, false);
+                "https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
         runner = new CodeGeneratorRunner(codeGeneratorService, csvWriterService, props);
 
         runner.run();
 
         verify(codeGeneratorService, never()).generateCodes(any(), anyInt());
-        verify(csvWriterService, never()).writeCodes(any(), any());
+        verify(csvWriterService, never()).writeCodes(any(), any(), any());
     }
 
 }

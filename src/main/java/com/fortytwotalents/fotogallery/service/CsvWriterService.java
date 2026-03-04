@@ -19,13 +19,14 @@ public class CsvWriterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvWriterService.class);
 
-    public void writeCodes(List<GalleryCode> codes, Path outputPath) throws IOException {
-        CSVFormat format = CSVFormat.DEFAULT.builder().get();
+    public void writeCodes(List<GalleryCode> codes, Path outputPath, String eventName) throws IOException {
+        CSVFormat format = CSVFormat.DEFAULT.builder().setHeader("Number", "Code", "Event Name").get();
 
         try (Writer writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8);
                 CSVPrinter printer = new CSVPrinter(writer, format)) {
+            int number = 1;
             for (GalleryCode code : codes) {
-                printer.printRecord(code.code());
+                printer.printRecord(number++, code.code(), eventName);
             }
         }
 

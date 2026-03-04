@@ -47,7 +47,7 @@ public class CodeGeneratorRunner implements CommandLineRunner {
         LOGGER.info("Generating {} gallery codes with event prefix '{}'...", codeCount, eventCode);
 
         List<GalleryCode> codes = codeGeneratorService.generateCodes(eventCode, codeCount);
-        csvWriterService.writeCodes(codes, outputPath);
+        csvWriterService.writeCodes(codes, outputPath, appProperties.eventName());
 
         LOGGER.atInfo()
                 .addArgument(() -> codes.size())

@@ -1,6 +1,7 @@
 package com.fortytwotalents.fotogallery.runner;
 
 import com.fortytwotalents.fotogallery.config.AppProperties;
+import com.fortytwotalents.fotogallery.model.CsvReadResult;
 import com.fortytwotalents.fotogallery.model.GalleryCode;
 import com.fortytwotalents.fotogallery.service.CsvReaderService;
 import com.fortytwotalents.fotogallery.service.PdfGeneratorService;
@@ -40,7 +41,7 @@ class QrCodeGeneratorRunnerTest {
     @BeforeEach
     void setUp() {
         AppProperties props = new AppProperties("generate-pdf", "codes.csv", "qr-codes.pdf",
-                "https://my.site/gallery/", 200, 3, 4, "", 50, false);
+                "https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
         runner = new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, props);
     }
 
@@ -49,53 +50,56 @@ class QrCodeGeneratorRunnerTest {
         GalleryCode code = new GalleryCode("XY9G-AB7K-92QF");
         BufferedImage mockImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
 
-        when(csvReaderService.readCodes(any(Path.class))).thenReturn(List.of(code));
-        when(qrCodeGeneratorService.generateQrCode(any(GalleryCode.class), anyString(), anyInt()))
+        when(csvReaderService.readCodes(any(Path.class)))
+                .thenReturn(new CsvReadResult(List.of(code), "Test Event"));
+        when(qrCodeGeneratorService.generateQrCode(any(GalleryCode.class), anyString(), anyInt(), anyInt()))
                 .thenReturn(mockImage);
         when(pdfGeneratorService.createPdf(any(), any(), anyString(), any(Path.class), anyInt(), anyInt(),
-                any(Boolean.class)))
+                any(Boolean.class), anyString()))
                 .thenReturn(1);
 
         runner.run();
 
         verify(csvReaderService).readCodes(any(Path.class));
-        verify(qrCodeGeneratorService).generateQrCode(eq(code), anyString(), anyInt());
+        verify(qrCodeGeneratorService).generateQrCode(eq(code), anyString(), anyInt(), anyInt());
         verify(pdfGeneratorService).createPdf(any(), any(), anyString(), any(Path.class), anyInt(), anyInt(),
-                any(Boolean.class));
+                any(Boolean.class), anyString());
     }
 
     @Test
     void skipsGenerationWhenNoCodesFound() throws Exception {
-        when(csvReaderService.readCodes(any(Path.class))).thenReturn(List.of());
+        when(csvReaderService.readCodes(any(Path.class)))
+                .thenReturn(new CsvReadResult(List.of(), ""));
 
         runner.run();
 
         verify(csvReaderService).readCodes(any(Path.class));
-        verify(qrCodeGeneratorService, never()).generateQrCode(any(), anyString(), anyInt());
+        verify(qrCodeGeneratorService, never()).generateQrCode(any(), anyString(), anyInt(), anyInt());
         verify(pdfGeneratorService, never()).createPdf(any(), any(), anyString(), any(Path.class), anyInt(), anyInt(),
-                any(Boolean.class));
+                any(Boolean.class), anyString());
     }
 
     @Test
     void usesPropertiesForPaths() throws Exception {
         AppProperties props = new AppProperties("generate-pdf", "custom-input.csv", "custom-output.pdf",
-                "https://my.site/gallery/", 200, 3, 4, "", 50, false);
+                "https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
         runner = new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, props);
 
         GalleryCode code = new GalleryCode("XY9G-AB7K-92QF");
         BufferedImage mockImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
 
-        when(csvReaderService.readCodes(any(Path.class))).thenReturn(List.of(code));
-        when(qrCodeGeneratorService.generateQrCode(any(), anyString(), anyInt())).thenReturn(mockImage);
+        when(csvReaderService.readCodes(any(Path.class)))
+                .thenReturn(new CsvReadResult(List.of(code), ""));
+        when(qrCodeGeneratorService.generateQrCode(any(), anyString(), anyInt(), anyInt())).thenReturn(mockImage);
         when(pdfGeneratorService.createPdf(any(), any(), anyString(), any(Path.class), anyInt(), anyInt(),
-                any(Boolean.class)))
+                any(Boolean.class), anyString()))
                 .thenReturn(1);
 
         runner.run();
 
         verify(csvReaderService).readCodes(Path.of("custom-input.csv"));
         verify(pdfGeneratorService).createPdf(any(), any(), anyString(), eq(Path.of("custom-output.pdf")), anyInt(),
-                anyInt(), any(Boolean.class));
+                anyInt(), any(Boolean.class), anyString());
     }
 
 }

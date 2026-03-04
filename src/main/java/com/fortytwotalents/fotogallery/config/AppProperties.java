@@ -4,7 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app")
 public record AppProperties(String mode, String inputPath, String outputPath, String baseUrl, int qrSize,
-        int gridColumns, int gridRows, String eventCode, int codeCount, boolean showCuttingLines) {
+        int gridColumns, int gridRows, String eventCode, int codeCount, boolean showCuttingLines,
+        String eventName) {
     public AppProperties {
         if (mode == null || mode.isBlank()) {
             mode = "generate-pdf";
@@ -35,6 +36,9 @@ public record AppProperties(String mode, String inputPath, String outputPath, St
         }
         if (codeCount <= 0) {
             codeCount = 50;
+        }
+        if (eventName == null) {
+            eventName = "";
         }
     }
 }

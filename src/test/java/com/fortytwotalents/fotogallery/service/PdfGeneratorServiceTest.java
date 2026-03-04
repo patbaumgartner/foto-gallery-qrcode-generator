@@ -168,8 +168,9 @@ class PdfGeneratorServiceTest {
 
     private LinkedHashMap<GalleryCode, BufferedImage> generateQrImages(List<GalleryCode> codes) {
         LinkedHashMap<GalleryCode, BufferedImage> images = new LinkedHashMap<>();
+        int number = 1;
         for (GalleryCode code : codes) {
-            images.put(code, qrService.generateQrCode(code, BASE_URL, 200));
+            images.put(code, qrService.generateQrCode(code, BASE_URL, 200, number++));
         }
         return images;
     }

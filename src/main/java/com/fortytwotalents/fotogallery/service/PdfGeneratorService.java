@@ -29,9 +29,13 @@ public class PdfGeneratorService {
 
     private static final float CELL_PADDING = 14f;
 
-    private static final float TEXT_HEIGHT = 20f;
+    private static final float TEXT_HEIGHT = 40f;
 
     private static final float CODE_FONT_SIZE = 14f;
+
+    private static final float EVENT_NAME_FONT_SIZE = 12f;
+
+    private static final float EVENT_NAME_GAP = 3f;
 
     private static final float CUTTING_LINE_DASH = 4f;
 
@@ -43,11 +47,17 @@ public class PdfGeneratorService {
 
     public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
             Path outputPath, int gridColumns, int gridRows) throws IOException {
-        return createPdf(codes, qrImages, baseUrl, outputPath, gridColumns, gridRows, false);
+        return createPdf(codes, qrImages, baseUrl, outputPath, gridColumns, gridRows, false, "");
     }
 
     public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
             Path outputPath, int gridColumns, int gridRows, boolean showCuttingLines) throws IOException {
+        return createPdf(codes, qrImages, baseUrl, outputPath, gridColumns, gridRows, showCuttingLines, "");
+    }
+
+    public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
+            Path outputPath, int gridColumns, int gridRows, boolean showCuttingLines, String eventName)
+            throws IOException {
 
         int codesPerPage = gridColumns * gridRows;
 
@@ -65,6 +75,9 @@ public class PdfGeneratorService {
 
         try (PDDocument document = new PDDocument()) {
             PDType1Font fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+            PDType1Font fontRegular = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+
+            boolean hasEventName = eventName != null && !eventName.isBlank();
 
             for (int i = 0; i < codes.size(); i++) {
                 int indexOnPage = i % codesPerPage;
@@ -104,11 +117,33 @@ public class PdfGeneratorService {
                     float codeLabelX = innerX + (innerWidth - codeLabelWidth) / 2;
                     float codeLabelY = innerY + (TEXT_HEIGHT - CODE_FONT_SIZE) / 2;
 
-                    content.beginText();
-                    content.setFont(fontBold, CODE_FONT_SIZE);
-                    content.newLineAtOffset(codeLabelX, codeLabelY);
-                    content.showText(codeLabel);
-                    content.endText();
+                    if (hasEventName) {
+                        // Center both lines as a block
+                        float combinedHeight = CODE_FONT_SIZE + EVENT_NAME_GAP + EVENT_NAME_FONT_SIZE;
+                        float blockStartY = innerY + (TEXT_HEIGHT - combinedHeight) / 2;
+
+                        content.beginText();
+                        content.setFont(fontBold, CODE_FONT_SIZE);
+                        content.newLineAtOffset(codeLabelX, blockStartY);
+                        content.showText(codeLabel);
+                        content.endText();
+
+                        float eventNameWidth = fontRegular.getStringWidth(eventName) / 1000 * EVENT_NAME_FONT_SIZE;
+                        float eventNameX = innerX + (innerWidth - eventNameWidth) / 2;
+                        float eventNameY = blockStartY + CODE_FONT_SIZE + EVENT_NAME_GAP;
+
+                        content.beginText();
+                        content.setFont(fontRegular, EVENT_NAME_FONT_SIZE);
+                        content.newLineAtOffset(eventNameX, eventNameY);
+                        content.showText(eventName);
+                        content.endText();
+                    } else {
+                        content.beginText();
+                        content.setFont(fontBold, CODE_FONT_SIZE);
+                        content.newLineAtOffset(codeLabelX, codeLabelY);
+                        content.showText(codeLabel);
+                        content.endText();
+                    }
                 }
             }
 

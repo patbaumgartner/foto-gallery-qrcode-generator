@@ -32,6 +32,7 @@ Generates a CSV file with random gallery codes for a given event.
 java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
   --app.mode=generate-codes \
   --app.event-code=XY9G \
+  --app.event-name="My Photo Event" \
   --app.code-count=50
 ```
 
@@ -41,6 +42,7 @@ java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
 ./target/foto-gallery-qrcode-generator \
   --app.mode=generate-codes \
   --app.event-code=XY9G \
+  --app.event-name="My Photo Event" \
   --app.code-count=50
 ```
 
@@ -53,6 +55,8 @@ XY9G-MN5R-AA11
 ...
 ```
 
+The CSV file includes a header row (`Number,Code,Event Name`) with numbered rows and the event name.
+
 **Options:**
 
 | Property         | Default        | Description                              |
@@ -60,6 +64,7 @@ XY9G-MN5R-AA11
 | `app.event-code` | *(required)*   | 4-character event prefix (e.g. `XY9G`)   |
 | `app.code-count` | `50`           | Number of codes to generate              |
 | `app.input-path` | `codes.csv`    | Output CSV file path                     |
+| `app.event-name` | *(empty)*      | Event name for CSV column & PDF label    |
 
 ### 2. Generate PDF with QR Codes
 
@@ -80,7 +85,8 @@ java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
 ```
 
 This reads `codes.csv` and generates `qr-codes.pdf` with a 3x4 grid of QR codes per page.
-Each QR code links to `https://my.site/gallery/{code}` and has the code printed below.
+Each QR code links to `https://my.site/gallery/{code}`, shows a sequential number overlay in the center,
+and has the code printed below. When the CSV contains an event name, it appears above the code.
 Optionally, dashed cutting lines can be drawn between cells with `--app.show-cutting-lines=true`.
 
 **Options:**
@@ -102,9 +108,10 @@ Optionally, dashed cutting lines can be drawn between cells with `--app.show-cut
 java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
   --app.mode=generate-codes \
   --app.event-code=XY9G \
+  --app.event-name="My Photo Event" \
   --app.code-count=50
 
-# Step 2: Generate the PDF
+# Step 2: Generate the PDF (event name is read from CSV)
 java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
   --app.mode=generate-pdf
 ```
@@ -118,27 +125,30 @@ precedence).
 **Linux / macOS (`generate-qrcodes.sh`):**
 
 ```bash
-./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EXTRA_ARGS...]
+./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
 
 # Examples
 ./generate-qrcodes.sh XY9G            # 50 codes (default)
 ./generate-qrcodes.sh XY9G 100        # 100 codes
-./generate-qrcodes.sh XY9G 100 --app.base-url=https://my.site/gallery/
+./generate-qrcodes.sh XY9G 100 "My Photo Event"
+./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
 ```
 
 **Windows (`generate-qrcodes.bat`):**
 
 ```cmd
-generate-qrcodes.bat <EVENT_CODE> [CODE_COUNT] [EXTRA_ARGS...]
+generate-qrcodes.bat <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
 
 rem Examples
 generate-qrcodes.bat XY9G
 generate-qrcodes.bat XY9G 100
-generate-qrcodes.bat XY9G 100 --app.base-url=https://my.site/gallery/
+generate-qrcodes.bat XY9G 100 "My Photo Event"
+generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
 ```
 
 | Argument       | Required | Default | Description                                       |
 |----------------|----------|---------|---------------------------------------------------|
 | `EVENT_CODE`   | yes      | —       | 4-character event prefix (e.g. `XY9G`)            |
 | `CODE_COUNT`   | no       | `50`    | Number of codes to generate                       |
+| `EVENT_NAME`   | no       | *(empty)* | Event name for CSV header & PDF label           |
 | `EXTRA_ARGS`   | no       | —       | Any additional `--app.*` options passed to both steps |

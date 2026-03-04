@@ -43,10 +43,12 @@ class EndToEndIntegrationTest {
         Files.writeString(inputPath, "XY9G-AB7K-92QF\nTK2H-XY3M-88PL\nMN5R-ZZ99-AA11\n", StandardCharsets.UTF_8);
 
         // Execute the full pipeline manually
-        List<GalleryCode> codes = csvReaderService.readCodes(inputPath);
+        var csvResult = csvReaderService.readCodes(inputPath);
+        List<GalleryCode> codes = csvResult.codes();
         LinkedHashMap<GalleryCode, BufferedImage> qrImages = new LinkedHashMap<>();
+        int number = 1;
         for (GalleryCode code : codes) {
-            qrImages.put(code, qrCodeGeneratorService.generateQrCode(code, BASE_URL, 200));
+            qrImages.put(code, qrCodeGeneratorService.generateQrCode(code, BASE_URL, 200, number++));
         }
         int pages = pdfGeneratorService.createPdf(codes, qrImages, BASE_URL, outputPath, 3, 4);
 
@@ -78,12 +80,14 @@ class EndToEndIntegrationTest {
         }
         Files.writeString(inputPath, sb.toString(), StandardCharsets.UTF_8);
 
-        List<GalleryCode> codes = csvReaderService.readCodes(inputPath);
-        LinkedHashMap<GalleryCode, BufferedImage> qrImages = new LinkedHashMap<>();
-        for (GalleryCode code : codes) {
-            qrImages.put(code, qrCodeGeneratorService.generateQrCode(code, BASE_URL, 200));
+        var csvResult2 = csvReaderService.readCodes(inputPath);
+        List<GalleryCode> codes2 = csvResult2.codes();
+        LinkedHashMap<GalleryCode, BufferedImage> qrImages2 = new LinkedHashMap<>();
+        int num = 1;
+        for (GalleryCode code : codes2) {
+            qrImages2.put(code, qrCodeGeneratorService.generateQrCode(code, BASE_URL, 200, num++));
         }
-        int pages = pdfGeneratorService.createPdf(codes, qrImages, BASE_URL, outputPath, 3, 4);
+        int pages = pdfGeneratorService.createPdf(codes2, qrImages2, BASE_URL, outputPath, 3, 4);
 
         assertThat(outputPath).exists();
         assertThat(pages).isEqualTo(2);
