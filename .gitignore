@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Generated outputs ###
+codes.csv
+qr-codes.pdf
