@@ -1,10 +1,24 @@
 package com.fortytwotalents.fotogallery.config;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @ConfigurationProperties(prefix = "app")
-public record AppProperties(String mode, String csvInputPath, String csvOutputPath, String outputPath, String baseUrl,
-        int qrSize, int gridColumns, int gridRows, String eventCode, int codeCount, boolean showCuttingLines,
+public record AppProperties(
+        @NotBlank String mode,
+        String csvInputPath,
+        String csvOutputPath,
+        String outputPath,
+        @NotBlank String baseUrl,
+        @Positive int qrSize,
+        @Positive int gridColumns,
+        @Positive int gridRows,
+        String eventCode,
+        @Positive int codeCount,
+        boolean showCuttingLines,
         String eventName) {
     public AppProperties {
         if (mode == null || mode.isBlank()) {
