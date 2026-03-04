@@ -39,12 +39,9 @@ jobs:
         shell: bash
         run: ./mvnw package -Pnative -DskipTests
 
-      - name: Assemble release archive
+      - name: Prepare release files
         shell: bash
         run: |
-          VERSION="${GITHUB_REF_NAME}"
-          ARCHIVE="foto-gallery-qrcode-generator-${VERSION}-${{ matrix.platform }}.zip"
-
           # Find the native binary (name may vary by platform/plugin version)
           BINARY=$(find target -maxdepth 1 -name "foto-gallery*" -not -name "*.jar" -not -name "*.jar.original" -type f | head -1)
           if [ -z "$BINARY" ]; then
@@ -58,17 +55,11 @@ jobs:
           cp "$BINARY" "staging/${{ matrix.binary }}"
           cp "${{ matrix.script }}" staging/
 
-          cd staging
-          7z a -tzip "../${ARCHIVE}" .
-          cd ..
-
-          echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
-
-      - name: Upload archive
+      - name: Upload release files
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.platform }}
-          path: ${{ env.ARCHIVE }}
+          path: staging/
           retention-days: 1
 
   release:
@@ -82,7 +73,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: release-*
-          merge-multiple: true
+
+      - name: Create release archives
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          for dir in release-*/; do
+            platform="${dir#release-}"
+            platform="${platform%/}"
+            archive="foto-gallery-qrcode-generator-${VERSION}-${platform}.zip"
+            cd "$dir"
+            zip -r "../${archive}" .
+            cd ..
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
