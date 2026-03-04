@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+#
+# generate-qrcodes.sh — Generate gallery codes and produce a QR-code PDF in one go.
+#
+# Usage:
+#   ./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EXTRA_ARGS...]
+#
+# Examples:
+#   ./generate-qrcodes.sh XY9G
+#   ./generate-qrcodes.sh XY9G 100
+#   ./generate-qrcodes.sh XY9G 100 --app.base-url=https://my.site/gallery/
+#
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+JAR_NAME="foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar"
+NATIVE_NAME="foto-gallery-qrcode-generator"
+
+# --- Resolve executable -------------------------------------------------------
+# Check current directory first, then target/ subdirectory
+if [[ -x "$SCRIPT_DIR/$NATIVE_NAME" ]]; then
+  RUN=("$SCRIPT_DIR/$NATIVE_NAME")
+elif [[ -x "$SCRIPT_DIR/target/$NATIVE_NAME" ]]; then
+  RUN=("$SCRIPT_DIR/target/$NATIVE_NAME")
+elif [[ -f "$SCRIPT_DIR/$JAR_NAME" ]]; then
+  RUN=(java -jar "$SCRIPT_DIR/$JAR_NAME")
+elif [[ -f "$SCRIPT_DIR/target/$JAR_NAME" ]]; then
+  RUN=(java -jar "$SCRIPT_DIR/target/$JAR_NAME")
+else
+  echo "ERROR: No executable found. Build the project first:" >&2
+  echo "  mvn clean package -DskipTests          (JAR)" >&2
+  echo "  mvn clean package -Pnative -DskipTests  (native)" >&2
+  exit 1
+fi
+
+# --- Parse arguments ----------------------------------------------------------
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <EVENT_CODE> [CODE_COUNT] [EXTRA_ARGS...]" >&2
+  exit 1
+fi
+
+EVENT_CODE="$1"
+shift
+
+CODE_COUNT="50"
+if [[ $# -gt 0 && "$1" =~ ^[0-9]+$ ]]; then
+  CODE_COUNT="$1"
+  shift
+fi
+
+EXTRA_ARGS=("$@")
+
+# --- Step 1: Generate codes ---------------------------------------------------
+echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
+"${RUN[@]}" \
+  --app.mode=generate-codes \
+  --app.event-code="$EVENT_CODE" \
+  --app.code-count="$CODE_COUNT" \
+  "${EXTRA_ARGS[@]}"
+
+# --- Step 2: Generate PDF -----------------------------------------------------
+echo "==> Generating QR-code PDF ..."
+"${RUN[@]}" \
+  --app.mode=generate-pdf \
+  "${EXTRA_ARGS[@]}"
+
+echo "==> Done."
