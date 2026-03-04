@@ -3,6 +3,7 @@ package com.fortytwotalents.fotogallery.runner;
 import com.fortytwotalents.fotogallery.config.AppProperties;
 import com.fortytwotalents.fotogallery.model.CsvReadResult;
 import com.fortytwotalents.fotogallery.model.GalleryCode;
+import com.fortytwotalents.fotogallery.model.PdfOptions;
 import com.fortytwotalents.fotogallery.service.CsvReaderService;
 import com.fortytwotalents.fotogallery.service.PdfGeneratorService;
 import com.fortytwotalents.fotogallery.service.QrCodeGeneratorService;
@@ -66,9 +67,10 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
             qrImages.put(code, qrImage);
         }
 
-        int pages = pdfGeneratorService.createPdf(codes, qrImages, appProperties.baseUrl(), outputPath,
-                appProperties.gridColumns(), appProperties.gridRows(), appProperties.showCuttingLines(),
-                eventName);
+        PdfOptions pdfOptions = new PdfOptions(outputPath, appProperties.gridColumns(),
+                appProperties.gridRows(), appProperties.showCuttingLines(), eventName);
+
+        int pages = pdfGeneratorService.createPdf(codes, qrImages, appProperties.baseUrl(), pdfOptions);
 
         LOGGER.atInfo()
                 .addArgument(() -> codes.size())

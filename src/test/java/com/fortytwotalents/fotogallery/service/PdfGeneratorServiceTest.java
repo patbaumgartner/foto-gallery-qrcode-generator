@@ -1,6 +1,7 @@
 package com.fortytwotalents.fotogallery.service;
 
 import com.fortytwotalents.fotogallery.model.GalleryCode;
+import com.fortytwotalents.fotogallery.model.PdfOptions;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -41,7 +42,8 @@ class PdfGeneratorServiceTest {
         LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
         Path output = tempDir.resolve("test-output.pdf");
 
-        int pages = pdfService.createPdf(codes, qrImages, BASE_URL, output, 3, 4);
+        int pages = pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(output, 3, 4));
 
         assertThat(pages).isEqualTo(1);
         assertThat(output).exists();
@@ -59,12 +61,13 @@ class PdfGeneratorServiceTest {
 
     @Test
     void generatesMultiplePages() throws Exception {
-        // 15 codes with 3x4 grid = 12 per page → 2 pages
+        // 15 codes with 3x4 grid = 12 per page -> 2 pages
         List<GalleryCode> codes = createNumberedCodes(15);
         LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
         Path output = tempDir.resolve("multi-page.pdf");
 
-        int pages = pdfService.createPdf(codes, qrImages, BASE_URL, output, 3, 4);
+        int pages = pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(output, 3, 4));
 
         assertThat(pages).isEqualTo(2);
 
@@ -80,7 +83,8 @@ class PdfGeneratorServiceTest {
         LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
         Path output = tempDir.resolve("full-page.pdf");
 
-        int pages = pdfService.createPdf(codes, qrImages, BASE_URL, output, 3, 4);
+        int pages = pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(output, 3, 4));
 
         assertThat(pages).isEqualTo(1);
 
@@ -95,7 +99,8 @@ class PdfGeneratorServiceTest {
         LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
         Path output = tempDir.resolve("single.pdf");
 
-        int pages = pdfService.createPdf(codes, qrImages, BASE_URL, output, 3, 4);
+        int pages = pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(output, 3, 4));
 
         assertThat(pages).isEqualTo(1);
         assertThat(output).exists();
@@ -108,7 +113,8 @@ class PdfGeneratorServiceTest {
         LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
         Path output = tempDir.resolve("a4-test.pdf");
 
-        pdfService.createPdf(codes, qrImages, BASE_URL, output, 3, 4);
+        pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(output, 3, 4));
 
         try (PDDocument doc = Loader.loadPDF(output.toFile())) {
             PDPage page = doc.getPage(0);
@@ -126,8 +132,10 @@ class PdfGeneratorServiceTest {
         Path withoutLines = tempDir.resolve("no-lines.pdf");
         Path withLines = tempDir.resolve("with-lines.pdf");
 
-        pdfService.createPdf(codes, qrImages, BASE_URL, withoutLines, 3, 4, false);
-        pdfService.createPdf(codes, qrImages, BASE_URL, withLines, 3, 4, true);
+        pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(withoutLines, 3, 4, false));
+        pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(withLines, 3, 4, true));
 
         assertThat(withLines.toFile().length()).isGreaterThan(withoutLines.toFile().length());
     }
@@ -140,8 +148,10 @@ class PdfGeneratorServiceTest {
         Path defaultCall = tempDir.resolve("default.pdf");
         Path explicitFalse = tempDir.resolve("explicit-false.pdf");
 
-        pdfService.createPdf(codes, qrImages, BASE_URL, defaultCall, 3, 4);
-        pdfService.createPdf(codes, qrImages, BASE_URL, explicitFalse, 3, 4, false);
+        pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(defaultCall, 3, 4));
+        pdfService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(explicitFalse, 3, 4, false));
 
         assertThat(defaultCall.toFile().length()).isEqualTo(explicitFalse.toFile().length());
     }

@@ -3,6 +3,7 @@ package com.fortytwotalents.fotogallery.runner;
 import com.fortytwotalents.fotogallery.config.AppProperties;
 import com.fortytwotalents.fotogallery.model.CsvReadResult;
 import com.fortytwotalents.fotogallery.model.GalleryCode;
+import com.fortytwotalents.fotogallery.model.PdfOptions;
 import com.fortytwotalents.fotogallery.service.CsvReaderService;
 import com.fortytwotalents.fotogallery.service.PdfGeneratorService;
 import com.fortytwotalents.fotogallery.service.QrCodeGeneratorService;
@@ -54,16 +55,14 @@ class QrCodeGeneratorRunnerTest {
                 .thenReturn(new CsvReadResult(List.of(code), "Test Event"));
         when(qrCodeGeneratorService.generateQrCode(any(GalleryCode.class), anyString(), anyInt(), anyInt()))
                 .thenReturn(mockImage);
-        when(pdfGeneratorService.createPdf(any(), any(), anyString(), any(Path.class), anyInt(), anyInt(),
-                any(Boolean.class), anyString()))
+        when(pdfGeneratorService.createPdf(any(), any(), anyString(), any(PdfOptions.class)))
                 .thenReturn(1);
 
         runner.run();
 
         verify(csvReaderService).readCodes(any(Path.class));
         verify(qrCodeGeneratorService).generateQrCode(eq(code), anyString(), anyInt(), anyInt());
-        verify(pdfGeneratorService).createPdf(any(), any(), anyString(), any(Path.class), anyInt(), anyInt(),
-                any(Boolean.class), anyString());
+        verify(pdfGeneratorService).createPdf(any(), any(), anyString(), any(PdfOptions.class));
     }
 
     @Test
@@ -75,8 +74,7 @@ class QrCodeGeneratorRunnerTest {
 
         verify(csvReaderService).readCodes(any(Path.class));
         verify(qrCodeGeneratorService, never()).generateQrCode(any(), anyString(), anyInt(), anyInt());
-        verify(pdfGeneratorService, never()).createPdf(any(), any(), anyString(), any(Path.class), anyInt(), anyInt(),
-                any(Boolean.class), anyString());
+        verify(pdfGeneratorService, never()).createPdf(any(), any(), anyString(), any(PdfOptions.class));
     }
 
     @Test
@@ -91,15 +89,13 @@ class QrCodeGeneratorRunnerTest {
         when(csvReaderService.readCodes(any(Path.class)))
                 .thenReturn(new CsvReadResult(List.of(code), ""));
         when(qrCodeGeneratorService.generateQrCode(any(), anyString(), anyInt(), anyInt())).thenReturn(mockImage);
-        when(pdfGeneratorService.createPdf(any(), any(), anyString(), any(Path.class), anyInt(), anyInt(),
-                any(Boolean.class), anyString()))
+        when(pdfGeneratorService.createPdf(any(), any(), anyString(), any(PdfOptions.class)))
                 .thenReturn(1);
 
         runner.run();
 
         verify(csvReaderService).readCodes(Path.of("custom-input.csv"));
-        verify(pdfGeneratorService).createPdf(any(), any(), anyString(), eq(Path.of("custom-output.pdf")), anyInt(),
-                anyInt(), any(Boolean.class), anyString());
+        verify(pdfGeneratorService).createPdf(any(), any(), anyString(), any(PdfOptions.class));
     }
 
 }

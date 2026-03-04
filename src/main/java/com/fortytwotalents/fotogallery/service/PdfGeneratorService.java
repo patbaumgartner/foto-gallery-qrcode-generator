@@ -1,6 +1,7 @@
 package com.fortytwotalents.fotogallery.service;
 
 import com.fortytwotalents.fotogallery.model.GalleryCode;
+import com.fortytwotalents.fotogallery.model.PdfOptions;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -46,18 +47,13 @@ public class PdfGeneratorService {
     private static final float CUTTING_LINE_GRAY = 0.7f;
 
     public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
-            Path outputPath, int gridColumns, int gridRows) throws IOException {
-        return createPdf(codes, qrImages, baseUrl, outputPath, gridColumns, gridRows, false, "");
-    }
+            PdfOptions options) throws IOException {
 
-    public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
-            Path outputPath, int gridColumns, int gridRows, boolean showCuttingLines) throws IOException {
-        return createPdf(codes, qrImages, baseUrl, outputPath, gridColumns, gridRows, showCuttingLines, "");
-    }
-
-    public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
-            Path outputPath, int gridColumns, int gridRows, boolean showCuttingLines, String eventName)
-            throws IOException {
+        int gridColumns = options.gridColumns();
+        int gridRows = options.gridRows();
+        boolean showCuttingLines = options.showCuttingLines();
+        String eventName = options.eventName();
+        Path outputPath = options.outputPath();
 
         int codesPerPage = gridColumns * gridRows;
 

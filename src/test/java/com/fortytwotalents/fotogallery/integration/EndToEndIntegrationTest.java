@@ -1,6 +1,7 @@
 package com.fortytwotalents.fotogallery.integration;
 
 import com.fortytwotalents.fotogallery.model.GalleryCode;
+import com.fortytwotalents.fotogallery.model.PdfOptions;
 import com.fortytwotalents.fotogallery.service.CsvReaderService;
 import com.fortytwotalents.fotogallery.service.PdfGeneratorService;
 import com.fortytwotalents.fotogallery.service.QrCodeGeneratorService;
@@ -50,7 +51,8 @@ class EndToEndIntegrationTest {
         for (GalleryCode code : codes) {
             qrImages.put(code, qrCodeGeneratorService.generateQrCode(code, BASE_URL, 200, number++));
         }
-        int pages = pdfGeneratorService.createPdf(codes, qrImages, BASE_URL, outputPath, 3, 4);
+        int pages = pdfGeneratorService.createPdf(codes, qrImages, BASE_URL,
+                PdfOptions.of(outputPath, 3, 4));
 
         assertThat(outputPath).exists();
         assertThat(pages).isEqualTo(1);
@@ -87,7 +89,8 @@ class EndToEndIntegrationTest {
         for (GalleryCode code : codes2) {
             qrImages2.put(code, qrCodeGeneratorService.generateQrCode(code, BASE_URL, 200, num++));
         }
-        int pages = pdfGeneratorService.createPdf(codes2, qrImages2, BASE_URL, outputPath, 3, 4);
+        int pages = pdfGeneratorService.createPdf(codes2, qrImages2, BASE_URL,
+                PdfOptions.of(outputPath, 3, 4));
 
         assertThat(outputPath).exists();
         assertThat(pages).isEqualTo(2);
