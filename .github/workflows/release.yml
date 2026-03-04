@@ -6,47 +6,77 @@ on:
       - 'v*'
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
+  build-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            script: generate-qrcodes.sh
+            binary: foto-gallery-qrcode-generator
+          - os: windows-latest
+            platform: windows
+            script: generate-qrcodes.bat
+            binary: foto-gallery-qrcode-generator.exe
+
+    runs-on: ${{ matrix.os }}
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Set up GraalVM 21
+        uses: graalvm/setup-graalvm@v1
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'graalvm'
           cache: maven
 
-      - name: Build JAR
-        run: ./mvnw package -DskipTests
+      - name: Build native image
+        shell: bash
+        run: ./mvnw package -Pnative -DskipTests
 
       - name: Assemble release archive
+        shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME}"
-          ARCHIVE="foto-gallery-qrcode-generator-${VERSION}.zip"
+          ARCHIVE="foto-gallery-qrcode-generator-${VERSION}-${{ matrix.platform }}.zip"
 
-          # Collect files into a staging directory
           mkdir -p staging
-          cp target/foto-gallery-qrcode-generator-*.jar staging/
-          cp generate-qrcodes.sh staging/
-          cp generate-qrcodes.bat staging/
-          cp -r src staging/
-          cp pom.xml staging/
-          cp mvnw staging/
-          cp mvnw.cmd staging/
-          cp -r .mvn staging/
-          [ -f README.md ] && cp README.md staging/
+          cp "target/${{ matrix.binary }}" staging/
+          cp "${{ matrix.script }}" staging/
 
-          zip -r "${ARCHIVE}" staging/
+          cd staging
+          7z a -tzip "../${ARCHIVE}" .
+          cd ..
+
           echo "ARCHIVE=${ARCHIVE}" >> "$GITHUB_ENV"
+
+      - name: Upload archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: ${{ env.ARCHIVE }}
+          retention-days: 1
+
+  release:
+    needs: build-native
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.ARCHIVE }}
+          files: "*.zip"
           generate_release_notes: true
