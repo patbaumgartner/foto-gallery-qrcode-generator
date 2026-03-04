@@ -156,6 +156,27 @@ class PdfGeneratorServiceTest {
         assertThat(defaultCall.toFile().length()).isEqualTo(explicitFalse.toFile().length());
     }
 
+    @Test
+    void pdfContainsEventNameWhenProvided() throws Exception {
+        List<GalleryCode> codes = createCodes("XY9G-AB7K-92QF", "TK2H-XY3M-88PL");
+        LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+        Path output = tempDir.resolve("event-name.pdf");
+
+        PdfOptions options = new PdfOptions(output, 3, 4, false, "My Photo Event");
+        int pages = pdfService.createPdf(codes, qrImages, BASE_URL, options);
+
+        assertThat(pages).isEqualTo(1);
+        assertThat(output).exists();
+
+        try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = stripper.getText(doc);
+            assertThat(text).contains("My Photo Event");
+            assertThat(text).contains("XY9G-AB7K-92QF");
+            assertThat(text).contains("TK2H-XY3M-88PL");
+        }
+    }
+
     private List<GalleryCode> createCodes(String... codeStrings) {
         List<GalleryCode> codes = new ArrayList<>();
         for (String c : codeStrings) {
