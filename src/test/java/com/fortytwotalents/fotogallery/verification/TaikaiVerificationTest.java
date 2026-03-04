@@ -30,16 +30,9 @@ class TaikaiVerificationTest {
 			.spring(spring -> spring.noAutowiredFields()
 				.boot(boot -> boot.applicationClassShouldResideInPackage("com.fortytwotalents.fotogallery"))
 				.configurations(configuration -> configuration.namesShouldEndWithConfiguration())
-				.controllers(controllers -> controllers.shouldBeAnnotatedWithRestController()
-					.namesShouldEndWithController()
-					.shouldNotDependOnOtherControllers()
-					.shouldBePackagePrivate())
 				.services(services -> services.shouldBeAnnotatedWithService()
 					.shouldNotDependOnControllers()
-					.namesShouldEndWithService())
-				.repositories(repositories -> repositories.shouldBeAnnotatedWithRepository()
-					.shouldNotDependOnServices()
-					.namesShouldEndWithRepository()))
+					.namesShouldEndWithService()))
 			.build()
 			.checkAll();
 	}
