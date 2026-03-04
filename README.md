@@ -4,7 +4,7 @@ A Spring Boot CLI application that generates gallery access codes and produces P
 
 ## Prerequisites
 
-- **Java 21** (or later)
+- **Java 25** (or later)
 - **Maven** (or use the included `./mvnw` wrapper)
 - **GraalVM with `native-image`** (only needed for native binary builds)
 
