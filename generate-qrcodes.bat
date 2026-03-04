@@ -18,14 +18,17 @@ set "NATIVE_NAME=foto-gallery-qrcode-generator.exe"
 
 rem --- Resolve executable -----------------------------------------------------
 rem Check current directory first, then target\ subdirectory
+set "USE_JAR=0"
 if exist "%SCRIPT_DIR%%NATIVE_NAME%" (
     set "RUN=%SCRIPT_DIR%%NATIVE_NAME%"
 ) else if exist "%SCRIPT_DIR%target\%NATIVE_NAME%" (
     set "RUN=%SCRIPT_DIR%target\%NATIVE_NAME%"
 ) else if exist "%SCRIPT_DIR%%JAR_NAME%" (
-    set "RUN=java -jar %SCRIPT_DIR%%JAR_NAME%"
+    set "USE_JAR=1"
+    set "RUN=%SCRIPT_DIR%%JAR_NAME%"
 ) else if exist "%SCRIPT_DIR%target\%JAR_NAME%" (
-    set "RUN=java -jar %SCRIPT_DIR%target\%JAR_NAME%"
+    set "USE_JAR=1"
+    set "RUN=%SCRIPT_DIR%target\%JAR_NAME%"
 ) else (
     echo ERROR: No executable found. Build the project first: >&2
     echo   mvn clean package -DskipTests          ^(JAR^) >&2
@@ -73,7 +76,11 @@ goto parse_extra
 
 rem --- Step 1: Generate codes -------------------------------------------------
 echo ==^> Generating %CODE_COUNT% codes for event %EVENT_CODE% ...
-%RUN% --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" %EXTRA_ARGS%
+if "%USE_JAR%"=="1" (
+    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" %EXTRA_ARGS%
+) else (
+    "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" %EXTRA_ARGS%
+)
 if errorlevel 1 (
     echo ERROR: Code generation failed. >&2
     exit /b 1
@@ -81,7 +88,11 @@ if errorlevel 1 (
 
 rem --- Step 2: Generate PDF ---------------------------------------------------
 echo ==^> Generating QR-code PDF ...
-%RUN% --app.mode=generate-pdf %EXTRA_ARGS%
+if "%USE_JAR%"=="1" (
+    java -jar "%RUN%" --app.mode=generate-pdf %EXTRA_ARGS%
+) else (
+    "%RUN%" --app.mode=generate-pdf %EXTRA_ARGS%
+)
 if errorlevel 1 (
     echo ERROR: PDF generation failed. >&2
     exit /b 1
