@@ -294,12 +294,57 @@ class InteractiveRunnerTest {
 
 		when(csvReaderService.readCodes(any())).thenThrow(new java.io.IOException("CSV file not found: missing.csv"));
 
-		// User selects "generate-pdf", accepts default paths
-		ByteArrayInputStream input = new ByteArrayInputStream("2\n\n\n".getBytes(StandardCharsets.UTF_8));
+		// User selects "generate-pdf", accepts all defaults (csvInputPath, outputPath, baseUrl, qrSize, gridColumns, gridRows, showCuttingLines)
+		ByteArrayInputStream input = new ByteArrayInputStream("2\n\n\n\n\n\n\n\n".getBytes(StandardCharsets.UTF_8));
 		System.setIn(input);
 
 		// Should not throw — IOException is caught and logged as an error
 		runner.run(new DefaultApplicationArguments());
+	}
+
+	@Test
+	void promptBooleanReturnsTrueForYesInput() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
+				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
+
+		assertThat(runner.promptBoolean(scannerFrom("yes\n"), "Show cutting lines", false)).isTrue();
+		assertThat(runner.promptBoolean(scannerFrom("y\n"), "Show cutting lines", false)).isTrue();
+		assertThat(runner.promptBoolean(scannerFrom("true\n"), "Show cutting lines", false)).isTrue();
+	}
+
+	@Test
+	void promptBooleanReturnsFalseForNoInput() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, true, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
+				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
+
+		assertThat(runner.promptBoolean(scannerFrom("no\n"), "Show cutting lines", true)).isFalse();
+		assertThat(runner.promptBoolean(scannerFrom("n\n"), "Show cutting lines", true)).isFalse();
+		assertThat(runner.promptBoolean(scannerFrom("false\n"), "Show cutting lines", true)).isFalse();
+	}
+
+	@Test
+	void promptBooleanReturnsDefaultOnBlankInput() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
+				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
+
+		assertThat(runner.promptBoolean(scannerFrom("\n"), "Show cutting lines", false)).isFalse();
+		assertThat(runner.promptBoolean(scannerFrom("\n"), "Show cutting lines", true)).isTrue();
+	}
+
+	@Test
+	void promptBooleanReturnsDefaultOnInvalidInput() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
+				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
+
+		assertThat(runner.promptBoolean(scannerFrom("maybe\n"), "Show cutting lines", true)).isTrue();
 	}
 
 	private static Scanner scannerFrom(String text) {

@@ -65,6 +65,11 @@ public class InteractiveRunner implements ApplicationRunner {
 			String csvInputPath = appProperties.csvInputPath();
 			String csvOutputPath = appProperties.csvOutputPath();
 			String outputPath = appProperties.outputPath();
+			String baseUrl = appProperties.baseUrl();
+			int qrSize = appProperties.qrSize();
+			int gridColumns = appProperties.gridColumns();
+			int gridRows = appProperties.gridRows();
+			boolean showCuttingLines = appProperties.showCuttingLines();
 
 			if ("generate-codes".equals(mode) || "both".equals(mode)) {
 				if (eventCode.isBlank()) {
@@ -78,22 +83,24 @@ public class InteractiveRunner implements ApplicationRunner {
 			if ("generate-pdf".equals(mode) || "both".equals(mode)) {
 				csvInputPath = promptOptional(scanner, "CSV input path", csvInputPath);
 				outputPath = promptOptional(scanner, "PDF output path", outputPath);
+				baseUrl = promptOptional(scanner, "Base URL for QR codes", baseUrl);
+				qrSize = promptInt(scanner, "QR code size (pixels)", qrSize);
+				gridColumns = promptInt(scanner, "Grid columns per page", gridColumns);
+				gridRows = promptInt(scanner, "Grid rows per page", gridRows);
+				showCuttingLines = promptBoolean(scanner, "Show cutting lines", showCuttingLines);
 			}
 
 			try {
 				if ("generate-codes".equals(mode) || "both".equals(mode)) {
 					AppProperties codeProps = new AppProperties("generate-codes", csvInputPath, csvOutputPath,
-							outputPath, appProperties.baseUrl(), appProperties.qrSize(), appProperties.gridColumns(),
-							appProperties.gridRows(), eventCode, codeCount, appProperties.showCuttingLines(),
-							eventName);
+							outputPath, baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount,
+							showCuttingLines, eventName);
 					new CodeGeneratorRunner(codeGeneratorService, csvWriterService, codeProps).run();
 				}
 
 				if ("generate-pdf".equals(mode) || "both".equals(mode)) {
 					AppProperties pdfProps = new AppProperties("generate-pdf", csvInputPath, csvOutputPath, outputPath,
-							appProperties.baseUrl(), appProperties.qrSize(), appProperties.gridColumns(),
-							appProperties.gridRows(), eventCode, codeCount, appProperties.showCuttingLines(),
-							eventName);
+							baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount, showCuttingLines, eventName);
 					new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, pdfProps)
 						.run();
 				}
@@ -168,6 +175,23 @@ public class InteractiveRunner implements ApplicationRunner {
 		System.out.print(label + " [" + defaultValue + "]: ");
 		String input = scanner.nextLine().trim();
 		return input.isBlank() ? defaultValue : input;
+	}
+
+	boolean promptBoolean(Scanner scanner, String label, boolean defaultValue) {
+		String defaultStr = defaultValue ? "yes" : "no";
+		System.out.print(label + " (yes/no) [" + defaultStr + "]: ");
+		String input = scanner.nextLine().trim().toLowerCase();
+		if (input.isBlank()) {
+			return defaultValue;
+		}
+		if ("yes".equals(input) || "y".equals(input) || "true".equals(input)) {
+			return true;
+		}
+		if ("no".equals(input) || "n".equals(input) || "false".equals(input)) {
+			return false;
+		}
+		System.out.println("Invalid input, using default: " + defaultStr);
+		return defaultValue;
 	}
 
 	int promptInt(Scanner scanner, String label, int defaultValue) {
