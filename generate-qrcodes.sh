@@ -5,6 +5,7 @@
 # Usage:
 #   ./generate-qrcodes.sh                                      # interactive shell mode
 #   ./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
+#   ./generate-qrcodes.sh --app.mode=... [EXTRA_ARGS...]       # pass flags directly
 #
 # Examples:
 #   ./generate-qrcodes.sh
@@ -12,6 +13,7 @@
 #   ./generate-qrcodes.sh XY9G 100
 #   ./generate-qrcodes.sh XY9G 100 "My Photo Event"
 #   ./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
+#   ./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
 #
 set -euo pipefail
 
@@ -42,6 +44,13 @@ if [[ $# -lt 1 ]]; then
 fi
 
 # --- Parse arguments ----------------------------------------------------------
+# If first arg starts with '--', pass all args directly to the jar (no positional parsing).
+# This allows: ./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
+if [[ "${1:-}" =~ ^-- ]]; then
+  "${RUN[@]}" "$@"
+  exit $?
+fi
+
 EVENT_CODE="$1"
 shift
 

@@ -4,6 +4,7 @@ rem
 rem Usage:
 rem   generate-qrcodes.bat                                      :: interactive shell mode
 rem   generate-qrcodes.bat <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
+rem   generate-qrcodes.bat --app.mode=... [EXTRA_ARGS...]       :: pass flags directly
 rem
 rem Examples:
 rem   generate-qrcodes.bat
@@ -11,6 +12,7 @@ rem   generate-qrcodes.bat XY9G
 rem   generate-qrcodes.bat XY9G 100
 rem   generate-qrcodes.bat XY9G 100 "My Photo Event"
 rem   generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
+rem   generate-qrcodes.bat --app.mode=generate-codes --app.event-code=XY9G
 
 setlocal enabledelayedexpansion
 
@@ -43,6 +45,17 @@ if "%~1"=="" (
         java -jar "%RUN%"
     ) else (
         "%RUN%"
+    )
+    exit /b %ERRORLEVEL%
+)
+
+rem --- Direct flag passthrough (first arg starts with '--') --------------------
+set "FIRST_ARG=%~1"
+if "%FIRST_ARG:~0,2%"=="--" (
+    if "%USE_JAR%"=="1" (
+        java -jar "%RUN%" %*
+    ) else (
+        "%RUN%" %*
     )
     exit /b %ERRORLEVEL%
 )
