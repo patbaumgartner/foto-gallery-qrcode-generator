@@ -3,13 +3,17 @@
 # generate-qrcodes.sh — Generate gallery codes and produce a QR-code PDF in one go.
 #
 # Usage:
+#   ./generate-qrcodes.sh                                      # interactive shell mode
 #   ./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
+#   ./generate-qrcodes.sh --app.mode=... [EXTRA_ARGS...]       # pass flags directly
 #
 # Examples:
+#   ./generate-qrcodes.sh
 #   ./generate-qrcodes.sh XY9G
 #   ./generate-qrcodes.sh XY9G 100
 #   ./generate-qrcodes.sh XY9G 100 "My Photo Event"
 #   ./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
+#   ./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
 #
 set -euo pipefail
 
@@ -32,10 +36,19 @@ else
   exit 1
 fi
 
-# --- Parse arguments ----------------------------------------------------------
+# --- Interactive mode (no arguments) ------------------------------------------
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]" >&2
-  exit 1
+  echo "==> No arguments provided. Launching interactive shell..."
+  "${RUN[@]}"
+  exit 0
+fi
+
+# --- Parse arguments ----------------------------------------------------------
+# If first arg starts with '--', pass all args directly to the jar (no positional parsing).
+# This allows: ./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
+if [[ "${1:-}" =~ ^-- ]]; then
+  "${RUN[@]}" "$@"
+  exit $?
 fi
 
 EVENT_CODE="$1"

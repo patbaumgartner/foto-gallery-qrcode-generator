@@ -2,13 +2,17 @@
 rem generate-qrcodes.bat — Generate gallery codes and produce a QR-code PDF in one go.
 rem
 rem Usage:
+rem   generate-qrcodes.bat                                      :: interactive shell mode
 rem   generate-qrcodes.bat <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
+rem   generate-qrcodes.bat --app.mode=... [EXTRA_ARGS...]       :: pass flags directly
 rem
 rem Examples:
+rem   generate-qrcodes.bat
 rem   generate-qrcodes.bat XY9G
 rem   generate-qrcodes.bat XY9G 100
 rem   generate-qrcodes.bat XY9G 100 "My Photo Event"
 rem   generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
+rem   generate-qrcodes.bat --app.mode=generate-codes --app.event-code=XY9G
 
 setlocal enabledelayedexpansion
 
@@ -34,12 +38,29 @@ if exist "%SCRIPT_DIR%%NATIVE_NAME%" (
     exit /b 1
 )
 
-rem --- Parse arguments --------------------------------------------------------
+rem --- Interactive mode (no arguments) ----------------------------------------
 if "%~1"=="" (
-    echo Usage: %~nx0 ^<EVENT_CODE^> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...] >&2
-    exit /b 1
+    echo ==^> No arguments provided. Launching interactive shell...
+    if "%USE_JAR%"=="1" (
+        java -jar "%RUN%"
+    ) else (
+        "%RUN%"
+    )
+    exit /b %ERRORLEVEL%
 )
 
+rem --- Direct flag passthrough (first arg starts with '--') --------------------
+set "FIRST_ARG=%~1"
+if "%FIRST_ARG:~0,2%"=="--" (
+    if "%USE_JAR%"=="1" (
+        java -jar "%RUN%" %*
+    ) else (
+        "%RUN%" %*
+    )
+    exit /b %ERRORLEVEL%
+)
+
+rem --- Parse arguments --------------------------------------------------------
 set "EVENT_CODE=%~1"
 shift
 

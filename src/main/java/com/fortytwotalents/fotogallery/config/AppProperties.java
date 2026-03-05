@@ -7,12 +7,12 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "app")
-public record AppProperties(@NotBlank String mode, String csvInputPath, String csvOutputPath, String outputPath,
+public record AppProperties(String mode, String csvInputPath, String csvOutputPath, String outputPath,
 		@NotBlank String baseUrl, @Positive int qrSize, @Positive int gridColumns, @Positive int gridRows,
 		String eventCode, @Positive int codeCount, boolean showCuttingLines, String eventName) {
 	public AppProperties {
-		if (mode == null || mode.isBlank()) {
-			mode = "generate-pdf";
+		if (mode == null) {
+			mode = "";
 		}
 		if (csvInputPath == null || csvInputPath.isBlank()) {
 			csvInputPath = "codes.csv";

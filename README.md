@@ -30,6 +30,61 @@ The native binary will be at `target/foto-gallery-qrcode-generator`.
 
 ## Usage
 
+The application supports two usage styles:
+
+- **Interactive mode** (default) — run the app with no arguments and answer prompts
+- **Command-line mode** — pass `--app.*` flags directly for scripting and automation
+
+### Interactive Mode (default)
+
+When `app.mode` is not set (the default), the application launches an interactive shell
+that guides you through every setting. Pressing Enter at any prompt accepts the shown default.
+
+**Using JAR:**
+
+```bash
+java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar
+```
+
+**Using native binary:**
+
+```bash
+./target/foto-gallery-qrcode-generator
+```
+
+**Using the convenience script (no arguments):**
+
+```bash
+./generate-qrcodes.sh    # Linux / macOS
+generate-qrcodes.bat     # Windows
+```
+
+**Example session:**
+
+```
+=== Foto Gallery QR Code Generator - Interactive Shell ===
+
+What would you like to do?
+  1) generate-codes - Generate gallery access codes
+  2) generate-pdf   - Generate QR code PDF from existing codes
+  3) both           - Generate codes and then produce QR code PDF
+Enter choice (1/2/3 or name) [both]:
+Event code (4-char prefix, e.g. XY9G): XY9G
+Number of codes to generate [50]:
+Event name []: My Photo Event
+CSV output path [codes.csv]:
+CSV input path [codes.csv]:
+PDF output path [qr-codes.pdf]:
+Base URL for QR codes [https://my.site/gallery/]:
+QR code size (pixels) [200]:
+Grid columns per page [3]:
+Grid rows per page [4]:
+Show cutting lines (yes/no) [no]: yes
+```
+
+The event code is validated at the prompt — it must be exactly 4 alphanumeric characters.
+Invalid input is rejected and re-prompted rather than causing an error later.
+
 ### 1. Generate Gallery Codes
 
 Generates a CSV file with random gallery codes for a given event.
@@ -67,12 +122,12 @@ The CSV file includes a header row (`Number,Code,Event Name`) with numbered rows
 
 **Options:**
 
-| Property             | Default      | Description                            |
-|----------------------|--------------|----------------------------------------|
-| `app.event-code`     | *(required)* | 4-character event prefix (e.g. `XY9G`) |
-| `app.code-count`     | `50`         | Number of codes to generate            |
-| `app.csv-output-path`| `codes.csv`  | Output CSV file path                   |
-| `app.event-name`     | *(empty)*    | Event name for CSV column & PDF label  |
+| Property              | Default                                    | Description                                          |
+|-----------------------|--------------------------------------------|------------------------------------------------------|
+| `app.event-code`      | *(blank — prompted interactively if unset)* | 4-character alphanumeric event prefix (e.g. `XY9G`) |
+| `app.code-count`      | `50`                                       | Number of codes to generate                          |
+| `app.csv-output-path` | `codes.csv`                                | Output CSV file path                                 |
+| `app.event-name`      | *(empty)*                                  | Event name for CSV column & PDF label                |
 
 ### 2. Generate PDF with QR Codes
 
@@ -93,7 +148,7 @@ java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
 ```
 
 This reads `codes.csv` and generates `qr-codes.pdf` with a 3×4 grid of QR codes per page.
-Each QR code links to `https://my.site/gallery/{code}`, shows a sequential number overlay in the center,
+Each QR code links to `https://my.site/gallery/{code}`, shows a sequential number overlay in the centre,
 and has the code printed below. When the CSV contains an event name, it appears above the code.
 Optionally, dashed cutting lines can be drawn between cells with `--app.show-cutting-lines=true`.
 
@@ -133,11 +188,18 @@ precedence).
 **Linux / macOS (`generate-qrcodes.sh`):**
 
 ```bash
+# Interactive mode — no arguments
+./generate-qrcodes.sh
+
+# Positional arguments
 ./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
 
+# Pass --app.* flags directly (bypasses positional parsing)
+./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
+
 # Examples
-./generate-qrcodes.sh XY9G            # 50 codes (default)
-./generate-qrcodes.sh XY9G 100        # 100 codes
+./generate-qrcodes.sh XY9G                                                        # 50 codes (default)
+./generate-qrcodes.sh XY9G 100                                                    # 100 codes
 ./generate-qrcodes.sh XY9G 100 "My Photo Event"
 ./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
 ```
@@ -145,7 +207,14 @@ precedence).
 **Windows (`generate-qrcodes.bat`):**
 
 ```cmd
+rem Interactive mode — no arguments
+generate-qrcodes.bat
+
+rem Positional arguments
 generate-qrcodes.bat <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
+
+rem Pass --app.* flags directly (bypasses positional parsing)
+generate-qrcodes.bat --app.mode=generate-codes --app.event-code=XY9G
 
 rem Examples
 generate-qrcodes.bat XY9G
@@ -154,9 +223,11 @@ generate-qrcodes.bat XY9G 100 "My Photo Event"
 generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
 ```
 
-| Argument       | Required | Default   | Description                                          |
-|----------------|----------|-----------|------------------------------------------------------|
-| `EVENT_CODE`   | yes      | —         | 4-character event prefix (e.g. `XY9G`)               |
-| `CODE_COUNT`   | no       | `50`      | Number of codes to generate                          |
-| `EVENT_NAME`   | no       | *(empty)* | Event name for CSV header & PDF label                |
-| `EXTRA_ARGS`   | no       | —         | Any additional `--app.*` options passed to both steps |
+| Argument       | Required  | Default   | Description                                            |
+|----------------|-----------|-----------|--------------------------------------------------------|
+| `EVENT_CODE`   | yes\*     | —         | 4-character alphanumeric event prefix (e.g. `XY9G`)    |
+| `CODE_COUNT`   | no        | `50`      | Number of codes to generate                            |
+| `EVENT_NAME`   | no        | *(empty)* | Event name for CSV header & PDF label                  |
+| `EXTRA_ARGS`   | no        | —         | Any additional `--app.*` options passed to both steps  |
+
+\* Required when using positional arguments; omit all arguments to use interactive mode instead.
