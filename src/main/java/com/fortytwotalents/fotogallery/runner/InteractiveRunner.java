@@ -22,6 +22,8 @@ public class InteractiveRunner implements ApplicationRunner {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(InteractiveRunner.class);
 
+	private static final String EVENT_CODE_PATTERN = "^[A-Za-z0-9]{4}$";
+
 	private final AppProperties appProperties;
 
 	private final CodeGeneratorService codeGeneratorService;
@@ -66,7 +68,7 @@ public class InteractiveRunner implements ApplicationRunner {
 
 			if ("generate-codes".equals(mode) || "both".equals(mode)) {
 				if (eventCode.isBlank()) {
-					eventCode = promptRequired(scanner, "Event code (4-char prefix, e.g. XY9G)");
+					eventCode = promptEventCode(scanner);
 				}
 				codeCount = promptInt(scanner, "Number of codes to generate", codeCount);
 				eventName = promptOptional(scanner, "Event name", eventName);
@@ -98,6 +100,9 @@ public class InteractiveRunner implements ApplicationRunner {
 			}
 			catch (IOException ex) {
 				LOGGER.error("Operation failed: {}", ex.getMessage());
+			}
+			catch (IllegalArgumentException ex) {
+				LOGGER.error("Invalid input: {}", ex.getMessage());
 			}
 		}
 	}
@@ -141,6 +146,22 @@ public class InteractiveRunner implements ApplicationRunner {
 			}
 		}
 		return value;
+	}
+
+	String promptEventCode(Scanner scanner) {
+		String value = "";
+		while (!value.matches(EVENT_CODE_PATTERN)) {
+			System.out.print("Event code (4-char prefix, e.g. XY9G): ");
+			value = scanner.nextLine().trim();
+			if (value.isBlank()) {
+				System.out.println("This field is required.");
+			}
+			else if (!value.matches(EVENT_CODE_PATTERN)) {
+				System.out.println("Event code must be exactly 4 alphanumeric characters (A-Z, 0-9), got: '" + value
+						+ "'");
+			}
+		}
+		return value.toUpperCase();
 	}
 
 	String promptOptional(Scanner scanner, String label, String defaultValue) {

@@ -135,6 +135,61 @@ class InteractiveRunnerTest {
 	}
 
 	@Test
+	void promptEventCodeAcceptsValidCode() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
+				qrCodeGeneratorService, pdfGeneratorService);
+
+		Scanner scanner = scannerFrom("XY9G\n");
+		assertThat(runner.promptEventCode(scanner)).isEqualTo("XY9G");
+	}
+
+	@Test
+	void promptEventCodeNormalizesToUpperCase() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
+				qrCodeGeneratorService, pdfGeneratorService);
+
+		Scanner scanner = scannerFrom("ab1c\n");
+		assertThat(runner.promptEventCode(scanner)).isEqualTo("AB1C");
+	}
+
+	@Test
+	void promptEventCodeRetriesOnTooShort() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
+				qrCodeGeneratorService, pdfGeneratorService);
+
+		Scanner scanner = scannerFrom("abc\nXY9G\n");
+		assertThat(runner.promptEventCode(scanner)).isEqualTo("XY9G");
+	}
+
+	@Test
+	void promptEventCodeRetriesOnTooLong() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
+				qrCodeGeneratorService, pdfGeneratorService);
+
+		Scanner scanner = scannerFrom("ABCDE\nXY9G\n");
+		assertThat(runner.promptEventCode(scanner)).isEqualTo("XY9G");
+	}
+
+	@Test
+	void promptEventCodeRetriesOnBlankInput() {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
+				qrCodeGeneratorService, pdfGeneratorService);
+
+		Scanner scanner = scannerFrom("\nXY9G\n");
+		assertThat(runner.promptEventCode(scanner)).isEqualTo("XY9G");
+	}
+
+	@Test
 	void promptOptionalReturnsDefaultOnBlankInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
 				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
