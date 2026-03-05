@@ -230,6 +230,23 @@ class InteractiveRunnerTest {
 		verify(codeGeneratorService).generateCodes("XY9G", 50);
 	}
 
+	@Test
+	void handlesIoExceptionGracefullyWhenCsvFileMissing() throws Exception {
+		AppProperties props = new AppProperties("", "missing.csv", "missing.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
+				qrCodeGeneratorService, pdfGeneratorService);
+
+		when(csvReaderService.readCodes(any())).thenThrow(new java.io.IOException("CSV file not found: missing.csv"));
+
+		// User selects "generate-pdf", accepts default paths
+		ByteArrayInputStream input = new ByteArrayInputStream("2\n\n\n".getBytes(StandardCharsets.UTF_8));
+		System.setIn(input);
+
+		// Should not throw — IOException is caught and logged as an error
+		runner.run(new DefaultApplicationArguments());
+	}
+
 	private static Scanner scannerFrom(String text) {
 		return new Scanner(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)));
 	}

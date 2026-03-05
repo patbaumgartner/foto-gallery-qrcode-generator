@@ -46,7 +46,7 @@ public class InteractiveRunner implements ApplicationRunner {
 	}
 
 	@Override
-	public void run(ApplicationArguments args) throws IOException {
+	public void run(ApplicationArguments args) {
 		if (!appProperties.mode().isBlank()) {
 			return;
 		}
@@ -78,19 +78,26 @@ public class InteractiveRunner implements ApplicationRunner {
 				outputPath = promptOptional(scanner, "PDF output path", outputPath);
 			}
 
-			if ("generate-codes".equals(mode) || "both".equals(mode)) {
-				AppProperties codeProps = new AppProperties("generate-codes", csvInputPath, csvOutputPath, outputPath,
-						appProperties.baseUrl(), appProperties.qrSize(), appProperties.gridColumns(),
-						appProperties.gridRows(), eventCode, codeCount, appProperties.showCuttingLines(), eventName);
-				new CodeGeneratorRunner(codeGeneratorService, csvWriterService, codeProps).run();
-			}
+			try {
+				if ("generate-codes".equals(mode) || "both".equals(mode)) {
+					AppProperties codeProps = new AppProperties("generate-codes", csvInputPath, csvOutputPath,
+							outputPath, appProperties.baseUrl(), appProperties.qrSize(), appProperties.gridColumns(),
+							appProperties.gridRows(), eventCode, codeCount, appProperties.showCuttingLines(),
+							eventName);
+					new CodeGeneratorRunner(codeGeneratorService, csvWriterService, codeProps).run();
+				}
 
-			if ("generate-pdf".equals(mode) || "both".equals(mode)) {
-				AppProperties pdfProps = new AppProperties("generate-pdf", csvInputPath, csvOutputPath, outputPath,
-						appProperties.baseUrl(), appProperties.qrSize(), appProperties.gridColumns(),
-						appProperties.gridRows(), eventCode, codeCount, appProperties.showCuttingLines(), eventName);
-				new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, pdfProps)
-					.run();
+				if ("generate-pdf".equals(mode) || "both".equals(mode)) {
+					AppProperties pdfProps = new AppProperties("generate-pdf", csvInputPath, csvOutputPath, outputPath,
+							appProperties.baseUrl(), appProperties.qrSize(), appProperties.gridColumns(),
+							appProperties.gridRows(), eventCode, codeCount, appProperties.showCuttingLines(),
+							eventName);
+					new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, pdfProps)
+						.run();
+				}
+			}
+			catch (IOException ex) {
+				LOGGER.error("Operation failed: {}", ex.getMessage());
 			}
 		}
 	}
