@@ -102,7 +102,7 @@ public class CodeGeneratorService {
 		return sb.toString();
 	}
 
-	private String generatePassword() {
+	String generatePassword() {
 		// Guarantee at least one character from each required character class
 		List<Character> mandatory = new ArrayList<>(REQUIRED_CLASSES);
 		mandatory.add(PASSWORD_DIGITS.charAt(random.nextInt(PASSWORD_DIGITS.length())));
