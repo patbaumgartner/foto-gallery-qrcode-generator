@@ -1,6 +1,5 @@
 package com.fortytwotalents.fotogallery.config;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
@@ -8,7 +7,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app")
 public record AppProperties(String mode, String csvInputPath, String csvOutputPath, String outputPath,
-		@NotBlank String baseUrl, @Positive int qrSize, @Positive int gridColumns, @Positive int gridRows,
+		String baseUrl, @Positive int qrSize, @Positive int gridColumns, @Positive int gridRows,
 		String eventCode, @Positive int codeCount, boolean showCuttingLines, String eventName, String galleryUrl,
 		String logoUrl) {
 	public AppProperties {
@@ -25,7 +24,7 @@ public record AppProperties(String mode, String csvInputPath, String csvOutputPa
 			outputPath = "qr-codes.pdf";
 		}
 		if (baseUrl == null || baseUrl.isBlank()) {
-			baseUrl = "https://my.site/gallery/";
+			baseUrl = "https://my.site";
 		}
 		if (qrSize <= 0) {
 			qrSize = 200;
@@ -35,9 +34,6 @@ public record AppProperties(String mode, String csvInputPath, String csvOutputPa
 		}
 		if (gridRows <= 0) {
 			gridRows = 4;
-		}
-		if (!baseUrl.endsWith("/")) {
-			baseUrl = baseUrl + "/";
 		}
 		if (eventCode == null) {
 			eventCode = "";
@@ -50,6 +46,12 @@ public record AppProperties(String mode, String csvInputPath, String csvOutputPa
 		}
 		if (galleryUrl == null) {
 			galleryUrl = "";
+		}
+		if (!galleryUrl.isBlank() && !galleryUrl.startsWith("https://")) {
+			throw new IllegalArgumentException("app.gallery-url must start with https://: " + galleryUrl);
+		}
+		if (galleryUrl.isBlank()) {
+			galleryUrl = "https://my.site/gallery?code=";
 		}
 		if (logoUrl == null) {
 			logoUrl = "";

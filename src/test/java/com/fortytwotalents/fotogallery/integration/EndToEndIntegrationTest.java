@@ -34,7 +34,7 @@ class EndToEndIntegrationTest {
 	@Autowired
 	PdfGeneratorService pdfGeneratorService;
 
-	private static final String BASE_URL = "https://my.site/gallery/";
+	private static final String GALLERY_URL = "https://my.site/gallery?code=";
 
 	@Test
 	void fullPipelineProducesValidPdf(@TempDir Path tempDir) throws Exception {
@@ -49,15 +49,16 @@ class EndToEndIntegrationTest {
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = new LinkedHashMap<>();
 		int number = 1;
 		for (GalleryCode code : codes) {
-			qrImages.put(code, qrCodeGeneratorService.generateQrCode(code, BASE_URL, 200, number++));
+			qrImages.put(code, qrCodeGeneratorService.generateQrCode(code, GALLERY_URL, 200, number++));
 		}
-		int pages = pdfGeneratorService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(outputPath, 3, 4));
+		int pages = pdfGeneratorService.createPdf(codes, qrImages, PdfOptions.of(outputPath, 3, 4));
 
 		assertThat(outputPath).exists();
 		assertThat(pages).isEqualTo(1);
 
 		try (PDDocument doc = Loader.loadPDF(outputPath.toFile())) {
-			assertThat(doc.getNumberOfPages()).isEqualTo(1);
+			// 1 front page + 1 back page (back is always generated)
+			assertThat(doc.getNumberOfPages()).isEqualTo(2);
 
 			PDFTextStripper stripper = new PDFTextStripper();
 			String text = stripper.getText(doc);
@@ -86,15 +87,16 @@ class EndToEndIntegrationTest {
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages2 = new LinkedHashMap<>();
 		int num = 1;
 		for (GalleryCode code : codes2) {
-			qrImages2.put(code, qrCodeGeneratorService.generateQrCode(code, BASE_URL, 200, num++));
+			qrImages2.put(code, qrCodeGeneratorService.generateQrCode(code, GALLERY_URL, 200, num++));
 		}
-		int pages = pdfGeneratorService.createPdf(codes2, qrImages2, BASE_URL, PdfOptions.of(outputPath, 3, 4));
+		int pages = pdfGeneratorService.createPdf(codes2, qrImages2, PdfOptions.of(outputPath, 3, 4));
 
 		assertThat(outputPath).exists();
 		assertThat(pages).isEqualTo(2);
 
 		try (PDDocument doc = Loader.loadPDF(outputPath.toFile())) {
-			assertThat(doc.getNumberOfPages()).isEqualTo(2);
+			// 2 front pages + 2 back pages (back is always generated)
+			assertThat(doc.getNumberOfPages()).isEqualTo(4);
 		}
 	}
 

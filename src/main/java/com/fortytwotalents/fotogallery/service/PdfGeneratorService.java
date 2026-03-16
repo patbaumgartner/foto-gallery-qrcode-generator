@@ -99,7 +99,7 @@ public class PdfGeneratorService {
 	// Kept for backward-compatible naming; equals INK (full black for printing)
 	private static final float RULE_GRAY = 0.0f;
 
-	public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
+	public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages,
 			PdfOptions options) throws IOException {
 
 		int gridColumns = options.gridColumns();
@@ -107,7 +107,7 @@ public class PdfGeneratorService {
 		boolean showCuttingLines = options.showCuttingLines();
 		String eventName = options.eventName();
 		Path outputPath = options.outputPath();
-		String galleryUrl = options.galleryUrl();
+		String baseUrl = options.baseUrl();
 		String logoUrl = options.logoUrl();
 
 		int codesPerPage = gridColumns * gridRows;
@@ -123,7 +123,7 @@ public class PdfGeneratorService {
 		float qrSize = Math.min(innerWidth, innerHeight - TEXT_HEIGHT);
 
 		boolean hasEventName = eventName != null && !eventName.isBlank();
-		boolean hasBackPage = !galleryUrl.isBlank() || !logoUrl.isBlank();
+		boolean hasBackPage = true;
 
 		int numFrontPages = (int) Math.ceil((double) codes.size() / codesPerPage);
 
@@ -245,7 +245,7 @@ public class PdfGeneratorService {
 						float innerY = cellY + CELL_PADDING;
 
 						drawBackCell(document, backPage, code, innerX, innerY, innerWidth, innerHeight, fontBold,
-								fontRegular, logoImage, galleryUrl);
+								fontRegular, logoImage, baseUrl);
 					}
 				}
 			}
@@ -281,12 +281,12 @@ public class PdfGeneratorService {
 	 *   │  GALLERY PASSWORD                   │  ← 6 pt uppercase black label
 	 *   │  XY9G-AB7K-92QF                     │  ← 14 pt bold black password
 	 *   │ ─────────────────────────────────── │  ← 0.4 pt black rule
-	 *   │  mel-rohrer.ch/gallery              │  ← 6.5 pt black URL
+	 *   │  my.site                            │  ← 6.5 pt black base URL
 	 *   └─────────────────────────────────────┘
 	 */
 	private void drawBackCell(PDDocument document, PDPage page, GalleryCode code, float innerX, float innerY,
 			float innerWidth, float innerHeight, PDType1Font fontBold, PDType1Font fontRegular,
-			PDImageXObject logoImage, String galleryUrl) throws IOException {
+			PDImageXObject logoImage, String baseUrl) throws IOException {
 
 		try (PDPageContentStream cs = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND,
 				true, true)) {
@@ -329,7 +329,7 @@ public class PdfGeneratorService {
 			// Stack: label then password, centered vertically in remaining space above
 			// the bottom rule.
 			float bottomRuleY = innerY + BACK_RULE_GAP * 2f
-					+ (galleryUrl.isBlank() ? 0f : BACK_URL_FONT_SIZE + BACK_RULE_GAP);
+					+ (baseUrl.isBlank() ? 0f : BACK_URL_FONT_SIZE + BACK_RULE_GAP);
 			float passwordSectionBotY = bottomRuleY + BACK_RULE_GAP;
 
 			// Combined height of the password block (label + gap + password)
@@ -366,9 +366,9 @@ public class PdfGeneratorService {
 			cs.lineTo(innerX + innerWidth - BACK_RULE_INSET, bottomRuleY);
 			cs.stroke();
 
-			// ── URL (below bottom rule) ───────────────────────────────────────────────
-			if (!galleryUrl.isBlank()) {
-				String displayUrl = truncateUrl(galleryUrl, fontRegular, BACK_URL_FONT_SIZE, innerWidth - 8f);
+			// ── BASE URL (below bottom rule) ─────────────────────────────────────────
+			if (!baseUrl.isBlank()) {
+				String displayUrl = truncateUrl(baseUrl, fontRegular, BACK_URL_FONT_SIZE, innerWidth - 8f);
 				float urlW = fontRegular.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;
 				float urlX = innerX + (innerWidth - urlW) / 2f;
 				float urlY = innerY + (bottomRuleY - innerY - BACK_URL_FONT_SIZE) / 2f;

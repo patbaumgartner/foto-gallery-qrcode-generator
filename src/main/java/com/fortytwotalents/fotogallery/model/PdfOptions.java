@@ -6,14 +6,14 @@ import java.nio.file.Path;
  * Configuration options for PDF generation.
  */
 public record PdfOptions(Path outputPath, int gridColumns, int gridRows, boolean showCuttingLines, String eventName,
-		String galleryUrl, String logoUrl) {
+		String baseUrl, String logoUrl) {
 
 	public PdfOptions {
 		if (eventName == null) {
 			eventName = "";
 		}
-		if (galleryUrl == null) {
-			galleryUrl = "";
+		if (baseUrl == null) {
+			baseUrl = "";
 		}
 		if (logoUrl == null) {
 			logoUrl = "";
