@@ -48,42 +48,36 @@ public class PdfGeneratorService {
 
 	private static final float CUTTING_LINE_GRAY = 0.7f;
 
-	// Back-page layout proportions (fraction of innerHeight)
-	private static final float BACK_HEADER_RATIO = 0.42f;
+	// Back-page layout — logo takes the dominant top portion of each cell
+	// (fraction of innerHeight)
+	private static final float BACK_LOGO_RATIO = 0.55f;
 
-	private static final float BACK_FOOTER_RATIO = 0.18f;
+	// Inner padding around the logo image (top + sides)
+	private static final float BACK_LOGO_V_PAD = 6f;
 
-	private static final float BACK_STRIPE_HEIGHT = 2f;
+	private static final float BACK_LOGO_H_PAD = 8f;
 
-	// Back-page logo sizing
-	private static final float BACK_LOGO_VERTICAL_PADDING = 14f;
+	// Outer card border (thin black hairline drawn around the whole inner area)
+	private static final float BACK_CARD_BORDER_WIDTH = 0.5f;
 
-	private static final float BACK_LOGO_HORIZONTAL_PADDING = 16f;
+	// Hairline rules separating logo / password / url zones
+	private static final float BACK_RULE_WIDTH = 0.4f;
 
-	// Back-page typography
-	private static final float BACK_LABEL_FONT_SIZE = 7.5f;
+	// Side inset for the hairline rules
+	private static final float BACK_RULE_INSET = 0f;
 
-	// Label Y position within body zone (fraction from top)
-	private static final float BACK_LABEL_Y_RATIO = 0.24f;
+	// Gap above/below each rule
+	private static final float BACK_RULE_GAP = 3.5f;
 
-	private static final float BACK_PASSWORD_FONT_SIZE = 13f;
+	// Typography
+	private static final float BACK_LABEL_FONT_SIZE = 6f;
 
-	private static final float BACK_PASSWORD_BOX_PAD_H = 8f;
+	private static final float BACK_PASSWORD_FONT_SIZE = 14f;
 
-	private static final float BACK_PASSWORD_BOX_PAD_V = 5f;
+	private static final float BACK_URL_FONT_SIZE = 6.5f;
 
-	// Password box: min side margin so the box never fills the full inner width
-	private static final float BACK_PASSWORD_BOX_MARGIN = 10f;
-
-	// Password box center Y position within body zone (fraction from top)
-	private static final float BACK_PASSWORD_BOX_Y_RATIO = 0.65f;
-
-	private static final float BACK_PASSWORD_BOX_BORDER_WIDTH = 0.8f;
-
-	private static final float BACK_URL_FONT_SIZE = 7f;
-
-	// Left+right margin kept clear when fitting the URL in the footer
-	private static final float BACK_URL_HORIZONTAL_MARGIN = 8f;
+	// Vertical gap between label text and password text
+	private static final float BACK_LABEL_PW_GAP = 3f;
 
 	// Minimum character count when truncating a URL with ellipsis
 	private static final int MIN_URL_DISPLAY_LENGTH = 6;
@@ -93,35 +87,15 @@ public class PdfGeneratorService {
 
 	private static final int LOGO_READ_TIMEOUT_MS = 10000;
 
-	// Accent blue (header / dividers / URL)
-	private static final float ACCENT_R = 0.18f;
+	// ── Palette: black / white / gray only ──────────────────────────────────────
+	// Pure black — for borders, password text, card border
+	private static final float INK = 0.0f;
 
-	private static final float ACCENT_G = 0.40f;
+	// Medium gray — for hairline rules, label, URL
+	private static final float GRAY = 0.55f;
 
-	private static final float ACCENT_B = 0.73f;
-
-	// Pale blue fill for password box and footer
-	private static final float PALE_R = 0.93f;
-
-	private static final float PALE_G = 0.96f;
-
-	private static final float PALE_B = 1.0f;
-
-	// Header section background (very light warm gray — lets logo pop)
-	private static final float HEADER_BG_R = 0.97f;
-
-	private static final float HEADER_BG_G = 0.97f;
-
-	private static final float HEADER_BG_B = 0.97f;
-
-	// Dark text
-	private static final float TEXT_DARK = 0.10f;
-
-	// Medium gray for labels
-	private static final float TEXT_GRAY = 0.50f;
-
-	// White
-	private static final float WHITE = 1.0f;
+	// Light gray — subtle rule color
+	private static final float RULE_GRAY = 0.70f;
 
 	public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
 			PdfOptions options) throws IOException {
@@ -274,133 +248,108 @@ public class PdfGeneratorService {
 	/**
 	 * Draws the back of a single card cell.
 	 *
-	 * Layout (top → bottom within the inner cell area):
-	 *   ┌──────────────────────────────┐
-	 *   │  HEADER BAND (light gray bg)  │  ← logo centered here
-	 *   ├══════════════════════════════╡  ← 2pt accent stripe
-	 *   │        "Gallery Password"     │  ← small gray label
-	 *   │   ╔══════════════════════╗   │
-	 *   │   ║   A B C 1 2 3 4     ║   │  ← password box (pale-blue bg)
-	 *   │   ╚══════════════════════╝   │
-	 *   ├══════════════════════════════╡  ← 2pt accent stripe
-	 *   │   https://gallery.example    │  ← footer (pale-blue bg), URL text
-	 *   └──────────────────────────────┘
+	 * Layout (top → bottom, pure black & white):
+	 *   ┌─────────────────────────────────────┐  ← thin black card border
+	 *   │                                     │
+	 *   │   [LOGO — fills ~55% of height]     │  ← logo centered, max size
+	 *   │                                     │
+	 *   │ ─────────────────────────────────── │  ← 0.4 pt gray rule
+	 *   │  GALLERY PASSWORD                   │  ← 6 pt uppercase gray label
+	 *   │  XY9G-AB7K-92QF                     │  ← 14 pt bold black password
+	 *   │ ─────────────────────────────────── │  ← 0.4 pt gray rule
+	 *   │  mel-rohrer.ch/gallery              │  ← 6.5 pt gray URL
+	 *   └─────────────────────────────────────┘
 	 */
 	private void drawBackCell(PDDocument document, PDPage page, GalleryCode code, float innerX, float innerY,
 			float innerWidth, float innerHeight, PDType1Font fontBold, PDType1Font fontRegular,
 			PDImageXObject logoImage, String galleryUrl) throws IOException {
 
-		float headerH = innerHeight * BACK_HEADER_RATIO;
-		float footerH = innerHeight * BACK_FOOTER_RATIO;
-
-		float headerTopY = innerY + innerHeight;
-		float headerBotY = headerTopY - headerH;
-		float footerTopY = innerY + footerH;
-
 		try (PDPageContentStream cs = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND,
 				true, true)) {
 
-			// ── HEADER BAND background (light gray) ──────────────────────────────────
-			cs.setNonStrokingColor(HEADER_BG_R, HEADER_BG_G, HEADER_BG_B);
-			cs.addRect(innerX, headerBotY, innerWidth, headerH);
-			cs.fill();
+			// ── OUTER CARD BORDER ─────────────────────────────────────────────────────
+			cs.setStrokingColor(INK, INK, INK);
+			cs.setLineWidth(BACK_CARD_BORDER_WIDTH);
+			cs.addRect(innerX, innerY, innerWidth, innerHeight);
+			cs.stroke();
 
-			// ── FOOTER BAND background (pale blue) ───────────────────────────────────
-			cs.setNonStrokingColor(PALE_R, PALE_G, PALE_B);
-			cs.addRect(innerX, innerY, innerWidth, footerH);
-			cs.fill();
+			// ── LOGO ZONE (top BACK_LOGO_RATIO of inner height) ──────────────────────
+			float logoZoneH = innerHeight * BACK_LOGO_RATIO;
+			float logoZoneTopY = innerY + innerHeight;
+			float logoZoneBotY = logoZoneTopY - logoZoneH;
 
-			// ── TOP ACCENT STRIPE (top edge of header) ───────────────────────────────
-			cs.setNonStrokingColor(ACCENT_R, ACCENT_G, ACCENT_B);
-			cs.addRect(innerX, headerTopY - BACK_STRIPE_HEIGHT, innerWidth, BACK_STRIPE_HEIGHT);
-			cs.fill();
-
-			// ── HEADER–BODY SEPARATOR STRIPE ─────────────────────────────────────────
-			cs.setNonStrokingColor(ACCENT_R, ACCENT_G, ACCENT_B);
-			cs.addRect(innerX, headerBotY, innerWidth, BACK_STRIPE_HEIGHT);
-			cs.fill();
-
-			// ── BODY–FOOTER SEPARATOR STRIPE ─────────────────────────────────────────
-			cs.setNonStrokingColor(ACCENT_R, ACCENT_G, ACCENT_B);
-			cs.addRect(innerX, footerTopY - BACK_STRIPE_HEIGHT, innerWidth, BACK_STRIPE_HEIGHT);
-			cs.fill();
-
-			// ── BOTTOM ACCENT STRIPE ──────────────────────────────────────────────────
-			cs.setNonStrokingColor(ACCENT_R, ACCENT_G, ACCENT_B);
-			cs.addRect(innerX, innerY, innerWidth, BACK_STRIPE_HEIGHT);
-			cs.fill();
-
-			// ── LOGO (centered in header band) ───────────────────────────────────────
 			if (logoImage != null) {
 				float logoAspect = (float) logoImage.getWidth() / logoImage.getHeight();
-				float maxLogoH = headerH - BACK_LOGO_VERTICAL_PADDING;
-				float maxLogoW = innerWidth - BACK_LOGO_HORIZONTAL_PADDING;
-				float logoH = maxLogoH;
-				float logoW = logoAspect * logoH;
-				if (logoW > maxLogoW) {
-					logoW = maxLogoW;
-					logoH = logoW / logoAspect;
+				float maxLogoW = innerWidth - BACK_LOGO_H_PAD * 2f;
+				float maxLogoH = logoZoneH - BACK_LOGO_V_PAD * 2f;
+				float logoW = maxLogoW;
+				float logoH = logoW / logoAspect;
+				if (logoH > maxLogoH) {
+					logoH = maxLogoH;
+					logoW = logoH * logoAspect;
 				}
 				float logoX = innerX + (innerWidth - logoW) / 2f;
-				float logoY = headerBotY + (headerH - logoH) / 2f;
+				float logoY = logoZoneBotY + (logoZoneH - logoH) / 2f;
 				cs.drawImage(logoImage, logoX, logoY, logoW, logoH);
 			}
 
-			// ── PASSWORD SECTION ──────────────────────────────────────────────────────
-			// Body zone sits between the two separator stripes
-			float bodyTopY = headerBotY - BACK_STRIPE_HEIGHT;
-			float bodyBotY = footerTopY;
-			float bodyH = bodyTopY - bodyBotY;
+			// ── TOP RULE (below logo zone) ────────────────────────────────────────────
+			float rule1Y = logoZoneBotY - BACK_RULE_GAP;
+			cs.setStrokingColor(RULE_GRAY, RULE_GRAY, RULE_GRAY);
+			cs.setLineWidth(BACK_RULE_WIDTH);
+			cs.moveTo(innerX + BACK_RULE_INSET, rule1Y);
+			cs.lineTo(innerX + innerWidth - BACK_RULE_INSET, rule1Y);
+			cs.stroke();
 
-			// "Gallery Password" label
-			float labelY = bodyTopY - bodyH * BACK_LABEL_Y_RATIO;
-			String label = "Gallery Password";
+			// ── PASSWORD SECTION ──────────────────────────────────────────────────────
+			// Stack: label then password, centered vertically in remaining space above
+			// the bottom rule.
+			float bottomRuleY = innerY + BACK_RULE_GAP * 2f
+					+ (galleryUrl.isBlank() ? 0f : BACK_URL_FONT_SIZE + BACK_RULE_GAP);
+			float passwordSectionBotY = bottomRuleY + BACK_RULE_GAP;
+
+			// Combined height of the password block (label + gap + password)
+			float blockH = BACK_LABEL_FONT_SIZE + BACK_LABEL_PW_GAP + BACK_PASSWORD_FONT_SIZE;
+			float blockBotY = passwordSectionBotY + ((rule1Y - BACK_RULE_GAP - passwordSectionBotY) - blockH) / 2f;
+
+			// "GALLERY PASSWORD" label
+			String label = "GALLERY PASSWORD";
 			float labelW = fontRegular.getStringWidth(label) / 1000f * BACK_LABEL_FONT_SIZE;
 			float labelX = innerX + (innerWidth - labelW) / 2f;
+			float labelY = blockBotY + BACK_PASSWORD_FONT_SIZE + BACK_LABEL_PW_GAP;
 			cs.beginText();
-			cs.setNonStrokingColor(TEXT_GRAY, TEXT_GRAY, TEXT_GRAY);
+			cs.setNonStrokingColor(GRAY, GRAY, GRAY);
 			cs.setFont(fontRegular, BACK_LABEL_FONT_SIZE);
 			cs.newLineAtOffset(labelX, labelY);
 			cs.showText(label);
 			cs.endText();
 
-			// Password box — centered within the body zone
+			// Password in large bold black
 			String password = code.password().isBlank() ? "\u2014" : code.password();
 			float pwW = fontBold.getStringWidth(password) / 1000f * BACK_PASSWORD_FONT_SIZE;
-			float boxW = Math.min(pwW + BACK_PASSWORD_BOX_PAD_H * 2f, innerWidth - BACK_PASSWORD_BOX_MARGIN);
-			float boxH = BACK_PASSWORD_FONT_SIZE + BACK_PASSWORD_BOX_PAD_V * 2f;
-			float boxX = innerX + (innerWidth - boxW) / 2f;
-			float boxCenterY = bodyTopY - bodyH * BACK_PASSWORD_BOX_Y_RATIO;
-			float boxY = boxCenterY - boxH / 2f;
-
-			// Box fill
-			cs.setNonStrokingColor(PALE_R, PALE_G, PALE_B);
-			cs.addRect(boxX, boxY, boxW, boxH);
-			cs.fill();
-			// Box border
-			cs.setStrokingColor(ACCENT_R, ACCENT_G, ACCENT_B);
-			cs.setLineWidth(BACK_PASSWORD_BOX_BORDER_WIDTH);
-			cs.addRect(boxX, boxY, boxW, boxH);
-			cs.stroke();
-			// Password text
 			float pwX = innerX + (innerWidth - pwW) / 2f;
-			float pwTextY = boxY + BACK_PASSWORD_BOX_PAD_V;
 			cs.beginText();
-			cs.setNonStrokingColor(TEXT_DARK, TEXT_DARK, TEXT_DARK);
+			cs.setNonStrokingColor(INK, INK, INK);
 			cs.setFont(fontBold, BACK_PASSWORD_FONT_SIZE);
-			cs.newLineAtOffset(pwX, pwTextY);
+			cs.newLineAtOffset(pwX, blockBotY);
 			cs.showText(password);
 			cs.endText();
 
-			// ── FOOTER URL ────────────────────────────────────────────────────────────
+			// ── BOTTOM RULE ───────────────────────────────────────────────────────────
+			cs.setStrokingColor(RULE_GRAY, RULE_GRAY, RULE_GRAY);
+			cs.setLineWidth(BACK_RULE_WIDTH);
+			cs.moveTo(innerX + BACK_RULE_INSET, bottomRuleY);
+			cs.lineTo(innerX + innerWidth - BACK_RULE_INSET, bottomRuleY);
+			cs.stroke();
+
+			// ── URL (below bottom rule) ───────────────────────────────────────────────
 			if (!galleryUrl.isBlank()) {
-				String displayUrl = truncateUrl(galleryUrl, fontRegular, BACK_URL_FONT_SIZE,
-						innerWidth - BACK_URL_HORIZONTAL_MARGIN);
+				String displayUrl = truncateUrl(galleryUrl, fontRegular, BACK_URL_FONT_SIZE, innerWidth - 8f);
 				float urlW = fontRegular.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;
 				float urlX = innerX + (innerWidth - urlW) / 2f;
-				float urlY = innerY + (footerH - BACK_STRIPE_HEIGHT - BACK_URL_FONT_SIZE) / 2f;
+				float urlY = innerY + BACK_RULE_GAP;
 				cs.beginText();
-				cs.setNonStrokingColor(ACCENT_R, ACCENT_G, ACCENT_B);
+				cs.setNonStrokingColor(GRAY, GRAY, GRAY);
 				cs.setFont(fontRegular, BACK_URL_FONT_SIZE);
 				cs.newLineAtOffset(urlX, urlY);
 				cs.showText(displayUrl);
