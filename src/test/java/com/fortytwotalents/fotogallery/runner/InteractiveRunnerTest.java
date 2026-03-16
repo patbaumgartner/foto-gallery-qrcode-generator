@@ -1,7 +1,9 @@
 package com.fortytwotalents.fotogallery.runner;
 
 import com.fortytwotalents.fotogallery.config.AppProperties;
+import com.fortytwotalents.fotogallery.model.CsvReadResult;
 import com.fortytwotalents.fotogallery.model.GalleryCode;
+import com.fortytwotalents.fotogallery.model.PdfOptions;
 import com.fortytwotalents.fotogallery.service.CodeGeneratorService;
 import com.fortytwotalents.fotogallery.service.CsvReaderService;
 import com.fortytwotalents.fotogallery.service.CsvWriterService;
@@ -9,10 +11,12 @@ import com.fortytwotalents.fotogallery.service.PdfGeneratorService;
 import com.fortytwotalents.fotogallery.service.QrCodeGeneratorService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.DefaultApplicationArguments;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -346,6 +350,30 @@ class InteractiveRunnerTest {
 				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
 
 		assertThat(runner.promptBoolean(scannerFrom("maybe\n"), "Show cutting lines", true)).isTrue();
+	}
+
+	@Test
+	void logoUrlDefaultsToLogoWhenNotConfigured() throws Exception {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
+				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
+				qrCodeGeneratorService, pdfGeneratorService);
+
+		when(csvReaderService.readCodes(any()))
+			.thenReturn(new CsvReadResult(List.of(new GalleryCode("XY9G-AB7K-92QF")), "Test Event"));
+		when(qrCodeGeneratorService.generateQrCode(any(), anyString(), anyInt(), anyInt()))
+			.thenReturn(new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB));
+		when(pdfGeneratorService.createPdf(any(), any(), anyString(), any())).thenReturn(1);
+
+		// User selects "generate-pdf", accepts all defaults (csvInputPath, outputPath, baseUrl, qrSize, gridColumns, gridRows, showCuttingLines, galleryUrl, logoUrl)
+		ByteArrayInputStream input = new ByteArrayInputStream("2\n\n\n\n\n\n\n\n\n\n".getBytes(StandardCharsets.UTF_8));
+		System.setIn(input);
+
+		runner.run(new DefaultApplicationArguments());
+
+		ArgumentCaptor<PdfOptions> captor = ArgumentCaptor.forClass(PdfOptions.class);
+		verify(pdfGeneratorService).createPdf(any(), any(), anyString(), captor.capture());
+		assertThat(captor.getValue().logoUrl()).isEqualTo("logo.png");
 	}
 
 	private static Scanner scannerFrom(String text) {
