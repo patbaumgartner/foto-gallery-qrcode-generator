@@ -52,6 +52,8 @@ public class CodeGeneratorService {
 		}
 	}
 
+	private static final int MAX_PASSWORD_GENERATION_ATTEMPTS = 100;
+
 	private final SecureRandom random = new SecureRandom();
 
 	public List<GalleryCode> generateCodes(String eventCode, int count) {
@@ -83,9 +85,20 @@ public class CodeGeneratorService {
 			LOGGER.warn("Could only generate {} unique codes out of {} requested", uniqueCodes.size(), count);
 		}
 
+		LinkedHashSet<String> usedPasswords = new LinkedHashSet<>();
 		List<GalleryCode> codes = new ArrayList<>();
 		for (String code : uniqueCodes) {
-			codes.add(new GalleryCode(code, generatePassword()));
+			String password;
+			int passwordAttempts = 0;
+			do {
+				password = generatePassword();
+				passwordAttempts++;
+			} while (!usedPasswords.add(password) && passwordAttempts < MAX_PASSWORD_GENERATION_ATTEMPTS);
+			if (passwordAttempts >= MAX_PASSWORD_GENERATION_ATTEMPTS) {
+				LOGGER.warn("Could not generate a unique password for code '{}' after {} attempts", code,
+						MAX_PASSWORD_GENERATION_ATTEMPTS);
+			}
+			codes.add(new GalleryCode(code, password));
 		}
 
 		LOGGER.atInfo()

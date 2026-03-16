@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,7 +44,7 @@ class CodeGeneratorServiceTest {
 	void generatesUniqueCodes() {
 		List<GalleryCode> codes = service.generateCodes("XY9G", 100);
 
-		assertThat(codes).doesNotHaveDuplicates();
+		assertThat(codes).extracting(GalleryCode::code).doesNotHaveDuplicates();
 	}
 
 	@Test
@@ -143,6 +144,25 @@ class CodeGeneratorServiceTest {
 	@Test
 	void generatesUniquePasswords() {
 		List<GalleryCode> codes = service.generateCodes("XY9G", 50);
+
+		assertThat(codes).extracting(GalleryCode::password).doesNotHaveDuplicates();
+	}
+
+	@Test
+	void passwordRetriesOnCollisionUntilUnique() {
+		// Subclass overrides generatePassword() to return the same value for the first
+		// N calls, forcing collisions and exercising the retry loop.
+		AtomicInteger callCount = new AtomicInteger();
+		CodeGeneratorService collidingService = new CodeGeneratorService() {
+			@Override
+			String generatePassword() {
+				// Return a fixed password for the first 3 calls, then delegate to the real
+				// implementation to produce unique passwords for subsequent codes.
+				return callCount.getAndIncrement() < 3 ? "FIXED-PW!" : super.generatePassword();
+			}
+		};
+
+		List<GalleryCode> codes = collidingService.generateCodes("XY9G", 3);
 
 		assertThat(codes).extracting(GalleryCode::password).doesNotHaveDuplicates();
 	}
