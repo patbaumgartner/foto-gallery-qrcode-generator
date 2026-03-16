@@ -3,7 +3,8 @@
 # schulfotos-mel-rohrer.sh — Generate school photo gallery codes for mel-rohrer.ch/schulfotos.
 #
 # The base URL is hardcoded to https://mel-rohrer.ch/schulfotos/?code= and all standard
-# settings are used (3x4 grid, 200 px QR size, no cutting lines).
+# settings are used (3x4 grid, 200 px QR size, cutting lines enabled).
+# A back page with the gallery URL https://mel-rohrer.ch/schulfotos is added automatically.
 #
 # When run without arguments the script prompts interactively for every parameter.
 # A random 4-character alphanumeric EVENT_CODE is generated automatically
@@ -31,6 +32,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 JAR_NAME="foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar"
 NATIVE_NAME="foto-gallery-qrcode-generator"
 BASE_URL="https://mel-rohrer.ch/schulfotos/?code="
+GALLERY_URL="https://mel-rohrer.ch/schulfotos"
 DEFAULT_CODE_COUNT="17"
 
 # --- Help ---------------------------------------------------------------------
@@ -59,9 +61,10 @@ Examples:
 
 Defaults:
   Base URL         $BASE_URL
+  Gallery URL      $GALLERY_URL
   Grid             3 columns × 4 rows
   QR size          200 px
-  Cutting lines    off
+  Cutting lines    on
 EOF
   exit 0
 }
@@ -162,6 +165,8 @@ echo "==> Generating QR-code PDF ..."
   --app.csv-input-path="$CSV_PATH" \
   --app.output-path="$PDF_PATH" \
   --app.base-url="$BASE_URL" \
+  --app.gallery-url="$GALLERY_URL" \
+  --app.show-cutting-lines=true \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 echo "==> Done. Output files:"
