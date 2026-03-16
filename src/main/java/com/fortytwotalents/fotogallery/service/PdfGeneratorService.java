@@ -33,9 +33,9 @@ public class PdfGeneratorService {
 
 	private static final float CELL_PADDING = 14f;
 
-	private static final float TEXT_HEIGHT = 50f;
+	private static final float TEXT_HEIGHT = 65f;
 
-	private static final float CODE_FONT_SIZE = 14f;
+	private static final float CODE_FONT_SIZE = 18f;
 
 	private static final float EVENT_NAME_FONT_SIZE = 12f;
 
@@ -49,7 +49,7 @@ public class PdfGeneratorService {
 
 	// Back-page layout — logo takes the dominant top portion of each cell
 	// (fraction of innerHeight)
-	private static final float BACK_LOGO_RATIO = 0.55f;
+	private static final float BACK_LOGO_RATIO = 0.50f;
 
 	// Inner padding around the logo image (top + sides)
 	private static final float BACK_LOGO_V_PAD = 6f;
@@ -69,14 +69,14 @@ public class PdfGeneratorService {
 	private static final float BACK_RULE_GAP = 3.5f;
 
 	// Typography
-	private static final float BACK_LABEL_FONT_SIZE = 6f;
+	private static final float BACK_LABEL_FONT_SIZE = 8f;
 
-	private static final float BACK_PASSWORD_FONT_SIZE = 14f;
+	private static final float BACK_PASSWORD_FONT_SIZE = 18f;
 
-	private static final float BACK_URL_FONT_SIZE = 6.5f;
+	private static final float BACK_URL_FONT_SIZE = 9f;
 
 	// Vertical gap between label text and password text
-	private static final float BACK_LABEL_PW_GAP = 3f;
+	private static final float BACK_LABEL_PW_GAP = 4f;
 
 	// Minimum character count when truncating a URL with ellipsis
 	private static final int MIN_URL_DISPLAY_LENGTH = 6;
@@ -369,13 +369,13 @@ public class PdfGeneratorService {
 
 			// ── BASE URL (below bottom rule) ─────────────────────────────────────────
 			if (!baseUrl.isBlank()) {
-				String displayUrl = truncateUrl(baseUrl, fontRegular, BACK_URL_FONT_SIZE, innerWidth - 8f);
-				float urlW = fontRegular.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;
+				String displayUrl = truncateUrl(baseUrl, fontBold, BACK_URL_FONT_SIZE, innerWidth - 8f);
+				float urlW = fontBold.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;
 				float urlX = innerX + (innerWidth - urlW) / 2f;
 				float urlY = innerY + (bottomRuleY - innerY - BACK_URL_FONT_SIZE) / 2f;
 				cs.beginText();
-				cs.setNonStrokingColor(GRAY, GRAY, GRAY);
-				cs.setFont(fontRegular, BACK_URL_FONT_SIZE);
+				cs.setNonStrokingColor(INK, INK, INK);
+				cs.setFont(fontBold, BACK_URL_FONT_SIZE);
 				cs.newLineAtOffset(urlX, urlY);
 				cs.showText(displayUrl);
 				cs.endText();
