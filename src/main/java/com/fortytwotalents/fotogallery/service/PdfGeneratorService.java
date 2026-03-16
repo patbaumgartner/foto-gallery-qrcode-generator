@@ -483,21 +483,37 @@ public class PdfGeneratorService {
 			content.setLineWidth(CUTTING_LINE_WIDTH);
 			content.setLineDashPattern(new float[]{CUTTING_LINE_DASH, CUTTING_LINE_GAP}, 0);
 
-			// Vertical lines between columns
+			// Vertical lines: outer boundaries + between columns, edge-to-edge for print alignment
+			content.moveTo(MARGIN, 0);
+			content.lineTo(MARGIN, pageHeight);
+			content.stroke();
+
 			for (int col = 1; col < gridColumns; col++) {
 				float x = MARGIN + col * cellWidth;
-				content.moveTo(x, MARGIN);
-				content.lineTo(x, pageHeight - MARGIN);
+				content.moveTo(x, 0);
+				content.lineTo(x, pageHeight);
 				content.stroke();
 			}
 
-			// Horizontal lines between rows
+			content.moveTo(pageWidth - MARGIN, 0);
+			content.lineTo(pageWidth - MARGIN, pageHeight);
+			content.stroke();
+
+			// Horizontal lines: outer boundaries + between rows, edge-to-edge for print alignment
+			content.moveTo(0, pageHeight - MARGIN);
+			content.lineTo(pageWidth, pageHeight - MARGIN);
+			content.stroke();
+
 			for (int row = 1; row < gridRows; row++) {
 				float y = pageHeight - MARGIN - row * cellHeight;
-				content.moveTo(MARGIN, y);
-				content.lineTo(pageWidth - MARGIN, y);
+				content.moveTo(0, y);
+				content.lineTo(pageWidth, y);
 				content.stroke();
 			}
+
+			content.moveTo(0, MARGIN);
+			content.lineTo(pageWidth, MARGIN);
+			content.stroke();
 		}
 	}
 
