@@ -235,9 +235,9 @@ generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/ga
 ### School Photo Scripts (mel-rohrer.ch/schulfotos)
 
 Two dedicated scripts for generating school photo gallery codes on `mel-rohrer.ch/schulfotos`.
-The base URL `https://mel-rohrer.ch/schulfotos/?code=` is hardcoded and all standard settings are
-applied (50 codes, 3×4 grid, 200 px QR size, no cutting lines). Output files are named
-automatically after the class (e.g. `Klasse-3A-codes.csv` and `Klasse-3A-qr-codes.pdf`).
+The base URL `https://mel-rohrer.ch/schulfotos/?code=` is hardcoded, cutting lines are enabled by
+default, and a back page with the gallery URL `https://mel-rohrer.ch/schulfotos` is added
+automatically. Output files are named after the class (e.g. `GS1d-BA-codes.csv` and `GS1d-BA-qr-codes.pdf`).
 
 **Linux / macOS (`schulfotos-mel-rohrer.sh`):**
 
