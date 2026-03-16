@@ -299,7 +299,7 @@ class InteractiveRunnerTest {
 
 		when(csvReaderService.readCodes(any())).thenThrow(new java.io.IOException("CSV file not found: missing.csv"));
 
-		// User selects "generate-pdf", accepts all defaults (csvInputPath, outputPath, baseUrl, qrSize, gridColumns, gridRows, showCuttingLines, galleryUrl, logoUrl)
+		// User selects "generate-pdf", accepts all defaults (csvInputPath, outputPath, galleryUrl, baseUrl, qrSize, gridColumns, gridRows, showCuttingLines, logoUrl)
 		ByteArrayInputStream input = new ByteArrayInputStream("2\n\n\n\n\n\n\n\n\n\n".getBytes(StandardCharsets.UTF_8));
 		System.setIn(input);
 
@@ -365,7 +365,7 @@ class InteractiveRunnerTest {
 			.thenReturn(new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB));
 		when(pdfGeneratorService.createPdf(any(), any(), anyString(), any())).thenReturn(1);
 
-		// User selects "generate-pdf", accepts all defaults (csvInputPath, outputPath, baseUrl, qrSize, gridColumns, gridRows, showCuttingLines, galleryUrl, logoUrl)
+		// User selects "generate-pdf", accepts all defaults (csvInputPath, outputPath, galleryUrl, baseUrl, qrSize, gridColumns, gridRows, showCuttingLines, logoUrl)
 		ByteArrayInputStream input = new ByteArrayInputStream("2\n\n\n\n\n\n\n\n\n\n".getBytes(StandardCharsets.UTF_8));
 		System.setIn(input);
 

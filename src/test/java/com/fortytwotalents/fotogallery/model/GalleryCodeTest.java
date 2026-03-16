@@ -33,9 +33,9 @@ class GalleryCodeTest {
 	void toUrlConcatenatesCorrectly() {
 		GalleryCode code = new GalleryCode("XY9G-AB7K-92QF");
 
-		String url = code.toUrl("https://my.site/gallery/");
+		String url = code.toUrl("https://my.site/gallery/?code=");
 
-		assertThat(url).isEqualTo("https://my.site/gallery/XY9G-AB7K-92QF");
+		assertThat(url).isEqualTo("https://my.site/gallery/?code=XY9G-AB7K-92QF");
 	}
 
 	@Test

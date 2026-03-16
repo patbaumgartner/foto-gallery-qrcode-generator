@@ -90,13 +90,18 @@ public class InteractiveRunner implements ApplicationRunner {
 			if ("generate-pdf".equals(mode) || "both".equals(mode)) {
 				csvInputPath = promptOptional(scanner, "CSV input path", csvInputPath);
 				outputPath = promptOptional(scanner, "PDF output path", outputPath);
-				baseUrl = promptOptional(scanner, "Base URL for QR codes", baseUrl);
+				do {
+					galleryUrl = promptOptional(scanner, "Gallery URL for QR codes (https://...)", galleryUrl);
+					if (!galleryUrl.startsWith("https://")) {
+						System.out.println("Gallery URL must start with https://");
+					}
+				}
+				while (!galleryUrl.startsWith("https://"));
+				baseUrl = promptOptional(scanner, "Base URL for back page", baseUrl);
 				qrSize = promptInt(scanner, "QR code size (pixels)", qrSize);
 				gridColumns = promptInt(scanner, "Grid columns per page", gridColumns);
 				gridRows = promptInt(scanner, "Grid rows per page", gridRows);
 				showCuttingLines = promptBoolean(scanner, "Show cutting lines", showCuttingLines);
-				String galleryUrlDefault = galleryUrl.isBlank() ? baseUrl : galleryUrl;
-				galleryUrl = promptOptional(scanner, "Gallery URL for back page", galleryUrlDefault);
 				String logoUrlDefault = logoUrl.isBlank() ? "logo.png" : logoUrl;
 				logoUrl = promptOptional(scanner, "Logo URL for back page (JPEG/PNG)", logoUrlDefault);
 			}

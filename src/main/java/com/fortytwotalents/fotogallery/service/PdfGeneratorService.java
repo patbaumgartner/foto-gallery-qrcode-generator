@@ -107,7 +107,6 @@ public class PdfGeneratorService {
 		boolean showCuttingLines = options.showCuttingLines();
 		String eventName = options.eventName();
 		Path outputPath = options.outputPath();
-		String galleryUrl = options.galleryUrl();
 		String logoUrl = options.logoUrl();
 
 		int codesPerPage = gridColumns * gridRows;
@@ -123,7 +122,6 @@ public class PdfGeneratorService {
 		float qrSize = Math.min(innerWidth, innerHeight - TEXT_HEIGHT);
 
 		boolean hasEventName = eventName != null && !eventName.isBlank();
-		boolean hasBackPage = !galleryUrl.isBlank() || !logoUrl.isBlank();
 
 		int numFrontPages = (int) Math.ceil((double) codes.size() / codesPerPage);
 
@@ -227,26 +225,24 @@ public class PdfGeneratorService {
 				}
 
 				// === BACK PAGE (for duplex printing — mirrored horizontally) ===
-				if (hasBackPage) {
-					PDPage backPage = new PDPage(PDRectangle.A4);
-					document.addPage(backPage);
+				PDPage backPage = new PDPage(PDRectangle.A4);
+				document.addPage(backPage);
 
-					for (int i = startI; i < endI; i++) {
-						int indexOnPage = i - startI;
-						int col = indexOnPage % gridColumns;
-						int row = indexOnPage / gridColumns;
-						int mirroredCol = gridColumns - 1 - col;
+				for (int i = startI; i < endI; i++) {
+					int indexOnPage = i - startI;
+					int col = indexOnPage % gridColumns;
+					int row = indexOnPage / gridColumns;
+					int mirroredCol = gridColumns - 1 - col;
 
-						GalleryCode code = codes.get(i);
+					GalleryCode code = codes.get(i);
 
-						float cellX = MARGIN + mirroredCol * cellWidth;
-						float cellY = pageHeight - MARGIN - (row + 1) * cellHeight;
-						float innerX = cellX + CELL_PADDING;
-						float innerY = cellY + CELL_PADDING;
+					float cellX = MARGIN + mirroredCol * cellWidth;
+					float cellY = pageHeight - MARGIN - (row + 1) * cellHeight;
+					float innerX = cellX + CELL_PADDING;
+					float innerY = cellY + CELL_PADDING;
 
-						drawBackCell(document, backPage, code, innerX, innerY, innerWidth, innerHeight, fontBold,
-								fontRegular, logoImage, galleryUrl);
-					}
+					drawBackCell(document, backPage, code, innerX, innerY, innerWidth, innerHeight, fontBold,
+							fontRegular, logoImage, baseUrl);
 				}
 			}
 
@@ -286,7 +282,7 @@ public class PdfGeneratorService {
 	 */
 	private void drawBackCell(PDDocument document, PDPage page, GalleryCode code, float innerX, float innerY,
 			float innerWidth, float innerHeight, PDType1Font fontBold, PDType1Font fontRegular,
-			PDImageXObject logoImage, String galleryUrl) throws IOException {
+			PDImageXObject logoImage, String baseUrl) throws IOException {
 
 		try (PDPageContentStream cs = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND,
 				true, true)) {
@@ -329,7 +325,7 @@ public class PdfGeneratorService {
 			// Stack: label then password, centered vertically in remaining space above
 			// the bottom rule.
 			float bottomRuleY = innerY + BACK_RULE_GAP * 2f
-					+ (galleryUrl.isBlank() ? 0f : BACK_URL_FONT_SIZE + BACK_RULE_GAP);
+					+ (baseUrl.isBlank() ? 0f : BACK_URL_FONT_SIZE + BACK_RULE_GAP);
 			float passwordSectionBotY = bottomRuleY + BACK_RULE_GAP;
 
 			// Combined height of the password block (label + gap + password)
@@ -367,8 +363,8 @@ public class PdfGeneratorService {
 			cs.stroke();
 
 			// ── URL (below bottom rule) ───────────────────────────────────────────────
-			if (!galleryUrl.isBlank()) {
-				String displayUrl = truncateUrl(galleryUrl, fontRegular, BACK_URL_FONT_SIZE, innerWidth - 8f);
+			if (!baseUrl.isBlank()) {
+				String displayUrl = truncateUrl(baseUrl, fontRegular, BACK_URL_FONT_SIZE, innerWidth - 8f);
 				float urlW = fontRegular.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;
 				float urlX = innerX + (innerWidth - urlW) / 2f;
 				float urlY = innerY + (bottomRuleY - innerY - BACK_URL_FONT_SIZE) / 2f;

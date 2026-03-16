@@ -12,7 +12,7 @@
 #   ./generate-qrcodes.sh XY9G
 #   ./generate-qrcodes.sh XY9G 100
 #   ./generate-qrcodes.sh XY9G 100 "My Photo Event"
-#   ./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
+#   ./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.gallery-url=https://my.site/gallery/?code=
 #   ./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
 #
 set -euo pipefail

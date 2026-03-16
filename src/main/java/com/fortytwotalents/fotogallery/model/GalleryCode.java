@@ -20,7 +20,7 @@ public record GalleryCode(String code, String password) {
 		return code != null && CODE_PATTERN.matcher(code).matches();
 	}
 
-	public String toUrl(String baseUrl) {
-		return baseUrl + code;
+	public String toUrl(String galleryUrl) {
+		return galleryUrl + code;
 	}
 }

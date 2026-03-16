@@ -45,6 +45,11 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
 			return;
 		}
 
+		if (!appProperties.galleryUrl().startsWith("https://")) {
+			LOGGER.error("app.gallery-url must start with https://. Current value: {}", appProperties.galleryUrl());
+			return;
+		}
+
 		Path inputPath = Path.of(appProperties.csvInputPath());
 		Path outputPath = Path.of(appProperties.outputPath());
 
@@ -64,13 +69,13 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = new LinkedHashMap<>();
 		for (int i = 0; i < codes.size(); i++) {
 			GalleryCode code = codes.get(i);
-			BufferedImage qrImage = qrCodeGeneratorService.generateQrCode(code, appProperties.baseUrl(),
+			BufferedImage qrImage = qrCodeGeneratorService.generateQrCode(code, appProperties.galleryUrl(),
 					appProperties.qrSize(), i + 1);
 			qrImages.put(code, qrImage);
 		}
 
 		PdfOptions pdfOptions = new PdfOptions(outputPath, appProperties.gridColumns(), appProperties.gridRows(),
-				appProperties.showCuttingLines(), eventName, appProperties.galleryUrl(), appProperties.logoUrl());
+				appProperties.showCuttingLines(), eventName, appProperties.logoUrl());
 
 		int pages = pdfGeneratorService.createPdf(codes, qrImages, appProperties.baseUrl(), pdfOptions);
 

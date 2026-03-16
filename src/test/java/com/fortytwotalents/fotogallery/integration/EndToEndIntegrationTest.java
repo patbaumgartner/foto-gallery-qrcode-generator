@@ -57,7 +57,8 @@ class EndToEndIntegrationTest {
 		assertThat(pages).isEqualTo(1);
 
 		try (PDDocument doc = Loader.loadPDF(outputPath.toFile())) {
-			assertThat(doc.getNumberOfPages()).isEqualTo(1);
+			// 1 front page + 1 back page (back page is always generated)
+			assertThat(doc.getNumberOfPages()).isEqualTo(2);
 
 			PDFTextStripper stripper = new PDFTextStripper();
 			String text = stripper.getText(doc);
@@ -94,7 +95,8 @@ class EndToEndIntegrationTest {
 		assertThat(pages).isEqualTo(2);
 
 		try (PDDocument doc = Loader.loadPDF(outputPath.toFile())) {
-			assertThat(doc.getNumberOfPages()).isEqualTo(2);
+			// 2 front pages + 2 back pages (back pages always generated)
+			assertThat(doc.getNumberOfPages()).isEqualTo(4);
 		}
 	}
 

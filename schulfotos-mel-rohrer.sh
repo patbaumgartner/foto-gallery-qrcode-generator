@@ -2,8 +2,9 @@
 #
 # schulfotos-mel-rohrer.sh — Generate school photo gallery codes for mel-rohrer.ch/schulfotos.
 #
-# The base URL is hardcoded to https://mel-rohrer.ch/schulfotos/?code= and all standard
-# settings are used (3x4 grid, 200 px QR size, no cutting lines).
+# The gallery URL is hardcoded to https://mel-rohrer.ch/schulfotos/?code= (used in QR codes)
+# and the base URL to https://mel-rohrer.ch/schulfotos/ (printed on the back of the PDF).
+# All standard settings are used (3x4 grid, 200 px QR size, no cutting lines).
 #
 # When run without arguments the script prompts interactively for every parameter.
 # A random 4-character alphanumeric EVENT_CODE is generated automatically
@@ -30,7 +31,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 JAR_NAME="foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar"
 NATIVE_NAME="foto-gallery-qrcode-generator"
-BASE_URL="https://mel-rohrer.ch/schulfotos/?code="
+GALLERY_URL="https://mel-rohrer.ch/schulfotos/?code="
+DISPLAY_URL="https://mel-rohrer.ch/schulfotos/"
 DEFAULT_CODE_COUNT="17"
 
 # --- Help ---------------------------------------------------------------------
@@ -58,7 +60,8 @@ Examples:
   $0 "GS1d BA" 30 --app.show-cutting-lines=true
 
 Defaults:
-  Base URL         $BASE_URL
+  Gallery URL      $GALLERY_URL
+  echo   Base URL         $DISPLAY_URL
   Grid             3 columns × 4 rows
   QR size          200 px
   Cutting lines    off
@@ -152,7 +155,6 @@ echo "==> Generating $CODE_COUNT codes for class '$KLASSENNAME' (event: $EVENT_C
   --app.code-count="$CODE_COUNT" \
   --app.event-name="$KLASSENNAME" \
   --app.csv-output-path="$CSV_PATH" \
-  --app.base-url="$BASE_URL" \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 # --- Step 2: Generate PDF -----------------------------------------------------
@@ -161,7 +163,8 @@ echo "==> Generating QR-code PDF ..."
   --app.mode=generate-pdf \
   --app.csv-input-path="$CSV_PATH" \
   --app.output-path="$PDF_PATH" \
-  --app.base-url="$BASE_URL" \
+  --app.gallery-url="$GALLERY_URL" \
+  --app.base-url="$DISPLAY_URL" \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 echo "==> Done. Output files:"

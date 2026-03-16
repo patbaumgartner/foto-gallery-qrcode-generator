@@ -29,8 +29,8 @@ public class QrCodeGeneratorService {
 
 	private static final double FONT_RATIO = 0.60;
 
-	public BufferedImage generateQrCode(GalleryCode galleryCode, String baseUrl, int size, int number) {
-		String url = galleryCode.toUrl(baseUrl);
+	public BufferedImage generateQrCode(GalleryCode galleryCode, String galleryUrl, int size, int number) {
+		String url = galleryCode.toUrl(galleryUrl);
 		try {
 			int renderSize = size * RENDER_SCALE;
 
