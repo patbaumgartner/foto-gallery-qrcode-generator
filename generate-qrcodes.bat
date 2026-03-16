@@ -35,6 +35,14 @@ rem --- Skip -v / --verbose if it is the first argument -----------------------
 if /i "%~1"=="-v"       shift
 if /i "%~1"=="--verbose" shift
 
+rem --- Load optional PicPeak credentials ---------------------------------------
+rem Copy picpeak.properties.example to picpeak.properties and fill in your
+rem credentials.  The file is listed in .gitignore so it will never be committed.
+set "PICPEAK_ARGS="
+if exist "%SCRIPT_DIR%picpeak.properties" (
+    set "PICPEAK_ARGS=--spring.config.additional-location=file:%SCRIPT_DIR%picpeak.properties"
+)
+
 rem --- Resolve executable -----------------------------------------------------
 rem Check current directory first, then target\ subdirectory
 set "USE_JAR=0"
@@ -57,9 +65,9 @@ rem --- Interactive mode (no arguments) ----------------------------------------
 if "%~1"=="" (
     echo ==^> No arguments provided. Launching interactive shell...
     if "%USE_JAR%"=="1" (
-        java -jar "%RUN%" !QUIET_ARGS!
+        java -jar "%RUN%" !PICPEAK_ARGS! !QUIET_ARGS!
     ) else (
-        "%RUN%" !QUIET_ARGS!
+        "%RUN%" !PICPEAK_ARGS! !QUIET_ARGS!
     )
     exit /b %ERRORLEVEL%
 )
@@ -68,9 +76,9 @@ rem --- Direct flag passthrough (first arg starts with '--') -------------------
 set "FIRST_ARG=%~1"
 if "%FIRST_ARG:~0,2%"=="--" (
     if "%USE_JAR%"=="1" (
-        java -jar "%RUN%" !QUIET_ARGS! %*
+        java -jar "%RUN%" !PICPEAK_ARGS! !QUIET_ARGS! %*
     ) else (
-        "%RUN%" !QUIET_ARGS! %*
+        "%RUN%" !PICPEAK_ARGS! !QUIET_ARGS! %*
     )
     exit /b %ERRORLEVEL%
 )
@@ -111,9 +119,9 @@ goto parse_extra
 rem --- Step 1: Generate codes -------------------------------------------------
 echo ==^> Generating %CODE_COUNT% codes for event %EVENT_CODE% ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" !QUIET_ARGS! %EXTRA_ARGS%
+    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
 ) else (
-    "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" !QUIET_ARGS! %EXTRA_ARGS%
+    "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
 )
 if errorlevel 1 (
     echo ERROR: Code generation failed. >&2
@@ -123,9 +131,9 @@ if errorlevel 1 (
 rem --- Step 2: Generate PDF ---------------------------------------------------
 echo ==^> Generating QR-code PDF ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-pdf !QUIET_ARGS! %EXTRA_ARGS%
+    java -jar "%RUN%" --app.mode=generate-pdf !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
 ) else (
-    "%RUN%" --app.mode=generate-pdf !QUIET_ARGS! %EXTRA_ARGS%
+    "%RUN%" --app.mode=generate-pdf !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
 )
 if errorlevel 1 (
     echo ERROR: PDF generation failed. >&2

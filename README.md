@@ -288,3 +288,94 @@ schulfotos-mel-rohrer.bat -v "GS1d BA"
 | `CODE_COUNT`   | no       | `17`    | Number of codes to generate                           |
 | `EXTRA_ARGS`   | no       | —       | Any additional `--app.*` options passed to both steps |
 
+## PicPeak Integration
+
+The application can automatically create gallery events on a
+[PicPeak](https://picpeak.app) instance for every generated access code and
+write the resulting share link back into the CSV file.
+
+### Quick Start
+
+1. Copy `picpeak.properties.example` to `picpeak.properties` in the same
+   directory as the script / JAR:
+
+   ```bash
+   cp picpeak.properties.example picpeak.properties
+   ```
+
+2. Open `picpeak.properties` and fill in at least the required fields:
+
+   ```properties
+   app.picpeak.enabled=true
+   app.picpeak.api-url=https://pics.example.com
+   app.picpeak.username=admin@example.com
+   app.picpeak.password=secret
+   app.picpeak.customer-email=customer@example.com
+   ```
+
+3. Run any of the scripts as usual — `picpeak.properties` is picked up
+   automatically:
+
+   ```bash
+   ./schulfotos-mel-rohrer.sh "GS1d BA"
+   ./generate-qrcodes.sh XY9G 17 "My Event"
+   ```
+
+`picpeak.properties` is listed in `.gitignore` and will never be committed to
+version control.
+
+### All PicPeak Settings
+
+| Property | Default | Description |
+|---|---|---|
+| `app.picpeak.enabled` | `false` | Set to `true` to activate the integration |
+| `app.picpeak.api-url` | `https://pics.example.com` | Base URL of your PicPeak instance (no trailing slash) |
+| `app.picpeak.username` | *(blank)* | Admin login username |
+| `app.picpeak.password` | *(blank)* | Admin login password |
+| `app.picpeak.event-type` | `schule` | Event type passed to the PicPeak API |
+| `app.picpeak.event-date` | *(today)* | Fixed event date (`YYYY-MM-DD`); defaults to today when blank |
+| `app.picpeak.customer-email` | *(blank)* | Customer e-mail shown in the gallery event |
+| `app.picpeak.admin-email` | *(customer-email)* | Admin notification e-mail; falls back to `customer-email` |
+| `app.picpeak.require-password` | `true` | Require a password to view the gallery |
+| `app.picpeak.welcome-message` | *(blank)* | Welcome message shown to gallery visitors |
+| `app.picpeak.expiration-days` | `30` | Days until the gallery expires |
+| `app.picpeak.allow-user-uploads` | `false` | Allow visitors to upload photos |
+| `app.picpeak.feedback-enabled` | `true` | Enable visitor feedback |
+| `app.picpeak.allow-ratings` | `true` | Allow photo ratings |
+| `app.picpeak.allow-likes` | `false` | Allow photo likes |
+| `app.picpeak.allow-comments` | `false` | Allow photo comments |
+| `app.picpeak.allow-favorites` | `true` | Allow photo favourites |
+| `app.picpeak.require-name-email` | `false` | Require name & e-mail before viewing |
+| `app.picpeak.moderate-comments` | `true` | Hold comments for moderation |
+| `app.picpeak.show-feedback-to-guests` | `false` | Show feedback to unauthenticated guests |
+| `app.picpeak.header-style` | `minimal` | Header style (`minimal`, `classic`, `hero`) |
+| `app.picpeak.hero-divider-style` | `wave` | Hero divider style |
+| `app.picpeak.css-template-id` | `2` | CSS template ID (integer) |
+
+### Alternative: Environment Variables
+
+Spring Boot's relaxed-binding maps environment variables to properties, so you
+can also supply credentials without a file:
+
+```bash
+export APP_PICPEAK_ENABLED=true
+export APP_PICPEAK_API_URL=https://pics.example.com
+export APP_PICPEAK_USERNAME=admin@example.com
+export APP_PICPEAK_PASSWORD=secret
+export APP_PICPEAK_CUSTOMER_EMAIL=customer@example.com
+
+./schulfotos-mel-rohrer.sh "GS1d BA"
+```
+
+### Alternative: Command-Line Flags
+
+You can also pass any PicPeak setting as an `EXTRA_ARGS` flag:
+
+```bash
+./generate-qrcodes.sh XY9G 17 "My Event" \
+  --app.picpeak.enabled=true \
+  --app.picpeak.api-url=https://pics.example.com \
+  --app.picpeak.username=admin@example.com \
+  --app.picpeak.password=secret
+```
+

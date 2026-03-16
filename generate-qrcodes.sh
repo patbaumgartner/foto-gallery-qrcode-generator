@@ -56,10 +56,18 @@ if [[ "$VERBOSE" == false ]]; then
   QUIET_ARGS=(--logging.level.root=WARN --spring.main.banner-mode=off)
 fi
 
+# --- Load optional PicPeak credentials ----------------------------------------
+# Copy picpeak.properties.example to picpeak.properties and fill in your
+# credentials.  The file is .gitignored so it will never be committed.
+PICPEAK_ARGS=()
+if [[ -f "$SCRIPT_DIR/picpeak.properties" ]]; then
+  PICPEAK_ARGS=(--spring.config.additional-location="file:$SCRIPT_DIR/picpeak.properties")
+fi
+
 # --- Interactive mode (no arguments) ------------------------------------------
 if [[ $# -lt 1 ]]; then
   echo "==> No arguments provided. Launching interactive shell..."
-  "${RUN[@]}" ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"}
+  "${RUN[@]}" ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"}
   exit 0
 fi
 
@@ -67,7 +75,7 @@ fi
 # If first arg starts with '--', pass all args directly to the jar (no positional parsing).
 # This allows: ./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
 if [[ "${1:-}" =~ ^-- ]]; then
-  "${RUN[@]}" ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} "$@"
+  "${RUN[@]}" ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} "$@"
   exit $?
 fi
 
@@ -95,6 +103,7 @@ echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
   --app.event-code="$EVENT_CODE" \
   --app.code-count="$CODE_COUNT" \
   --app.event-name="$EVENT_NAME" \
+  ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
@@ -102,6 +111,7 @@ echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
 echo "==> Generating QR-code PDF ..."
 "${RUN[@]}" \
   --app.mode=generate-pdf \
+  ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
