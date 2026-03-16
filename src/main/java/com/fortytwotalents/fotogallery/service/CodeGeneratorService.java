@@ -19,9 +19,10 @@ public class CodeGeneratorService {
 
 	private static final int GROUP_LENGTH = 4;
 
-	private static final String PASSWORD_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+	// Characters allowed by pattern: ^[A-Za-z0-9!@#$%&*+\-_.]+$
+	private static final String PASSWORD_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*+-_.";
 
-	private static final int PASSWORD_LENGTH = 7;
+	private static final int PASSWORD_LENGTH = 9;
 
 	private final SecureRandom random = new SecureRandom();
 
