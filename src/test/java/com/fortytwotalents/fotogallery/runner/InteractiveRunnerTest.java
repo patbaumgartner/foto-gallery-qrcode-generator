@@ -267,7 +267,7 @@ class InteractiveRunnerTest {
 		runner.run(new DefaultApplicationArguments());
 
 		verify(codeGeneratorService).generateCodes(anyString(), anyInt());
-		verify(csvWriterService).writeCodes(any(), any(), any());
+		verify(csvWriterService).writeCodes(any(), any(), any(), any());
 	}
 
 	@Test

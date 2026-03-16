@@ -116,7 +116,7 @@ class CsvReaderServiceTest {
 
 	@Test
 	void readsEventNameFromHeaderCsv() throws Exception {
-		Path csv = writeCsv("Number,Code,Event Name\n1,XY9G-AB7K-92QF,My Event\n2,TK2H-XY3M-88PL,My Event\n");
+		Path csv = writeCsv("Number,Code,Password,Event Name,URL\n1,XY9G-AB7K-92QF,,My Event,https://my.site/gallery/XY9G-AB7K-92QF\n2,TK2H-XY3M-88PL,,My Event,https://my.site/gallery/TK2H-XY3M-88PL\n");
 
 		CsvReadResult result = service.readCodes(csv);
 
@@ -128,7 +128,7 @@ class CsvReaderServiceTest {
 	@Test
 	void readsPasswordFromHeaderCsv() throws Exception {
 		Path csv = writeCsv(
-				"Number,Code,Event Name,Password\n1,XY9G-AB7K-92QF,My Event,ABC1234\n2,TK2H-XY3M-88PL,My Event,DEF5678\n");
+				"Number,Code,Password,Event Name,URL\n1,XY9G-AB7K-92QF,ABC1234,My Event,https://my.site/gallery/XY9G-AB7K-92QF\n2,TK2H-XY3M-88PL,DEF5678,My Event,https://my.site/gallery/TK2H-XY3M-88PL\n");
 
 		CsvReadResult result = service.readCodes(csv);
 

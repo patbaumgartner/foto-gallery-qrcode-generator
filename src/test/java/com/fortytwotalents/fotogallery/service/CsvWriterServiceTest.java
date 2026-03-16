@@ -30,27 +30,27 @@ class CsvWriterServiceTest {
 				new GalleryCode("XY9G-TK2H-88PL", "DEF5678"), new GalleryCode("XY9G-MN5R-AA11", "GHJ9012"));
 		Path output = tempDir.resolve("output.csv");
 
-		service.writeCodes(codes, output, "My Event");
+		service.writeCodes(codes, output, "My Event", "https://my.site/gallery/");
 
 		assertThat(output).exists();
 		List<String> lines = Files.readAllLines(output, StandardCharsets.UTF_8);
 		assertThat(lines).hasSize(4);
-		assertThat(lines.get(0)).isEqualTo("Number,Code,Event Name,Password");
-		assertThat(lines.get(1)).isEqualTo("1,XY9G-AB7K-92QF,My Event,ABC1234");
-		assertThat(lines.get(2)).isEqualTo("2,XY9G-TK2H-88PL,My Event,DEF5678");
-		assertThat(lines.get(3)).isEqualTo("3,XY9G-MN5R-AA11,My Event,GHJ9012");
+		assertThat(lines.get(0)).isEqualTo("Number,Code,Password,Event Name,URL");
+		assertThat(lines.get(1)).isEqualTo("1,XY9G-AB7K-92QF,ABC1234,My Event,https://my.site/gallery/XY9G-AB7K-92QF");
+		assertThat(lines.get(2)).isEqualTo("2,XY9G-TK2H-88PL,DEF5678,My Event,https://my.site/gallery/XY9G-TK2H-88PL");
+		assertThat(lines.get(3)).isEqualTo("3,XY9G-MN5R-AA11,GHJ9012,My Event,https://my.site/gallery/XY9G-MN5R-AA11");
 	}
 
 	@Test
 	void writesEmptyFile() throws Exception {
 		Path output = tempDir.resolve("empty.csv");
 
-		service.writeCodes(List.of(), output, "");
+		service.writeCodes(List.of(), output, "", "https://my.site/gallery/");
 
 		assertThat(output).exists();
 		List<String> lines = Files.readAllLines(output, StandardCharsets.UTF_8);
 		assertThat(lines).hasSize(1);
-		assertThat(lines.get(0)).isEqualTo("Number,Code,Event Name,Password");
+		assertThat(lines.get(0)).isEqualTo("Number,Code,Password,Event Name,URL");
 	}
 
 	@Test
@@ -60,7 +60,7 @@ class CsvWriterServiceTest {
 				new GalleryCode("XY9G-TK2H-88PL", "PW67890"));
 		Path output = tempDir.resolve("roundtrip.csv");
 
-		service.writeCodes(codes, output, "Test Event");
+		service.writeCodes(codes, output, "Test Event", "https://my.site/gallery/");
 		var result = readerService.readCodes(output);
 
 		assertThat(result.codes()).isEqualTo(codes);
