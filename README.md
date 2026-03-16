@@ -120,7 +120,7 @@ XY9G-MN5R-AA11
 ...
 ```
 
-The CSV file includes a header row (`Number,Code,Event Name`) with numbered rows and the event name.
+The CSV file includes a header row (`Number,Code,Password,Event Name,URL`) with numbered rows, the event name, and the full gallery URL.
 
 **Options:**
 
@@ -130,6 +130,7 @@ The CSV file includes a header row (`Number,Code,Event Name`) with numbered rows
 | `app.code-count`      | `50`                                       | Number of codes to generate                          |
 | `app.csv-output-path` | `codes.csv`                                | Output CSV file path                                 |
 | `app.event-name`      | *(empty)*                                  | Event name for CSV column & PDF label                |
+| `app.gallery-url`     | `https://my.site/gallery?code=`            | Full URL used in CSV URL column (gallery URL + code) |
 
 ### 2. Generate PDF with QR Codes
 
@@ -249,34 +250,40 @@ generate-qrcodes.bat XY9G 100 "My Photo Event" --app.gallery-url=https://my.site
 ### School Photo Scripts (mel-rohrer.ch/schulfotos)
 
 Two dedicated scripts for generating school photo gallery codes on `mel-rohrer.ch/schulfotos`.
-The gallery URL `https://mel-rohrer.ch/schulfotos/?code=` is used for QR codes, the base URL
-`https://mel-rohrer.ch/schulfotos` is printed on the back page, cutting lines are enabled by
-default, and a back page with the gallery password is always included.
+The gallery URL `https://mel-rohrer.ch/schulfotos/?code=` is used for QR codes and CSV URL entries,
+the base URL `https://mel-rohrer.ch/schulfotos` is printed on the back page, cutting lines are enabled by
+default, the classpath logo (`logo.png`) is rendered on the back page, and a back page with the gallery
+password is always included.
 A random 4-character `EVENT_CODE` is generated automatically (no need to pass it).
 Output files are named after the class (e.g. `GS1d-BA-codes.csv` and `GS1d-BA-qr-codes.pdf`).
+
+By default, Spring Boot log output is suppressed. Pass `-v` or `--verbose` to show it.
 
 **Linux / macOS (`schulfotos-mel-rohrer.sh`):**
 
 ```bash
-./schulfotos-mel-rohrer.sh <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
+./schulfotos-mel-rohrer.sh [OPTIONS] <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
 
 # Examples
 ./schulfotos-mel-rohrer.sh "GS1d BA"              # 17 codes, random EVENT_CODE
 ./schulfotos-mel-rohrer.sh "GS1d BA" 30
+./schulfotos-mel-rohrer.sh -v "GS1d BA"            # verbose output
 ```
 
 **Windows (`schulfotos-mel-rohrer.bat`):**
 
 ```cmd
-schulfotos-mel-rohrer.bat <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
+schulfotos-mel-rohrer.bat [OPTIONS] <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
 
 rem Examples
 schulfotos-mel-rohrer.bat "GS1d BA"
 schulfotos-mel-rohrer.bat "GS1d BA" 30
+schulfotos-mel-rohrer.bat -v "GS1d BA"
 ```
 
 | Argument       | Required | Default | Description                                           |
 |----------------|----------|---------|-------------------------------------------------------|
+| `-v`           | no       | off     | Show Spring Boot log output (verbose mode)            |
 | `KLASSENNAME`  | yes      | —       | Class name used as the event label in the PDF         |
 | `CODE_COUNT`   | no       | `17`    | Number of codes to generate                           |
 | `EXTRA_ARGS`   | no       | —       | Any additional `--app.*` options passed to both steps |

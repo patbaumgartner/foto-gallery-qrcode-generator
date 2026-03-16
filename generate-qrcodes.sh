@@ -7,6 +7,9 @@
 #   ./generate-qrcodes.sh <EVENT_CODE> [CODE_COUNT] [EVENT_NAME] [EXTRA_ARGS...]
 #   ./generate-qrcodes.sh --app.mode=... [EXTRA_ARGS...]       # pass flags directly
 #
+# Options:
+#   -v, --verbose   Show Spring Boot log output (hidden by default)
+#
 # Examples:
 #   ./generate-qrcodes.sh
 #   ./generate-qrcodes.sh XY9G
@@ -20,6 +23,17 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 JAR_NAME="foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar"
 NATIVE_NAME="foto-gallery-qrcode-generator"
+
+# --- Parse early flags --------------------------------------------------------
+VERBOSE=false
+args=()
+for arg in "$@"; do
+  case "$arg" in
+    -v|--verbose) VERBOSE=true ;;
+    *)            args+=("$arg") ;;
+  esac
+done
+set -- "${args[@]+"${args[@]}"}"
 
 # --- Resolve executable -------------------------------------------------------
 # Check current directory first, then target/ subdirectory
@@ -36,10 +50,16 @@ else
   exit 1
 fi
 
+# When not verbose, suppress Spring Boot log output
+QUIET_ARGS=()
+if [[ "$VERBOSE" == false ]]; then
+  QUIET_ARGS=(--logging.level.root=WARN --spring.main.banner-mode=off)
+fi
+
 # --- Interactive mode (no arguments) ------------------------------------------
 if [[ $# -lt 1 ]]; then
   echo "==> No arguments provided. Launching interactive shell..."
-  "${RUN[@]}"
+  "${RUN[@]}" ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"}
   exit 0
 fi
 
@@ -47,7 +67,7 @@ fi
 # If first arg starts with '--', pass all args directly to the jar (no positional parsing).
 # This allows: ./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
 if [[ "${1:-}" =~ ^-- ]]; then
-  "${RUN[@]}" "$@"
+  "${RUN[@]}" ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} "$@"
   exit $?
 fi
 
@@ -75,12 +95,14 @@ echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
   --app.event-code="$EVENT_CODE" \
   --app.code-count="$CODE_COUNT" \
   --app.event-name="$EVENT_NAME" \
+  ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 # --- Step 2: Generate PDF -----------------------------------------------------
 echo "==> Generating QR-code PDF ..."
 "${RUN[@]}" \
   --app.mode=generate-pdf \
+  ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 echo "==> Done."

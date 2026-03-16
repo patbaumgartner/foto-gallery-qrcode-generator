@@ -5,7 +5,7 @@
 # The gallery URL used in QR codes is hardcoded to https://mel-rohrer.ch/schulfotos/?code=
 # and the base URL printed on the back of the PDF is https://mel-rohrer.ch/schulfotos.
 # All standard settings are used (3x4 grid, 200 px QR size, cutting lines enabled).
-# A back page with the gallery password is always included.
+# A back page with the gallery password and the classpath logo (logo.png) is always included.
 #
 # When run without arguments the script prompts interactively for every parameter.
 # A random 4-character alphanumeric EVENT_CODE is generated automatically
