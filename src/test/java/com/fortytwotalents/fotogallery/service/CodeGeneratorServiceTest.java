@@ -92,7 +92,24 @@ class CodeGeneratorServiceTest {
 		List<GalleryCode> codes = service.generateCodes("XY9G", 50);
 
 		assertThat(codes).allSatisfy(
-				code -> assertThat(code.password()).matches("^[A-Za-z0-9!@#$%&*+\\-_.]+$"));
+				code -> assertThat(code.password()).matches("^[A-Za-km-z234679!@#$%&+]+$"));
+	}
+
+	@Test
+	void passwordsHaveNoRepeatedCharacters() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 50);
+
+		assertThat(codes).allSatisfy(code -> {
+			String pw = code.password();
+			assertThat(pw.chars().distinct().count()).isEqualTo(pw.length());
+		});
+	}
+
+	@Test
+	void passwordsDoNotContainAmbiguousOrExcludedCharacters() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 50);
+
+		assertThat(codes).allSatisfy(code -> assertThat(code.password()).doesNotContain("0", "1", "5", "8", "l", ".", "-", "_", "*"));
 	}
 
 	@Test

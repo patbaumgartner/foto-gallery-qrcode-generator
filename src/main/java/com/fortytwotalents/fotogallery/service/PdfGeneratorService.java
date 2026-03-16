@@ -130,7 +130,7 @@ public class PdfGeneratorService {
 		int numFrontPages = (int) Math.ceil((double) codes.size() / codesPerPage);
 
 		try (PDDocument document = new PDDocument()) {
-			PDType1Font fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+			PDType1Font fontBold = new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD);
 			PDType1Font fontRegular = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
 
 			// Load logo image once (if URL provided)

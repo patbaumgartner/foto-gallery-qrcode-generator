@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -19,10 +20,20 @@ public class CodeGeneratorService {
 
 	private static final int GROUP_LENGTH = 4;
 
-	// Characters allowed by pattern: ^[A-Za-z0-9!@#$%&*+\-_.]+$
-	private static final String PASSWORD_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*+-_.";
+	// Excluded from PASSWORD_CHARSET:
+	//   digits 0,1,5,8  — visually similar to O/I/S/B
+	//   lowercase l     — visually similar to 1 and I
+	//   . - _ *         — explicitly excluded for readability
+	private static final String PASSWORD_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz234679!@#$%&+";
 
 	private static final int PASSWORD_LENGTH = 9;
+
+	static {
+		if (PASSWORD_CHARSET.length() < PASSWORD_LENGTH) {
+			throw new IllegalStateException("PASSWORD_CHARSET length (" + PASSWORD_CHARSET.length()
+					+ ") must be >= PASSWORD_LENGTH (" + PASSWORD_LENGTH + ")");
+		}
+	}
 
 	private final SecureRandom random = new SecureRandom();
 
@@ -76,9 +87,14 @@ public class CodeGeneratorService {
 	}
 
 	private String generatePassword() {
+		List<Character> available = new ArrayList<>(PASSWORD_CHARSET.length());
+		for (int i = 0; i < PASSWORD_CHARSET.length(); i++) {
+			available.add(PASSWORD_CHARSET.charAt(i));
+		}
+		Collections.shuffle(available, random);
 		StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
 		for (int i = 0; i < PASSWORD_LENGTH; i++) {
-			sb.append(PASSWORD_CHARSET.charAt(random.nextInt(PASSWORD_CHARSET.length())));
+			sb.append(available.get(i));
 		}
 		return sb.toString();
 	}
