@@ -208,7 +208,7 @@ class PdfGeneratorServiceTest {
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
 			PDFTextStripper stripper = new PDFTextStripper();
 			String text = stripper.getText(doc);
-			assertThat(text).contains("GALLERY CODE");
+			assertThat(text).contains("GALERIE CODE");
 			assertThat(text).contains("XY9G-AB7K-92QF");
 			assertThat(text).contains("TK2H-XY3M-88PL");
 		}
@@ -226,7 +226,7 @@ class PdfGeneratorServiceTest {
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
 			PDFTextStripper stripper = new PDFTextStripper();
 			String text = stripper.getText(doc);
-			assertThat(text).contains("GALLERY CODE");
+			assertThat(text).contains("GALERIE CODE");
 			assertThat(text).contains("My Photo Event");
 			assertThat(text).contains("XY9G-AB7K-92QF");
 		}
@@ -261,6 +261,23 @@ class PdfGeneratorServiceTest {
 
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
 			assertThat(doc.getNumberOfPages()).isEqualTo(4);
+		}
+	}
+
+	@Test
+	void pdfUsesCustomGalleryCodeLabel() throws Exception {
+		List<GalleryCode> codes = createCodes("XY9G-AB7K-92QF");
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+		Path output = tempDir.resolve("custom-code-label.pdf");
+
+		PdfOptions options = new PdfOptions(output, 3, 4, false, "", "", "", "GALLERY CODE", "GALLERY PASSWORD");
+		pdfService.createPdf(codes, qrImages, options);
+
+		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+			PDFTextStripper stripper = new PDFTextStripper();
+			String text = stripper.getText(doc);
+			assertThat(text).contains("GALLERY CODE");
+			assertThat(text).contains("GALLERY PASSWORD");
 		}
 	}
 
