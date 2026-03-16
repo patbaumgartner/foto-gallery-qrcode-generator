@@ -33,7 +33,7 @@ public class PdfGeneratorService {
 
 	private static final float CELL_PADDING = 14f;
 
-	private static final float TEXT_HEIGHT = 40f;
+	private static final float TEXT_HEIGHT = 50f;
 
 	private static final float CODE_FONT_SIZE = 14f;
 
@@ -47,7 +47,7 @@ public class PdfGeneratorService {
 
 	private static final float CUTTING_LINE_WIDTH = 0.5f;
 
-	private static final float CUTTING_LINE_GRAY = 0.7f;
+	private static final float CUTTING_LINE_GRAY = 0.0f;
 
 	// Back-page layout — logo takes the dominant top portion of each cell
 	// (fraction of innerHeight)
@@ -91,15 +91,15 @@ public class PdfGeneratorService {
 	// Local resource path prefix stripped when resolving classpath resources
 	private static final String RESOURCES_PREFIX = "src/main/resources/";
 
-	// ── Palette: black / white / gray only ──────────────────────────────────────
-	// Pure black — for borders, password text, card border
+	// ── Palette: black / white only ─────────────────────────────────────────────
+	// Pure black — for all text, borders, rules
 	private static final float INK = 0.0f;
 
-	// Medium gray — for hairline rules, label, URL
-	private static final float GRAY = 0.55f;
+	// Kept for backward-compatible naming; equals INK (full black for printing)
+	private static final float GRAY = 0.0f;
 
-	// Light gray — subtle rule color
-	private static final float RULE_GRAY = 0.70f;
+	// Kept for backward-compatible naming; equals INK (full black for printing)
+	private static final float RULE_GRAY = 0.0f;
 
 	public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages, String baseUrl,
 			PdfOptions options) throws IOException {
@@ -173,10 +173,15 @@ public class PdfGeneratorService {
 						String codeLabel = code.code();
 						float codeLabelWidth = fontBold.getStringWidth(codeLabel) / 1000 * CODE_FONT_SIZE;
 						float codeLabelX = innerX + (innerWidth - codeLabelWidth) / 2;
-						float codeLabelY = innerY + (TEXT_HEIGHT - CODE_FONT_SIZE) / 2;
+
+						String galleryCodeLabel = "GALLERY CODE";
+						float galleryCodeLabelWidth = fontRegular.getStringWidth(galleryCodeLabel) / 1000f
+								* BACK_LABEL_FONT_SIZE;
+						float galleryCodeLabelX = innerX + (innerWidth - galleryCodeLabelWidth) / 2;
 
 						if (hasEventName) {
-							float combinedHeight = CODE_FONT_SIZE + EVENT_NAME_GAP + EVENT_NAME_FONT_SIZE;
+							float combinedHeight = CODE_FONT_SIZE + BACK_LABEL_PW_GAP + BACK_LABEL_FONT_SIZE
+									+ EVENT_NAME_GAP + EVENT_NAME_FONT_SIZE;
 							float blockStartY = innerY + (TEXT_HEIGHT - combinedHeight) / 2;
 
 							content.beginText();
@@ -185,10 +190,17 @@ public class PdfGeneratorService {
 							content.showText(codeLabel);
 							content.endText();
 
+							float galleryCodeLabelY = blockStartY + CODE_FONT_SIZE + BACK_LABEL_PW_GAP;
+							content.beginText();
+							content.setFont(fontRegular, BACK_LABEL_FONT_SIZE);
+							content.newLineAtOffset(galleryCodeLabelX, galleryCodeLabelY);
+							content.showText(galleryCodeLabel);
+							content.endText();
+
 							float eventNameWidth = fontRegular.getStringWidth(eventName) / 1000
 									* EVENT_NAME_FONT_SIZE;
 							float eventNameX = innerX + (innerWidth - eventNameWidth) / 2;
-							float eventNameY = blockStartY + CODE_FONT_SIZE + EVENT_NAME_GAP;
+							float eventNameY = galleryCodeLabelY + BACK_LABEL_FONT_SIZE + EVENT_NAME_GAP;
 
 							content.beginText();
 							content.setFont(fontRegular, EVENT_NAME_FONT_SIZE);
@@ -197,10 +209,20 @@ public class PdfGeneratorService {
 							content.endText();
 						}
 						else {
+							float combinedHeight = CODE_FONT_SIZE + BACK_LABEL_PW_GAP + BACK_LABEL_FONT_SIZE;
+							float blockStartY = innerY + (TEXT_HEIGHT - combinedHeight) / 2;
+
 							content.beginText();
 							content.setFont(fontBold, CODE_FONT_SIZE);
-							content.newLineAtOffset(codeLabelX, codeLabelY);
+							content.newLineAtOffset(codeLabelX, blockStartY);
 							content.showText(codeLabel);
+							content.endText();
+
+							float galleryCodeLabelY = blockStartY + CODE_FONT_SIZE + BACK_LABEL_PW_GAP;
+							content.beginText();
+							content.setFont(fontRegular, BACK_LABEL_FONT_SIZE);
+							content.newLineAtOffset(galleryCodeLabelX, galleryCodeLabelY);
+							content.showText(galleryCodeLabel);
 							content.endText();
 						}
 					}
@@ -252,16 +274,16 @@ public class PdfGeneratorService {
 	/**
 	 * Draws the back of a single card cell.
 	 *
-	 * Layout (top → bottom, pure black & white):
+	 * Layout (top → bottom, full black):
 	 *   ┌─────────────────────────────────────┐  ← thin black card border
 	 *   │                                     │
 	 *   │   [LOGO — fills ~55% of height]     │  ← logo centered, max size
 	 *   │                                     │
-	 *   │ ─────────────────────────────────── │  ← 0.4 pt gray rule
-	 *   │  GALLERY PASSWORD                   │  ← 6 pt uppercase gray label
+	 *   │ ─────────────────────────────────── │  ← 0.4 pt black rule
+	 *   │  GALLERY PASSWORD                   │  ← 6 pt uppercase black label
 	 *   │  XY9G-AB7K-92QF                     │  ← 14 pt bold black password
-	 *   │ ─────────────────────────────────── │  ← 0.4 pt gray rule
-	 *   │  mel-rohrer.ch/gallery              │  ← 6.5 pt gray URL
+	 *   │ ─────────────────────────────────── │  ← 0.4 pt black rule
+	 *   │  mel-rohrer.ch/gallery              │  ← 6.5 pt black URL
 	 *   └─────────────────────────────────────┘
 	 */
 	private void drawBackCell(PDDocument document, PDPage page, GalleryCode code, float innerX, float innerY,
