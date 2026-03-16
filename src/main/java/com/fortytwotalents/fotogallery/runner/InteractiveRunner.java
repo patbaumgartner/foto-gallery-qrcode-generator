@@ -14,6 +14,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Scanner;
 
 @Component
@@ -23,6 +24,10 @@ public class InteractiveRunner implements ApplicationRunner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(InteractiveRunner.class);
 
 	private static final String EVENT_CODE_PATTERN = "^[A-Za-z0-9]{4}$";
+
+	private static final String CODE_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+	private final SecureRandom random = new SecureRandom();
 
 	private final AppProperties appProperties;
 
@@ -90,8 +95,10 @@ public class InteractiveRunner implements ApplicationRunner {
 				gridColumns = promptInt(scanner, "Grid columns per page", gridColumns);
 				gridRows = promptInt(scanner, "Grid rows per page", gridRows);
 				showCuttingLines = promptBoolean(scanner, "Show cutting lines", showCuttingLines);
-				galleryUrl = promptOptional(scanner, "Gallery URL for back page (leave blank to skip)", galleryUrl);
-				logoUrl = promptOptional(scanner, "Logo URL for back page (JPEG/PNG, leave blank to skip)", logoUrl);
+				String galleryUrlDefault = galleryUrl.isBlank() ? baseUrl : galleryUrl;
+				galleryUrl = promptOptional(scanner, "Gallery URL for back page", galleryUrlDefault);
+				String logoUrlDefault = logoUrl.isBlank() ? "src/main/resources/logo.png" : logoUrl;
+				logoUrl = promptOptional(scanner, "Logo URL for back page (JPEG/PNG)", logoUrlDefault);
 			}
 
 			try {
@@ -161,12 +168,13 @@ public class InteractiveRunner implements ApplicationRunner {
 	}
 
 	String promptEventCode(Scanner scanner) {
+		String randomDefault = generateRandomEventCode();
 		String value = "";
 		while (!value.matches(EVENT_CODE_PATTERN)) {
-			System.out.print("Event code (4-char prefix, e.g. XY9G): ");
+			System.out.print("Event code (4-char prefix, e.g. XY9G) [" + randomDefault + "]: ");
 			value = scanner.nextLine().trim();
 			if (value.isBlank()) {
-				System.out.println("This field is required.");
+				return randomDefault;
 			}
 			else if (!value.matches(EVENT_CODE_PATTERN)) {
 				System.out.println("Event code must be exactly 4 alphanumeric characters (A-Z, 0-9), got: '" + value
@@ -217,6 +225,14 @@ public class InteractiveRunner implements ApplicationRunner {
 			System.out.println("Invalid number, using default: " + defaultValue);
 			return defaultValue;
 		}
+	}
+
+	private String generateRandomEventCode() {
+		StringBuilder sb = new StringBuilder(4);
+		for (int i = 0; i < 4; i++) {
+			sb.append(CODE_CHARSET.charAt(random.nextInt(CODE_CHARSET.length())));
+		}
+		return sb.toString();
 	}
 
 	private boolean isValidMode(String mode) {

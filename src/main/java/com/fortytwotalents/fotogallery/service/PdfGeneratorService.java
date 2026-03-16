@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -86,6 +87,9 @@ public class PdfGeneratorService {
 	private static final int LOGO_CONNECT_TIMEOUT_MS = 5000;
 
 	private static final int LOGO_READ_TIMEOUT_MS = 10000;
+
+	// Local resource path prefix stripped when resolving classpath resources
+	private static final String RESOURCES_PREFIX = "src/main/resources/";
 
 	// ── Palette: black / white / gray only ──────────────────────────────────────
 	// Pure black — for borders, password text, card border
@@ -382,23 +386,27 @@ public class PdfGeneratorService {
 	}
 
 	/**
-	 * Downloads and decodes a logo image from an HTTP/HTTPS URL.
+	 * Downloads and decodes a logo image from an HTTP/HTTPS URL or a local file path.
 	 *
 	 * Supports JPEG, PNG, and WebP (via TwelveMonkeys ImageIO plugin on the class path).
 	 * Other formats are attempted via ImageIO and converted to PNG as a fallback.
+	 * Local paths starting with {@code src/main/resources/} are also resolved as
+	 * classpath resources for portability in packaged JARs.
 	 */
 	private PDImageXObject loadLogoImage(PDDocument document, String logoUrl) {
+		if (logoUrl.startsWith("http://") || logoUrl.startsWith("https://")) {
+			return loadLogoFromHttp(document, logoUrl);
+		}
+		return loadLogoFromLocalPath(document, logoUrl);
+	}
+
+	private PDImageXObject loadLogoFromHttp(PDDocument document, String logoUrl) {
 		URI uri;
 		try {
 			uri = URI.create(logoUrl);
 		}
 		catch (IllegalArgumentException ex) {
 			LOGGER.warn("Invalid logo URL '{}': {}", logoUrl, ex.getMessage());
-			return null;
-		}
-		String scheme = uri.getScheme();
-		if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-			LOGGER.warn("Logo URL '{}' uses unsupported scheme '{}' (only http/https allowed)", logoUrl, scheme);
 			return null;
 		}
 		try {
@@ -409,27 +417,61 @@ public class PdfGeneratorService {
 			try (InputStream inputStream = connection.getInputStream()) {
 				imageData = inputStream.readAllBytes();
 			}
-			// Try PDFBox native first (handles JPEG, PNG)
-			try {
-				return PDImageXObject.createFromByteArray(document, imageData, "logo");
-			}
-			catch (IOException | IllegalArgumentException ex) {
-				// PDFBox doesn't know this format (e.g. WebP) — fall back to ImageIO,
-				// which supports WebP when TwelveMonkeys imageio-webp is on the class path.
-				BufferedImage bufferedImage = ImageIO.read(new java.io.ByteArrayInputStream(imageData));
-				if (bufferedImage == null) {
-					LOGGER.warn("Could not decode logo from URL '{}' (unsupported format)", logoUrl);
-					return null;
-				}
-				try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-					ImageIO.write(bufferedImage, "PNG", baos);
-					return PDImageXObject.createFromByteArray(document, baos.toByteArray(), "logo");
-				}
-			}
+			return createLogoImageFromBytes(document, imageData, logoUrl);
 		}
 		catch (IOException ex) {
 			LOGGER.warn("Could not load logo from URL '{}': {}", logoUrl, ex.getMessage());
 			return null;
+		}
+	}
+
+	private PDImageXObject loadLogoFromLocalPath(PDDocument document, String path) {
+		// Try as a filesystem path first
+		Path filePath = Path.of(path);
+		if (Files.isReadable(filePath)) {
+			try {
+				return createLogoImageFromBytes(document, Files.readAllBytes(filePath), path);
+			}
+			catch (IOException ex) {
+				LOGGER.warn("Could not read logo from file '{}': {}", path, ex.getMessage());
+				return null;
+			}
+		}
+		// Fallback: classpath resource (strip src/main/resources/ prefix for JAR portability)
+		String resourcePath = path.startsWith(RESOURCES_PREFIX)
+				? "/" + path.substring(RESOURCES_PREFIX.length())
+				: (path.startsWith("/") ? path : "/" + path);
+		try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+			if (is == null) {
+				LOGGER.warn("Logo '{}' not found as file or classpath resource", path);
+				return null;
+			}
+			return createLogoImageFromBytes(document, is.readAllBytes(), path);
+		}
+		catch (IOException ex) {
+			LOGGER.warn("Could not load logo from classpath '{}': {}", resourcePath, ex.getMessage());
+			return null;
+		}
+	}
+
+	private PDImageXObject createLogoImageFromBytes(PDDocument document, byte[] imageData, String source)
+			throws IOException {
+		// Try PDFBox native first (handles JPEG, PNG)
+		try {
+			return PDImageXObject.createFromByteArray(document, imageData, "logo");
+		}
+		catch (IOException | IllegalArgumentException ex) {
+			// PDFBox doesn't know this format (e.g. WebP) — fall back to ImageIO,
+			// which supports WebP when TwelveMonkeys imageio-webp is on the class path.
+			BufferedImage bufferedImage = ImageIO.read(new java.io.ByteArrayInputStream(imageData));
+			if (bufferedImage == null) {
+				LOGGER.warn("Could not decode logo from '{}' (unsupported format)", source);
+				return null;
+			}
+			try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+				ImageIO.write(bufferedImage, "PNG", baos);
+				return PDImageXObject.createFromByteArray(document, baos.toByteArray(), "logo");
+			}
 		}
 	}
 

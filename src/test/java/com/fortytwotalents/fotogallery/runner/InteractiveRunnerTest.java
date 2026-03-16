@@ -179,14 +179,15 @@ class InteractiveRunnerTest {
 	}
 
 	@Test
-	void promptEventCodeRetriesOnBlankInput() {
+	void promptEventCodeUsesRandomDefaultOnBlankInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
 				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
-		Scanner scanner = scannerFrom("\nXY9G\n");
-		assertThat(runner.promptEventCode(scanner)).isEqualTo("XY9G");
+		Scanner scanner = scannerFrom("\n");
+		String result = runner.promptEventCode(scanner);
+		assertThat(result).matches("[A-Z0-9]{4}");
 	}
 
 	@Test
