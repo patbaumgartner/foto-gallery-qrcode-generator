@@ -109,6 +109,8 @@ public class PdfGeneratorService {
 		Path outputPath = options.outputPath();
 		String baseUrl = options.baseUrl();
 		String logoUrl = options.logoUrl();
+		String galleryCodeLabel = options.galleryCodeLabel();
+		String galleryPasswordLabel = options.galleryPasswordLabel();
 
 		int codesPerPage = gridColumns * gridRows;
 
@@ -172,7 +174,6 @@ public class PdfGeneratorService {
 						float codeLabelWidth = fontBold.getStringWidth(codeLabel) / 1000 * CODE_FONT_SIZE;
 						float codeLabelX = innerX + (innerWidth - codeLabelWidth) / 2;
 
-						String galleryCodeLabel = "GALLERY CODE";
 						float galleryCodeLabelWidth = fontRegular.getStringWidth(galleryCodeLabel) / 1000f
 								* BACK_LABEL_FONT_SIZE;
 						float galleryCodeLabelX = innerX + (innerWidth - galleryCodeLabelWidth) / 2;
@@ -245,7 +246,7 @@ public class PdfGeneratorService {
 						float innerY = cellY + CELL_PADDING;
 
 						drawBackCell(document, backPage, code, innerX, innerY, innerWidth, innerHeight, fontBold,
-								fontRegular, logoImage, baseUrl);
+								fontRegular, logoImage, baseUrl, galleryPasswordLabel);
 					}
 				}
 			}
@@ -278,7 +279,7 @@ public class PdfGeneratorService {
 	 *   │   [LOGO — fills ~55% of height]     │  ← logo centered, max size
 	 *   │                                     │
 	 *   │ ─────────────────────────────────── │  ← 0.4 pt black rule
-	 *   │  GALLERY PASSWORD                   │  ← 6 pt uppercase black label
+	 *   │  GALERIE-PASSWORT                  │  ← 6 pt uppercase black label (configurable)
 	 *   │  XY9G-AB7K-92QF                     │  ← 14 pt bold black password
 	 *   │ ─────────────────────────────────── │  ← 0.4 pt black rule
 	 *   │  my.site                            │  ← 6.5 pt black base URL
@@ -286,7 +287,7 @@ public class PdfGeneratorService {
 	 */
 	private void drawBackCell(PDDocument document, PDPage page, GalleryCode code, float innerX, float innerY,
 			float innerWidth, float innerHeight, PDType1Font fontBold, PDType1Font fontRegular,
-			PDImageXObject logoImage, String baseUrl) throws IOException {
+			PDImageXObject logoImage, String baseUrl, String galleryPasswordLabel) throws IOException {
 
 		try (PDPageContentStream cs = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND,
 				true, true)) {
@@ -336,8 +337,8 @@ public class PdfGeneratorService {
 			float blockH = BACK_LABEL_FONT_SIZE + BACK_LABEL_PW_GAP + BACK_PASSWORD_FONT_SIZE;
 			float blockBotY = passwordSectionBotY + ((rule1Y - BACK_RULE_GAP - passwordSectionBotY) - blockH) / 2f;
 
-			// "GALLERY PASSWORD" label
-			String label = "GALLERY PASSWORD";
+			// Password label
+			String label = galleryPasswordLabel;
 			float labelW = fontRegular.getStringWidth(label) / 1000f * BACK_LABEL_FONT_SIZE;
 			float labelX = innerX + (innerWidth - labelW) / 2f;
 			float labelY = blockBotY + BACK_PASSWORD_FONT_SIZE + BACK_LABEL_PW_GAP;

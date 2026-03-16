@@ -105,14 +105,14 @@ public class InteractiveRunner implements ApplicationRunner {
 				if ("generate-codes".equals(mode) || "both".equals(mode)) {
 					AppProperties codeProps = new AppProperties("generate-codes", csvInputPath, csvOutputPath,
 							outputPath, baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount,
-							showCuttingLines, eventName, galleryUrl, logoUrl);
+							showCuttingLines, eventName, galleryUrl, logoUrl, "", "");
 					new CodeGeneratorRunner(codeGeneratorService, csvWriterService, codeProps).run();
 				}
 
 				if ("generate-pdf".equals(mode) || "both".equals(mode)) {
 					AppProperties pdfProps = new AppProperties("generate-pdf", csvInputPath, csvOutputPath, outputPath,
 							baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount, showCuttingLines, eventName,
-							galleryUrl, logoUrl);
+							galleryUrl, logoUrl, "", "");
 					new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, pdfProps)
 						.run();
 				}
