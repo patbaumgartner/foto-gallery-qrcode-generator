@@ -41,13 +41,11 @@ public class PdfGeneratorService {
 
 	private static final float EVENT_NAME_GAP = 3f;
 
-	private static final float CUTTING_LINE_DASH = 4f;
-
-	private static final float CUTTING_LINE_GAP = 4f;
-
 	private static final float CUTTING_LINE_WIDTH = 0.5f;
 
 	private static final float CUTTING_LINE_GRAY = 0.0f;
+
+	private static final float CUTTING_MARK_LENGTH = 10f;
 
 	// Back-page layout — logo takes the dominant top portion of each cell
 	// (fraction of innerHeight)
@@ -503,39 +501,42 @@ public class PdfGeneratorService {
 				PDPageContentStream.AppendMode.APPEND, true, true)) {
 			content.setStrokingColor(CUTTING_LINE_GRAY, CUTTING_LINE_GRAY, CUTTING_LINE_GRAY);
 			content.setLineWidth(CUTTING_LINE_WIDTH);
-			content.setLineDashPattern(new float[]{CUTTING_LINE_DASH, CUTTING_LINE_GAP}, 0);
 
-			// Vertical lines: outer boundaries + between columns, edge-to-edge for print alignment
-			content.moveTo(MARGIN, 0);
-			content.lineTo(MARGIN, pageHeight);
-			content.stroke();
-
+			// All x positions where vertical cuts happen (left boundary, column dividers, right boundary)
+			float[] xCuts = new float[gridColumns + 1];
+			xCuts[0] = MARGIN;
 			for (int col = 1; col < gridColumns; col++) {
-				float x = MARGIN + col * cellWidth;
-				content.moveTo(x, 0);
-				content.lineTo(x, pageHeight);
-				content.stroke();
+				xCuts[col] = MARGIN + col * cellWidth;
 			}
+			xCuts[gridColumns] = pageWidth - MARGIN;
 
-			content.moveTo(pageWidth - MARGIN, 0);
-			content.lineTo(pageWidth - MARGIN, pageHeight);
-			content.stroke();
-
-			// Horizontal lines: outer boundaries + between rows, edge-to-edge for print alignment
-			content.moveTo(0, pageHeight - MARGIN);
-			content.lineTo(pageWidth, pageHeight - MARGIN);
-			content.stroke();
-
+			// All y positions where horizontal cuts happen (top boundary, row dividers, bottom boundary)
+			float[] yCuts = new float[gridRows + 1];
+			yCuts[0] = pageHeight - MARGIN;
 			for (int row = 1; row < gridRows; row++) {
-				float y = pageHeight - MARGIN - row * cellHeight;
-				content.moveTo(0, y);
-				content.lineTo(pageWidth, y);
+				yCuts[row] = pageHeight - MARGIN - row * cellHeight;
+			}
+			yCuts[gridRows] = MARGIN;
+
+			// For each vertical cut x-position: short ticks in the top and bottom margins
+			for (float x : xCuts) {
+				content.moveTo(x, pageHeight - MARGIN);
+				content.lineTo(x, pageHeight - MARGIN + CUTTING_MARK_LENGTH);
+				content.stroke();
+				content.moveTo(x, MARGIN);
+				content.lineTo(x, MARGIN - CUTTING_MARK_LENGTH);
 				content.stroke();
 			}
 
-			content.moveTo(0, MARGIN);
-			content.lineTo(pageWidth, MARGIN);
-			content.stroke();
+			// For each horizontal cut y-position: short ticks in the left and right margins
+			for (float y : yCuts) {
+				content.moveTo(MARGIN, y);
+				content.lineTo(MARGIN - CUTTING_MARK_LENGTH, y);
+				content.stroke();
+				content.moveTo(pageWidth - MARGIN, y);
+				content.lineTo(pageWidth - MARGIN + CUTTING_MARK_LENGTH, y);
+				content.stroke();
+			}
 		}
 	}
 
