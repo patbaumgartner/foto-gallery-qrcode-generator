@@ -27,11 +27,11 @@ public record GalleryCode(String code, String password, String shareUrl) {
 		return code != null && CODE_PATTERN.matcher(code).matches();
 	}
 
-	public String toUrl(String baseUrl) {
+	public String toUrl(String galleryUrl) {
 		if (!shareUrl.isBlank()) {
 			return shareUrl;
 		}
-		return baseUrl + code;
+		return galleryUrl + code;
 	}
 
 }

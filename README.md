@@ -70,7 +70,7 @@ What would you like to do?
   3) both           - Generate codes and then produce QR code PDF
 Enter choice (1/2/3 or name) [both]:
 Event code (4-char prefix, e.g. XY9G): XY9G
-Number of codes to generate [50]:
+Number of codes to generate [17]:
 Event name []: My Photo Event
 CSV output path [codes.csv]:
 CSV input path [codes.csv]:
@@ -130,7 +130,7 @@ The CSV file includes a header row (`Number,Code,Password,Event Name,URL`) with 
 | `app.code-count`      | `17`                                       | Number of codes to generate                          |
 | `app.csv-output-path` | `codes.csv`                                | Output CSV file path                                 |
 | `app.event-name`      | *(empty)*                                  | Event name for CSV column & PDF label                |
-| `app.gallery-url`     | `https://my.site/gallery?code=`            | Full URL used in CSV URL column (gallery URL + code) |
+| `app.gallery-url`     | `https://my.site/gallery?code=`            | Full URL used in CSV URL column (must end with `=` or `/`) |
 
 ### 2. Generate PDF with QR Codes
 
@@ -169,7 +169,7 @@ cells with `--app.show-cutting-lines=true`.
 |--------------------------|-----------------------------------|-----------------------------------------------------------|
 | `app.csv-input-path`     | `codes.csv`                       | Input CSV file path                                       |
 | `app.output-path`        | `qr-codes.pdf`                    | Output PDF file path                                      |
-| `app.gallery-url`        | `https://my.site/gallery?code=`   | Full URL used in QR codes (must start with `https://`)    |
+| `app.gallery-url`        | `https://my.site/gallery?code=`   | Full URL used in QR codes (must start with `https://` and end with `=` or `/`) |
 | `app.base-url`           | `https://my.site`                 | Base URL printed on the back of the PDF                   |
 | `app.logo-url`           | *(empty)*                         | Logo image for back page (JPEG, PNG, or WebP)             |
 | `app.qr-size`            | `200`                             | QR code image size in px                                  |
@@ -329,7 +329,7 @@ version control.
 | Property | Default | Description |
 |---|---|---|
 | `app.picpeak.enabled` | `false` | Set to `true` to activate the integration |
-| `app.picpeak.api-url` | `https://pics.example.com` | Base URL of your PicPeak instance (no trailing slash) |
+| `app.picpeak.api-url` | `https://pics.example.com` | Base URL of your PicPeak instance (trailing slash stripped automatically) |
 | `app.picpeak.username` | *(blank)* | Admin login username |
 | `app.picpeak.password` | *(blank)* | Admin login password |
 | `app.picpeak.event-type` | `schule` | Event type passed to the PicPeak API |

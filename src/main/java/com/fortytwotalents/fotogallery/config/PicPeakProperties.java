@@ -13,6 +13,9 @@ public record PicPeakProperties(boolean enabled, String apiUrl, String username,
 		if (apiUrl == null) {
 			apiUrl = "";
 		}
+		if (apiUrl.endsWith("/")) {
+			apiUrl = apiUrl.substring(0, apiUrl.length() - 1);
+		}
 		if (username == null) {
 			username = "";
 		}

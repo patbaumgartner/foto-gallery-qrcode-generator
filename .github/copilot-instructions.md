@@ -78,7 +78,7 @@ src/test/java/com/fortytwotalents/fotogallery/
 | `app.csv-input-path` | `codes.csv` | CSV input file path (used by generate-pdf) |
 | `app.csv-output-path` | `codes.csv` | CSV output file path (used by generate-codes) |
 | `app.output-path` | `qr-codes.pdf` | PDF output file path |
-| `app.gallery-url` | `https://my.site/gallery?code=` | Full URL used in QR codes and CSV URL column (must start with `https://`) |
+| `app.gallery-url` | `https://my.site/gallery?code=` | Full URL used in QR codes and CSV URL column (must start with `https://` and end with `=` or `/`) |
 | `app.base-url` | `https://my.site` | Base URL printed on the back of the PDF |
 | `app.logo-url` | *(empty)* | Logo image for back page (JPEG, PNG, or WebP; empty = no logo) |
 | `app.qr-size` | `200` | QR code image size in pixels |
@@ -93,7 +93,7 @@ src/test/java/com/fortytwotalents/fotogallery/
 | Property | Default | Description |
 |---|---|---|
 | `app.picpeak.enabled` | `false` | Set to `true` to activate the PicPeak integration |
-| `app.picpeak.api-url` | `https://pics.example.com` | Base URL of your PicPeak instance (no trailing slash) |
+| `app.picpeak.api-url` | `https://pics.example.com` | Base URL of your PicPeak instance (trailing slash stripped automatically) |
 | `app.picpeak.username` | *(blank)* | Admin login username |
 | `app.picpeak.password` | *(blank)* | Admin login password |
 | `app.picpeak.event-type` | `schule` | Event type passed to the PicPeak API |

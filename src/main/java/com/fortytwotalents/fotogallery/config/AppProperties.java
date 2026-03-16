@@ -38,6 +38,13 @@ public record AppProperties(String mode, String csvInputPath, String csvOutputPa
 		if (eventCode == null) {
 			eventCode = "";
 		}
+		if (!eventCode.isBlank()) {
+			eventCode = eventCode.trim().toUpperCase();
+			if (!eventCode.matches("^[A-Z0-9]{4}$")) {
+				throw new IllegalArgumentException(
+						"app.event-code must be exactly 4 alphanumeric characters, got: '" + eventCode + "'");
+			}
+		}
 		if (codeCount <= 0) {
 			codeCount = 17;
 		}
@@ -52,6 +59,10 @@ public record AppProperties(String mode, String csvInputPath, String csvOutputPa
 		}
 		if (galleryUrl.isBlank()) {
 			galleryUrl = "https://my.site/gallery?code=";
+		}
+		if (!galleryUrl.endsWith("=") && !galleryUrl.endsWith("/")) {
+			throw new IllegalArgumentException(
+					"app.gallery-url must end with '=' or '/' so the code can be appended: " + galleryUrl);
 		}
 		if (logoUrl == null) {
 			logoUrl = "";
