@@ -70,6 +70,8 @@ public class InteractiveRunner implements ApplicationRunner {
 			int gridColumns = appProperties.gridColumns();
 			int gridRows = appProperties.gridRows();
 			boolean showCuttingLines = appProperties.showCuttingLines();
+			String galleryUrl = appProperties.galleryUrl();
+			String logoUrl = appProperties.logoUrl();
 
 			if ("generate-codes".equals(mode) || "both".equals(mode)) {
 				if (eventCode.isBlank()) {
@@ -88,19 +90,22 @@ public class InteractiveRunner implements ApplicationRunner {
 				gridColumns = promptInt(scanner, "Grid columns per page", gridColumns);
 				gridRows = promptInt(scanner, "Grid rows per page", gridRows);
 				showCuttingLines = promptBoolean(scanner, "Show cutting lines", showCuttingLines);
+				galleryUrl = promptOptional(scanner, "Gallery URL for back page (leave blank to skip)", galleryUrl);
+				logoUrl = promptOptional(scanner, "Logo URL for back page (JPEG/PNG, leave blank to skip)", logoUrl);
 			}
 
 			try {
 				if ("generate-codes".equals(mode) || "both".equals(mode)) {
 					AppProperties codeProps = new AppProperties("generate-codes", csvInputPath, csvOutputPath,
 							outputPath, baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount,
-							showCuttingLines, eventName);
+							showCuttingLines, eventName, galleryUrl, logoUrl);
 					new CodeGeneratorRunner(codeGeneratorService, csvWriterService, codeProps).run();
 				}
 
 				if ("generate-pdf".equals(mode) || "both".equals(mode)) {
 					AppProperties pdfProps = new AppProperties("generate-pdf", csvInputPath, csvOutputPath, outputPath,
-							baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount, showCuttingLines, eventName);
+							baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount, showCuttingLines, eventName,
+							galleryUrl, logoUrl);
 					new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, pdfProps)
 						.run();
 				}

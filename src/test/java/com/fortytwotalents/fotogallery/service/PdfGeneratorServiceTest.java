@@ -168,10 +168,75 @@ class PdfGeneratorServiceTest {
 		}
 	}
 
+	@Test
+	void backPagesAreAddedWhenGalleryUrlIsSet() throws Exception {
+		List<GalleryCode> codes = createCodesWithPasswords("XY9G-AB7K-92QF", "PW12345", "TK2H-XY3M-88PL", "PW67890");
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+		Path output = tempDir.resolve("back-pages.pdf");
+
+		PdfOptions options = new PdfOptions(output, 3, 4, false, "My Event", "https://gallery.example.com", "");
+		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, options);
+
+		// createPdf returns number of front pages only
+		assertThat(pages).isEqualTo(1);
+
+		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+			// 1 front page + 1 back page
+			assertThat(doc.getNumberOfPages()).isEqualTo(2);
+
+			PDFTextStripper stripper = new PDFTextStripper();
+			String text = stripper.getText(doc);
+			// Passwords should appear on back page
+			assertThat(text).contains("PW12345");
+			assertThat(text).contains("PW67890");
+			// Gallery URL should appear on back page
+			assertThat(text).contains("gallery.example.com");
+		}
+	}
+
+	@Test
+	void noBackPagesWhenGalleryUrlAndLogoUrlAreBlank() throws Exception {
+		List<GalleryCode> codes = createCodes("XY9G-AB7K-92QF");
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+		Path output = tempDir.resolve("no-back.pdf");
+
+		PdfOptions options = new PdfOptions(output, 3, 4, false, "", "", "");
+		pdfService.createPdf(codes, qrImages, BASE_URL, options);
+
+		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+			assertThat(doc.getNumberOfPages()).isEqualTo(1);
+		}
+	}
+
+	@Test
+	void backPagesRespectMultipleQrCodePages() throws Exception {
+		// 15 codes with 3x4 grid = 2 front pages → 2 front + 2 back = 4 pages total
+		List<GalleryCode> codes = createNumberedCodesWithPasswords(15);
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+		Path output = tempDir.resolve("multi-back.pdf");
+
+		PdfOptions options = new PdfOptions(output, 3, 4, false, "", "https://gallery.example.com", "");
+		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, options);
+
+		assertThat(pages).isEqualTo(2);
+
+		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+			assertThat(doc.getNumberOfPages()).isEqualTo(4);
+		}
+	}
+
 	private List<GalleryCode> createCodes(String... codeStrings) {
 		List<GalleryCode> codes = new ArrayList<>();
 		for (String c : codeStrings) {
 			codes.add(new GalleryCode(c));
+		}
+		return codes;
+	}
+
+	private List<GalleryCode> createCodesWithPasswords(String... codeAndPasswordPairs) {
+		List<GalleryCode> codes = new ArrayList<>();
+		for (int i = 0; i < codeAndPasswordPairs.length; i += 2) {
+			codes.add(new GalleryCode(codeAndPasswordPairs[i], codeAndPasswordPairs[i + 1]));
 		}
 		return codes;
 	}
@@ -184,6 +249,18 @@ class PdfGeneratorServiceTest {
 					(char) ('0' + i % 10), (char) ('1' + i % 10), (char) ('C' + i % 26), (char) ('D' + i % 26),
 					(char) ('2' + i % 8), (char) ('3' + i % 8));
 			codes.add(new GalleryCode(code));
+		}
+		return codes;
+	}
+
+	private List<GalleryCode> createNumberedCodesWithPasswords(int count) {
+		List<GalleryCode> codes = new ArrayList<>();
+		for (int i = 0; i < count; i++) {
+			String code = "%s%s%s%s-%s%s%s%s-%s%s%s%s".formatted((char) ('E' + i % 22), (char) ('F' + i % 22),
+					(char) ('4' + i % 6), (char) ('5' + i % 6), (char) ('A' + i % 26), (char) ('B' + i % 26),
+					(char) ('0' + i % 10), (char) ('1' + i % 10), (char) ('C' + i % 26), (char) ('D' + i % 26),
+					(char) ('2' + i % 8), (char) ('3' + i % 8));
+			codes.add(new GalleryCode(code, "PW" + String.format("%05d", i)));
 		}
 		return codes;
 	}
