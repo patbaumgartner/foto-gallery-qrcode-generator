@@ -21,9 +21,9 @@ public class CodeGeneratorService {
 	private static final int GROUP_LENGTH = 4;
 
 	// Excluded from password character classes:
-	//   digits 0,1,5,8  — visually similar to O/I/S/B
-	//   lowercase l     — visually similar to 1 and I
-	//   . - _ *         — explicitly excluded for readability
+	// digits 0,1,5,8 — visually similar to O/I/S/B
+	// lowercase l — visually similar to 1 and I
+	// . - _ * — explicitly excluded for readability
 	private static final String PASSWORD_DIGITS = "234679";
 
 	private static final String PASSWORD_UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -37,7 +37,8 @@ public class CodeGeneratorService {
 
 	private static final int PASSWORD_LENGTH = 9;
 
-	// Number of required character classes; each must appear at least once in every password
+	// Number of required character classes; each must appear at least once in every
+	// password
 	private static final int REQUIRED_CLASSES = 4;
 
 	static {
@@ -88,9 +89,9 @@ public class CodeGeneratorService {
 		}
 
 		LOGGER.atInfo()
-			.addArgument(() -> codes.size())
-			.addArgument(eventCode)
-			.log("Generated {} unique gallery codes with event prefix '{}'");
+				.addArgument(() -> codes.size())
+				.addArgument(eventCode)
+				.log("Generated {} unique gallery codes with event prefix '{}'");
 		return codes;
 	}
 
@@ -110,7 +111,8 @@ public class CodeGeneratorService {
 		mandatory.add(PASSWORD_LOWERCASE.charAt(random.nextInt(PASSWORD_LOWERCASE.length())));
 		mandatory.add(PASSWORD_SPECIAL.charAt(random.nextInt(PASSWORD_SPECIAL.length())));
 
-		// Fill remaining positions from the full charset, excluding already-selected characters
+		// Fill remaining positions from the full charset, excluding already-selected
+		// characters
 		List<Character> pool = new ArrayList<>(PASSWORD_CHARSET.length());
 		for (int i = 0; i < PASSWORD_CHARSET.length(); i++) {
 			char c = PASSWORD_CHARSET.charAt(i);

@@ -29,8 +29,8 @@ public class QrCodeGeneratorService {
 
 	private static final double FONT_RATIO = 0.60;
 
-	public BufferedImage generateQrCode(GalleryCode galleryCode, String baseUrl, int size, int number) {
-		String url = galleryCode.toUrl(baseUrl);
+	public BufferedImage generateQrCode(GalleryCode galleryCode, String galleryUrl, int size, int number) {
+		String url = galleryUrl + galleryCode.code();
 		try {
 			int renderSize = size * RENDER_SCALE;
 
@@ -42,8 +42,7 @@ public class QrCodeGeneratorService {
 			BufferedImage hiResImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
 			drawNumberOverlay(hiResImage, number);
 			return hiResImage;
-		}
-		catch (WriterException e) {
+		} catch (WriterException e) {
 			throw new IllegalStateException("Failed to generate QR code for: " + url, e);
 		}
 	}
