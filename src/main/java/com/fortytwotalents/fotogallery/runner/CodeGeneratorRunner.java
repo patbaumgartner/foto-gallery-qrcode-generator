@@ -66,7 +66,7 @@ public class CodeGeneratorRunner implements CommandLineRunner {
 			codes = picPeakService.enrichWithShareLinks(codes, appProperties.eventName());
 		}
 
-		csvWriterService.writeCodes(codes, outputPath, appProperties.eventName(), appProperties.baseUrl());
+		csvWriterService.writeCodes(codes, outputPath, appProperties.eventName(), appProperties.galleryUrl());
 
 		int finalCount = codes.size();
 		LOGGER.atInfo()
