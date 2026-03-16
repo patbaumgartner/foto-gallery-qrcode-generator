@@ -231,3 +231,39 @@ generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/ga
 | `EXTRA_ARGS`   | no        | —         | Any additional `--app.*` options passed to both steps  |
 
 \* Required when using positional arguments; omit all arguments to use interactive mode instead.
+
+### School Photo Scripts (mel-rohrer.ch/schulfotos)
+
+Two dedicated scripts for generating school photo gallery codes on `mel-rohrer.ch/schulfotos`.
+The base URL `https://mel-rohrer.ch/schulfotos/` is hardcoded and all standard settings are
+applied (50 codes, 3×4 grid, 200 px QR size, no cutting lines). Output files are named
+automatically after the class (e.g. `Klasse-3A-codes.csv` and `Klasse-3A-qr-codes.pdf`).
+
+**Linux / macOS (`schulfotos-mel-rohrer.sh`):**
+
+```bash
+./schulfotos-mel-rohrer.sh <EVENT_CODE> <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
+
+# Examples
+./schulfotos-mel-rohrer.sh XY9G "Klasse 3A"
+./schulfotos-mel-rohrer.sh XY9G "Klasse 3A" 30
+./schulfotos-mel-rohrer.sh XY9G "Klasse 3A" 30 --app.show-cutting-lines=true
+```
+
+**Windows (`schulfotos-mel-rohrer.bat`):**
+
+```cmd
+schulfotos-mel-rohrer.bat <EVENT_CODE> <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
+
+rem Examples
+schulfotos-mel-rohrer.bat XY9G "Klasse 3A"
+schulfotos-mel-rohrer.bat XY9G "Klasse 3A" 30
+schulfotos-mel-rohrer.bat XY9G "Klasse 3A" 30 --app.show-cutting-lines=true
+```
+
+| Argument       | Required | Default | Description                                           |
+|----------------|----------|---------|-------------------------------------------------------|
+| `EVENT_CODE`   | yes      | —       | 4-character alphanumeric code prefix (e.g. `XY9G`)   |
+| `KLASSENNAME`  | yes      | —       | Class name used as the event label in the PDF         |
+| `CODE_COUNT`   | no       | `50`    | Number of codes to generate                           |
+| `EXTRA_ARGS`   | no       | —       | Any additional `--app.*` options passed to both steps |
