@@ -77,6 +77,8 @@ public class InteractiveRunner implements ApplicationRunner {
 			boolean showCuttingLines = appProperties.showCuttingLines();
 			String galleryUrl = appProperties.galleryUrl();
 			String logoUrl = appProperties.logoUrl();
+			String galleryCodeLabel = appProperties.galleryCodeLabel();
+			String galleryPasswordLabel = appProperties.galleryPasswordLabel();
 
 			if ("generate-codes".equals(mode) || "both".equals(mode)) {
 				if (eventCode.isBlank()) {
@@ -105,14 +107,14 @@ public class InteractiveRunner implements ApplicationRunner {
 				if ("generate-codes".equals(mode) || "both".equals(mode)) {
 					AppProperties codeProps = new AppProperties("generate-codes", csvInputPath, csvOutputPath,
 							outputPath, baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount,
-							showCuttingLines, eventName, galleryUrl, logoUrl);
+							showCuttingLines, eventName, galleryUrl, logoUrl, galleryCodeLabel, galleryPasswordLabel);
 					new CodeGeneratorRunner(codeGeneratorService, csvWriterService, codeProps).run();
 				}
 
 				if ("generate-pdf".equals(mode) || "both".equals(mode)) {
 					AppProperties pdfProps = new AppProperties("generate-pdf", csvInputPath, csvOutputPath, outputPath,
 							baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount, showCuttingLines, eventName,
-							galleryUrl, logoUrl);
+							galleryUrl, logoUrl, galleryCodeLabel, galleryPasswordLabel);
 					new QrCodeGeneratorRunner(csvReaderService, qrCodeGeneratorService, pdfGeneratorService, pdfProps)
 						.run();
 				}
