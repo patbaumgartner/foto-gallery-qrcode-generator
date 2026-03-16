@@ -23,7 +23,7 @@ public record PicPeakProperties(boolean enabled, String apiUrl, String username,
 			password = "";
 		}
 		if (eventType == null) {
-			eventType = "schule";
+			eventType = "schulfotos";
 		}
 		if (eventDate == null) {
 			eventDate = "";

@@ -332,7 +332,7 @@ version control.
 | `app.picpeak.api-url` | `https://pics.example.com` | Base URL of your PicPeak instance (trailing slash stripped automatically) |
 | `app.picpeak.username` | *(blank)* | Admin login username |
 | `app.picpeak.password` | *(blank)* | Admin login password |
-| `app.picpeak.event-type` | `schule` | Event type passed to the PicPeak API |
+| `app.picpeak.event-type` | `schulfotos` | Event type passed to the PicPeak API |
 | `app.picpeak.event-date` | *(today)* | Fixed event date (`YYYY-MM-DD`); defaults to today when blank |
 | `app.picpeak.customer-email` | *(blank)* | Customer e-mail shown in the gallery event |
 | `app.picpeak.admin-email` | *(customer-email)* | Admin notification e-mail; falls back to `customer-email` |

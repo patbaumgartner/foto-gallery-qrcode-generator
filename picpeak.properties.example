@@ -21,6 +21,6 @@ app.picpeak.customer-email=
 # Overrides (optional — only list values that differ from defaults)
 # app.picpeak.admin-email=
 # app.picpeak.expiration-days=30
-# app.picpeak.event-type=schule
+# app.picpeak.event-type=schulfotos
 # app.picpeak.feedback-enabled=true
 # app.picpeak.moderate-comments=true

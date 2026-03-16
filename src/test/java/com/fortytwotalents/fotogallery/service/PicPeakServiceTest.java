@@ -122,15 +122,15 @@ class PicPeakServiceTest {
 
 		// login + 3 consecutive failed event attempts
 		doReturn(loginOk).doReturn(eventFail).doReturn(eventFail).doReturn(eventFail)
-			.when(httpClient)
-			.send(any(), any());
+				.when(httpClient)
+				.send(any(), any());
 
 		List<GalleryCode> codes = List.of(new GalleryCode("XY9G-AB7K-92QF", "badPass!"));
 
 		assertThatThrownBy(() -> service.enrichWithShareLinks(codes, "My Event"))
-			.isInstanceOf(IllegalStateException.class)
-			.hasMessageContaining("XY9G-AB7K-92QF")
-			.hasMessageContaining("3 attempts");
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("XY9G-AB7K-92QF")
+				.hasMessageContaining("3 attempts");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -154,10 +154,9 @@ class PicPeakServiceTest {
 		String apiUrl = enabled ? "https://pics.example.com" : "";
 		String username = enabled ? "admin" : "";
 		String password = enabled ? "secret" : "";
-		return new PicPeakProperties(enabled, apiUrl, username, password, "schule", "",
+		return new PicPeakProperties(enabled, apiUrl, username, password, "schulfotos", "",
 				"test@example.com", "", true, "", 30, false, true, true, false, false, true, false, true, false,
 				"minimal", "wave", 2);
 	}
 
 }
-
