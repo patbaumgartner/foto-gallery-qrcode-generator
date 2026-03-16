@@ -49,12 +49,12 @@ public class CodeGeneratorRunner implements CommandLineRunner {
 		LOGGER.info("Generating {} gallery codes with event prefix '{}'...", codeCount, eventCode);
 
 		List<GalleryCode> codes = codeGeneratorService.generateCodes(eventCode, codeCount);
-		csvWriterService.writeCodes(codes, outputPath, appProperties.eventName(), appProperties.baseUrl());
+		csvWriterService.writeCodes(codes, outputPath, appProperties.eventName(), appProperties.galleryUrl());
 
 		LOGGER.atInfo()
-			.addArgument(() -> codes.size())
-			.addArgument(() -> outputPath.toAbsolutePath())
-			.log("Done! Generated {} codes written to: {}");
+				.addArgument(() -> codes.size())
+				.addArgument(() -> outputPath.toAbsolutePath())
+				.log("Done! Generated {} codes written to: {}");
 	}
 
 }

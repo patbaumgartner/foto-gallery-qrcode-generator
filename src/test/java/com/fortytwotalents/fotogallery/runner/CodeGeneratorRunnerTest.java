@@ -46,7 +46,7 @@ class CodeGeneratorRunnerTest {
 		runner.run();
 
 		verify(codeGeneratorService).generateCodes("XY9G", 50);
-		verify(csvWriterService).writeCodes(codes, Path.of("codes.csv"), "", "https://my.site/gallery/");
+		verify(csvWriterService).writeCodes(codes, Path.of("codes.csv"), "", "https://my.site/gallery?code=");
 	}
 
 	@Test
@@ -61,7 +61,7 @@ class CodeGeneratorRunnerTest {
 		runner.run();
 
 		verify(codeGeneratorService).generateCodes("AB1C", 25);
-		verify(csvWriterService).writeCodes(codes, Path.of("custom.csv"), "", "https://my.site/gallery/");
+		verify(csvWriterService).writeCodes(codes, Path.of("custom.csv"), "", "https://my.site/gallery?code=");
 	}
 
 	@Test
