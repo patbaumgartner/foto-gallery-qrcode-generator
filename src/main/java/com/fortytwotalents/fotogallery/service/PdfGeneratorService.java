@@ -347,7 +347,7 @@ public class PdfGeneratorService {
 				String displayUrl = truncateUrl(galleryUrl, fontRegular, BACK_URL_FONT_SIZE, innerWidth - 8f);
 				float urlW = fontRegular.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;
 				float urlX = innerX + (innerWidth - urlW) / 2f;
-				float urlY = innerY + BACK_RULE_GAP;
+				float urlY = innerY + (bottomRuleY - innerY - BACK_URL_FONT_SIZE) / 2f;
 				cs.beginText();
 				cs.setNonStrokingColor(GRAY, GRAY, GRAY);
 				cs.setFont(fontRegular, BACK_URL_FONT_SIZE);
