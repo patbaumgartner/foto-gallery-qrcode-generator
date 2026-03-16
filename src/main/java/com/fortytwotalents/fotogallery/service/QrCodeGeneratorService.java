@@ -35,7 +35,7 @@ public class QrCodeGeneratorService {
 			int renderSize = size * RENDER_SCALE;
 
 			Map<EncodeHintType, Object> hints = Map.of(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H,
-					EncodeHintType.MARGIN, 1, EncodeHintType.CHARACTER_SET, "UTF-8");
+					EncodeHintType.MARGIN, 0, EncodeHintType.CHARACTER_SET, "UTF-8");
 
 			QRCodeWriter writer = new QRCodeWriter();
 			BitMatrix bitMatrix = writer.encode(url, BarcodeFormat.QR_CODE, renderSize, renderSize, hints);
