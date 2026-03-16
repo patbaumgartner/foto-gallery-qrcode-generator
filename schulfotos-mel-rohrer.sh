@@ -2,9 +2,10 @@
 #
 # schulfotos-mel-rohrer.sh — Generate school photo gallery codes for mel-rohrer.ch/schulfotos.
 #
-# The base URL is hardcoded to https://mel-rohrer.ch/schulfotos/?code= and all standard
-# settings are used (3x4 grid, 200 px QR size, cutting lines enabled).
-# A back page with the gallery URL https://mel-rohrer.ch/schulfotos is added automatically.
+# The gallery URL used in QR codes is hardcoded to https://mel-rohrer.ch/schulfotos/?code=
+# and the base URL printed on the back of the PDF is https://mel-rohrer.ch/schulfotos.
+# All standard settings are used (3x4 grid, 200 px QR size, cutting lines enabled).
+# A back page with the gallery password is always included.
 #
 # When run without arguments the script prompts interactively for every parameter.
 # A random 4-character alphanumeric EVENT_CODE is generated automatically
@@ -31,8 +32,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 JAR_NAME="foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar"
 NATIVE_NAME="foto-gallery-qrcode-generator"
-BASE_URL="https://mel-rohrer.ch/schulfotos/?code="
-GALLERY_URL="https://mel-rohrer.ch/schulfotos"
+BASE_URL="https://mel-rohrer.ch/schulfotos"
+GALLERY_URL="https://mel-rohrer.ch/schulfotos/?code="
 DEFAULT_CODE_COUNT="17"
 
 # --- Help ---------------------------------------------------------------------
@@ -60,11 +61,11 @@ Examples:
   $0 "GS1d BA" 30 --app.show-cutting-lines=true
 
 Defaults:
-  Base URL         $BASE_URL
-  Gallery URL      $GALLERY_URL
-  Grid             3 columns × 4 rows
-  QR size          200 px
-  Cutting lines    on
+  Base URL (back of PDF)  $BASE_URL
+  Gallery URL (QR codes)  $GALLERY_URL
+  Grid                    3 columns × 4 rows
+  QR size                 200 px
+  Cutting lines           on
 EOF
   exit 0
 }
@@ -155,7 +156,6 @@ echo "==> Generating $CODE_COUNT codes for class '$KLASSENNAME' (event: $EVENT_C
   --app.code-count="$CODE_COUNT" \
   --app.event-name="$KLASSENNAME" \
   --app.csv-output-path="$CSV_PATH" \
-  --app.base-url="$BASE_URL" \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 # --- Step 2: Generate PDF -----------------------------------------------------

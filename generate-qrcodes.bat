@@ -11,7 +11,7 @@ rem   generate-qrcodes.bat
 rem   generate-qrcodes.bat XY9G
 rem   generate-qrcodes.bat XY9G 100
 rem   generate-qrcodes.bat XY9G 100 "My Photo Event"
-rem   generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
+rem   generate-qrcodes.bat XY9G 100 "My Photo Event" --app.gallery-url=https://my.site/gallery?code=
 rem   generate-qrcodes.bat --app.mode=generate-codes --app.event-code=XY9G
 
 setlocal enabledelayedexpansion
