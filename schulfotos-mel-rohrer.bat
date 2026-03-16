@@ -180,9 +180,9 @@ if errorlevel 1 (
 rem --- Step 2: Generate PDF ---------------------------------------------------
 echo ==^> Generating QR-code PDF ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true !EXTRA_ARGS!
+    java -jar "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !EXTRA_ARGS!
 ) else (
-    "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true !EXTRA_ARGS!
+    "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !EXTRA_ARGS!
 )
 if errorlevel 1 (
     echo ERROR: PDF generation failed. >&2

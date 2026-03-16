@@ -154,6 +154,7 @@ echo "==> Generating $CODE_COUNT codes for class '$KLASSENNAME' (event: $EVENT_C
   --app.code-count="$CODE_COUNT" \
   --app.event-name="$KLASSENNAME" \
   --app.csv-output-path="$CSV_PATH" \
+  --app.gallery-url="$GALLERY_URL" \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 # --- Step 2: Generate PDF -----------------------------------------------------
@@ -165,6 +166,7 @@ echo "==> Generating QR-code PDF ..."
   --app.base-url="$BASE_URL" \
   --app.gallery-url="$GALLERY_URL" \
   --app.show-cutting-lines=true \
+  --app.logo-url=logo.png \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 echo "==> Done. Output files:"
