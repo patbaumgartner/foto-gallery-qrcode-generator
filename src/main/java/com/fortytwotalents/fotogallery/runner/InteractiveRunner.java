@@ -97,7 +97,7 @@ public class InteractiveRunner implements ApplicationRunner {
 				showCuttingLines = promptBoolean(scanner, "Show cutting lines", showCuttingLines);
 				String galleryUrlDefault = galleryUrl.isBlank() ? baseUrl : galleryUrl;
 				galleryUrl = promptOptional(scanner, "Gallery URL for back page", galleryUrlDefault);
-				String logoUrlDefault = logoUrl.isBlank() ? "src/main/resources/logo.png" : logoUrl;
+				String logoUrlDefault = logoUrl.isBlank() ? "logo.png" : logoUrl;
 				logoUrl = promptOptional(scanner, "Logo URL for back page (JPEG/PNG)", logoUrlDefault);
 			}
 
