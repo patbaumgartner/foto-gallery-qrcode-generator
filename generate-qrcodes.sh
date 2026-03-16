@@ -54,7 +54,7 @@ fi
 EVENT_CODE="$1"
 shift
 
-CODE_COUNT="50"
+CODE_COUNT="17"
 if [[ $# -gt 0 && "$1" =~ ^[0-9]+$ ]]; then
   CODE_COUNT="$1"
   shift

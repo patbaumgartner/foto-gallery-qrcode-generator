@@ -64,7 +64,7 @@ rem --- Parse arguments --------------------------------------------------------
 set "EVENT_CODE=%~1"
 shift
 
-set "CODE_COUNT=50"
+set "CODE_COUNT=17"
 set "NEXT=%~1"
 if defined NEXT (
     echo %NEXT%| findstr /r "^[0-9][0-9]*$" >nul 2>&1
