@@ -35,3 +35,6 @@ build/
 ### Generated outputs ###
 codes.csv
 qr-codes.pdf
+
+### Local PicPeak credentials (never commit) ###
+picpeak.properties

@@ -95,6 +95,14 @@ if [[ "$VERBOSE" == false ]]; then
   QUIET_ARGS=(--logging.level.root=WARN --spring.main.banner-mode=off)
 fi
 
+# --- Load optional PicPeak credentials ----------------------------------------
+# Copy picpeak.properties.example to picpeak.properties and fill in your
+# credentials.  The file is .gitignored so it will never be committed.
+PICPEAK_ARGS=()
+if [[ -f "$SCRIPT_DIR/picpeak.properties" ]]; then
+  PICPEAK_ARGS=(--spring.config.additional-location="file:$SCRIPT_DIR/picpeak.properties")
+fi
+
 # --- Resolve executable -------------------------------------------------------
 # Check current directory first, then target/ subdirectory
 if [[ -x "$SCRIPT_DIR/$NATIVE_NAME" ]]; then
@@ -178,6 +186,7 @@ echo "==> Generating $CODE_COUNT codes for class '$KLASSENNAME' (event: $EVENT_C
   --app.event-name="$KLASSENNAME" \
   --app.csv-output-path="$CSV_PATH" \
   --app.gallery-url="$GALLERY_URL" \
+  ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
@@ -191,6 +200,7 @@ echo "==> Generating QR-code PDF ..."
   --app.gallery-url="$GALLERY_URL" \
   --app.show-cutting-lines=true \
   --app.logo-url=logo.png \
+  ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 

@@ -1,0 +1,71 @@
+# picpeak.properties.example
+#
+# Copy this file to picpeak.properties and fill in your credentials.
+# picpeak.properties is loaded automatically by generate-qrcodes.sh/.bat and
+# schulfotos-mel-rohrer.sh/.bat when it is present in the same directory as the
+# script.  It is listed in .gitignore so your credentials are never committed.
+#
+# All settings map 1-to-1 to the app.picpeak.* Spring Boot properties and can
+# also be passed as command-line flags (--app.picpeak.username=…) or set as
+# environment variables using Spring Boot's relaxed-binding convention
+# (APP_PICPEAK_USERNAME=…).
+
+# ── Required credentials ──────────────────────────────────────────────────────
+
+# Enable PicPeak integration (set to true to activate)
+app.picpeak.enabled=false
+
+# Base URL of your PicPeak instance (no trailing slash)
+app.picpeak.api-url=https://pics.example.com
+
+# Admin login credentials
+app.picpeak.username=
+app.picpeak.password=
+
+# ── Event defaults ─────────────────────────────────────────────────────────────
+
+# Event type passed to the PicPeak API (default: schule)
+app.picpeak.event-type=schule
+
+# Fixed event date in YYYY-MM-DD format; leave blank to use today's date
+app.picpeak.event-date=
+
+# Customer e-mail shown in the created gallery event
+app.picpeak.customer-email=
+
+# Admin notification e-mail; defaults to customer-email when blank
+app.picpeak.admin-email=
+
+# Welcome message shown to gallery visitors (leave blank for none)
+app.picpeak.welcome-message=
+
+# ── Access settings ────────────────────────────────────────────────────────────
+
+# Require a password to view the gallery
+app.picpeak.require-password=true
+
+# Number of days until the gallery expires
+app.picpeak.expiration-days=30
+
+# ── Feature flags ──────────────────────────────────────────────────────────────
+
+app.picpeak.allow-user-uploads=false
+app.picpeak.feedback-enabled=true
+app.picpeak.allow-ratings=true
+app.picpeak.allow-likes=false
+app.picpeak.allow-comments=false
+app.picpeak.allow-favorites=true
+app.picpeak.require-name-email=false
+app.picpeak.moderate-comments=true
+app.picpeak.show-feedback-to-guests=false
+
+# ── Visual settings ────────────────────────────────────────────────────────────
+
+# Header style: minimal | classic | hero
+app.picpeak.header-style=minimal
+
+# Hero divider style: wave | none | ...
+app.picpeak.hero-divider-style=wave
+
+# CSS template ID (integer)
+app.picpeak.css-template-id=2

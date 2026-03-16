@@ -49,6 +49,14 @@ rem --- Skip -v / --verbose if it is the first argument -----------------------
 if /i "%~1"=="-v"       shift
 if /i "%~1"=="--verbose" shift
 
+rem --- Load optional PicPeak credentials ---------------------------------------
+rem Copy picpeak.properties.example to picpeak.properties and fill in your
+rem credentials.  The file is listed in .gitignore so it will never be committed.
+set "PICPEAK_ARGS="
+if exist "%SCRIPT_DIR%picpeak.properties" (
+    set "PICPEAK_ARGS=--spring.config.additional-location=file:%SCRIPT_DIR%picpeak.properties"
+)
+
 rem --- Help -------------------------------------------------------------------
 if "%~1"=="--help" goto show_help
 if "%~1"=="-h" goto show_help
@@ -188,9 +196,9 @@ echo.
 rem --- Step 1: Generate codes -------------------------------------------------
 echo ==^> Generating !CODE_COUNT! codes for class '!KLASSENNAME!' ^(event: !EVENT_CODE!^) ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% !QUIET_ARGS! !EXTRA_ARGS!
+    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% !PICPEAK_ARGS! !QUIET_ARGS! !EXTRA_ARGS!
 ) else (
-    "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% !QUIET_ARGS! !EXTRA_ARGS!
+    "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% !PICPEAK_ARGS! !QUIET_ARGS! !EXTRA_ARGS!
 )
 if errorlevel 1 (
     echo ERROR: Code generation failed. >&2
@@ -200,9 +208,9 @@ if errorlevel 1 (
 rem --- Step 2: Generate PDF ---------------------------------------------------
 echo ==^> Generating QR-code PDF ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !QUIET_ARGS! !EXTRA_ARGS!
+    java -jar "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !PICPEAK_ARGS! !QUIET_ARGS! !EXTRA_ARGS!
 ) else (
-    "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !QUIET_ARGS! !EXTRA_ARGS!
+    "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !PICPEAK_ARGS! !QUIET_ARGS! !EXTRA_ARGS!
 )
 if errorlevel 1 (
     echo ERROR: PDF generation failed. >&2
