@@ -181,8 +181,10 @@ rem --- Derive safe file name prefix from class name ---------------------------
 rem Replace spaces and forward slashes with hyphens
 set "SAFE_NAME=!KLASSENNAME: =-!"
 set "SAFE_NAME=!SAFE_NAME:/=-!"
-set "CSV_PATH=!SAFE_NAME!-codes.csv"
-set "PDF_PATH=!SAFE_NAME!-qr-codes.pdf"
+set "OUTPUT_DIR=schulfotos"
+if not exist "!OUTPUT_DIR!" mkdir "!OUTPUT_DIR!"
+set "CSV_PATH=!OUTPUT_DIR!\!SAFE_NAME!-codes.csv"
+set "PDF_PATH=!OUTPUT_DIR!\!SAFE_NAME!-qr-codes.pdf"
 
 rem --- Summary ----------------------------------------------------------------
 echo ==^> Settings:

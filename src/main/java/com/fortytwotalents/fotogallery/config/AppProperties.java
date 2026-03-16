@@ -6,10 +6,10 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "app")
-public record AppProperties(String mode, String csvInputPath, String csvOutputPath, String outputPath,
-		String baseUrl, @Positive int qrSize, @Positive int gridColumns, @Positive int gridRows,
-		String eventCode, @Positive int codeCount, boolean showCuttingLines, String eventName, String galleryUrl,
-		String logoUrl, String galleryCodeLabel, String galleryPasswordLabel) {
+public record AppProperties(String mode, String csvInputPath, String csvOutputPath, String outputPath, String baseUrl,
+		@Positive int qrSize, @Positive int gridColumns, @Positive int gridRows, String eventCode,
+		@Positive int codeCount, boolean showCuttingLines, String eventName, String galleryUrl, String logoUrl,
+		String galleryCodeLabel, String galleryPasswordLabel) {
 	public AppProperties {
 		if (mode == null) {
 			mode = "";

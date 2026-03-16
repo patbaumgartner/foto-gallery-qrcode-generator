@@ -19,12 +19,12 @@
     <commons-csv.version>1.14.1</commons-csv.version>
     <jacoco.version>0.8.14</jacoco.version>
     <java.version>25</java.version>
-    <pdfbox.version>3.0.6</pdfbox.version>
+    <pdfbox.version>3.0.7</pdfbox.version>
     <rewrite-maven-plugin.version>6.32.0</rewrite-maven-plugin.version>
     <sortpom-maven-plugin.version>4.0.0</sortpom-maven-plugin.version>
     <spring-javaformat-maven-plugin.version>0.0.47</spring-javaformat-maven-plugin.version>
     <taikai.version>1.60.0</taikai.version>
-    <twelvemonkeys.version>3.11.0</twelvemonkeys.version>
+    <twelvemonkeys.version>3.13.1</twelvemonkeys.version>
     <zxing.version>3.5.4</zxing.version>
   </properties>
 
@@ -59,7 +59,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
 
@@ -249,15 +249,6 @@
           <plugin>
             <groupId>org.graalvm.buildtools</groupId>
             <artifactId>native-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>build-native</id>
-                <goals>
-                  <goal>compile-no-fork</goal>
-                </goals>
-                <phase>package</phase>
-              </execution>
-            </executions>
             <configuration>
               <buildArgs>
                 <buildArg>--initialize-at-run-time=java.awt,javax.imageio,sun.awt,sun.font,sun.java2d</buildArg>
@@ -267,6 +258,15 @@
                 <enabled>true</enabled>
               </metadataRepository>
             </configuration>
+            <executions>
+              <execution>
+                <id>build-native</id>
+                <goals>
+                  <goal>compile-no-fork</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

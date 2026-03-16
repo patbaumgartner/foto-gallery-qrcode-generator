@@ -22,8 +22,8 @@ public class CsvWriterService {
 	public void writeCodes(List<GalleryCode> codes, Path outputPath, String eventName, String galleryUrl)
 			throws IOException {
 		CSVFormat format = CSVFormat.DEFAULT.builder()
-				.setHeader("Number", "Code", "Password", "Event Name", "URL")
-				.get();
+			.setHeader("Number", "Code", "Password", "Event Name", "URL")
+			.get();
 
 		try (Writer writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8);
 				CSVPrinter printer = new CSVPrinter(writer, format)) {

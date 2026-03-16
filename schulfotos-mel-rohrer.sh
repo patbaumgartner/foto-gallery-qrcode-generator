@@ -165,8 +165,10 @@ fi
 # Replace spaces and slashes with hyphens to produce a safe file name prefix.
 SAFE_NAME="${KLASSENNAME// /-}"
 SAFE_NAME="${SAFE_NAME//\//-}"
-CSV_PATH="${SAFE_NAME}-codes.csv"
-PDF_PATH="${SAFE_NAME}-qr-codes.pdf"
+OUTPUT_DIR="schulfotos"
+mkdir -p "$OUTPUT_DIR"
+CSV_PATH="${OUTPUT_DIR}/${SAFE_NAME}-codes.csv"
+PDF_PATH="${OUTPUT_DIR}/${SAFE_NAME}-qr-codes.pdf"
 
 # --- Summary ------------------------------------------------------------------
 echo "==> Settings:"

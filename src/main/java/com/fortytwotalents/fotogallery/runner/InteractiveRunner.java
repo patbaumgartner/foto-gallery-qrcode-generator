@@ -93,8 +93,7 @@ public class InteractiveRunner implements ApplicationRunner {
 				csvInputPath = promptOptional(scanner, "CSV input path", csvInputPath);
 				outputPath = promptOptional(scanner, "PDF output path", outputPath);
 				baseUrl = promptOptional(scanner, "Base URL (displayed on back of PDF)", baseUrl);
-				galleryUrl = promptOptional(scanner, "Gallery URL for QR codes (must start with https://)",
-						galleryUrl);
+				galleryUrl = promptOptional(scanner, "Gallery URL for QR codes (must start with https://)", galleryUrl);
 				qrSize = promptInt(scanner, "QR code size (pixels)", qrSize);
 				gridColumns = promptInt(scanner, "Grid columns per page", gridColumns);
 				gridRows = promptInt(scanner, "Grid rows per page", gridRows);
@@ -106,8 +105,8 @@ public class InteractiveRunner implements ApplicationRunner {
 			try {
 				if ("generate-codes".equals(mode) || "both".equals(mode)) {
 					AppProperties codeProps = new AppProperties("generate-codes", csvInputPath, csvOutputPath,
-							outputPath, baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount,
-							showCuttingLines, eventName, galleryUrl, logoUrl, galleryCodeLabel, galleryPasswordLabel);
+							outputPath, baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount, showCuttingLines,
+							eventName, galleryUrl, logoUrl, galleryCodeLabel, galleryPasswordLabel);
 					new CodeGeneratorRunner(codeGeneratorService, csvWriterService, codeProps).run();
 				}
 
@@ -120,10 +119,10 @@ public class InteractiveRunner implements ApplicationRunner {
 				}
 			}
 			catch (IOException ex) {
-				LOGGER.error("Operation failed: {}", ex.getMessage());
+				LOGGER.error("Operation failed: {}", ex.getMessage(), ex);
 			}
 			catch (IllegalArgumentException ex) {
-				LOGGER.error("Invalid input: {}", ex.getMessage());
+				LOGGER.error("Invalid input: {}", ex.getMessage(), ex);
 			}
 		}
 	}
@@ -179,8 +178,8 @@ public class InteractiveRunner implements ApplicationRunner {
 				return randomDefault;
 			}
 			else if (!value.matches(EVENT_CODE_PATTERN)) {
-				System.out.println("Event code must be exactly 4 alphanumeric characters (A-Z, 0-9), got: '" + value
-						+ "'");
+				System.out
+					.println("Event code must be exactly 4 alphanumeric characters (A-Z, 0-9), got: '" + value + "'");
 			}
 		}
 		return value.toUpperCase();

@@ -1,14 +1,14 @@
 package com.fortytwotalents.fotogallery.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fortytwotalents.fotogallery.config.PicPeakProperties;
 import com.fortytwotalents.fotogallery.model.GalleryCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -51,7 +51,7 @@ public class PicPeakService {
 			return codes;
 		}
 
-		LOGGER.info("PicPeak integration enabled. Creating {} gallery events...", codes.size());
+		LOGGER.atInfo().addArgument(() -> codes.size()).log("PicPeak integration enabled. Creating {} gallery events...");
 
 		String token = login();
 		if (token == null) {
@@ -130,7 +130,7 @@ public class PicPeakService {
 			for (String field : List.of("token", "admin_token", "access_token", "jwt")) {
 				JsonNode node = responseJson.get(field);
 				if (node != null && !node.isNull()) {
-					return node.asText();
+					return node.asString();
 				}
 			}
 
@@ -138,7 +138,7 @@ public class PicPeakService {
 			return null;
 		}
 		catch (Exception ex) {
-			LOGGER.error("PicPeak login error: {}", ex.getMessage());
+			LOGGER.error("PicPeak login error: {}", ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -196,14 +196,14 @@ public class PicPeakService {
 			JsonNode responseJson = objectMapper.readTree(response.body());
 			JsonNode shareLinkNode = responseJson.get("share_link");
 			if (shareLinkNode != null && !shareLinkNode.isNull()) {
-				return shareLinkNode.asText();
+				return shareLinkNode.asString();
 			}
 
 			LOGGER.error("Could not find share_link in PicPeak response: {}", response.body());
 			return null;
 		}
 		catch (Exception ex) {
-			LOGGER.error("PicPeak event creation error: {}", ex.getMessage());
+			LOGGER.error("PicPeak event creation error: {}", ex.getMessage(), ex);
 			return null;
 		}
 	}

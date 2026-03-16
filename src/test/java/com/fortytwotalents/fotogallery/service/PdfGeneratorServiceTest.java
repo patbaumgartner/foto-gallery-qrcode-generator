@@ -316,7 +316,7 @@ class PdfGeneratorServiceTest {
 					(char) ('4' + i % 6), (char) ('5' + i % 6), (char) ('A' + i % 26), (char) ('B' + i % 26),
 					(char) ('0' + i % 10), (char) ('1' + i % 10), (char) ('C' + i % 26), (char) ('D' + i % 26),
 					(char) ('2' + i % 8), (char) ('3' + i % 8));
-			codes.add(new GalleryCode(code, "PW" + String.format("%05d", i)));
+			codes.add(new GalleryCode(code, "PW" + "%05d".formatted(i)));
 		}
 		return codes;
 	}

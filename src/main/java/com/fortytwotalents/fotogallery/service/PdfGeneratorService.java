@@ -15,10 +15,12 @@ import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -196,8 +198,7 @@ public class PdfGeneratorService {
 							content.showText(galleryCodeLabel);
 							content.endText();
 
-							float eventNameWidth = fontRegular.getStringWidth(eventName) / 1000
-									* EVENT_NAME_FONT_SIZE;
+							float eventNameWidth = fontRegular.getStringWidth(eventName) / 1000 * EVENT_NAME_FONT_SIZE;
 							float eventNameX = innerX + (innerWidth - eventNameWidth) / 2;
 							float eventNameY = galleryCodeLabelY + BACK_LABEL_FONT_SIZE + EVENT_NAME_GAP;
 
@@ -206,8 +207,7 @@ public class PdfGeneratorService {
 							content.newLineAtOffset(eventNameX, eventNameY);
 							content.showText(eventName);
 							content.endText();
-						}
-						else {
+						} else {
 							float combinedHeight = CODE_FONT_SIZE + BACK_LABEL_PW_GAP + BACK_LABEL_FONT_SIZE;
 							float blockStartY = innerY + (TEXT_HEIGHT - combinedHeight) / 2;
 
@@ -273,17 +273,12 @@ public class PdfGeneratorService {
 	/**
 	 * Draws the back of a single card cell.
 	 *
-	 * Layout (top → bottom, full black):
-	 *   ┌─────────────────────────────────────┐  ← thin black card border
-	 *   │                                     │
-	 *   │   [LOGO — fills ~55% of height]     │  ← logo centered, max size
-	 *   │                                     │
-	 *   │ ─────────────────────────────────── │  ← 0.4 pt black rule
-	 *   │  GALLERY PASSWORD                   │  ← 6 pt uppercase black label
-	 *   │  XY9G-AB7K-92QF                     │  ← 14 pt bold black password
-	 *   │ ─────────────────────────────────── │  ← 0.4 pt black rule
-	 *   │  my.site                            │  ← 6.5 pt black base URL
-	 *   └─────────────────────────────────────┘
+	 * Layout (top → bottom, full black): ┌─────────────────────────────────────┐ ← thin
+	 * black card border │ │ │ [LOGO — fills ~55% of height] │ ← logo centered, max size │
+	 * │ │ ─────────────────────────────────── │ ← 0.4 pt black rule │ GALLERY PASSWORD │
+	 * ← 6 pt uppercase black label │ XY9G-AB7K-92QF │ ← 14 pt bold black password │
+	 * ─────────────────────────────────── │ ← 0.4 pt black rule │ my.site │ ← 6.5 pt
+	 * black base URL └─────────────────────────────────────┘
 	 */
 	private void drawBackCell(PDDocument document, PDPage page, GalleryCode code, float innerX, float innerY,
 			float innerWidth, float innerHeight, PDType1Font fontBold, PDType1Font fontRegular,
@@ -383,7 +378,9 @@ public class PdfGeneratorService {
 		}
 	}
 
-	/** Truncates a URL string so its rendered width fits within {@code maxWidth} points. */
+	/**
+	 * Truncates a URL string so its rendered width fits within {@code maxWidth} points.
+	 */
 	private String truncateUrl(String url, PDType1Font font, float fontSize, float maxWidth) throws IOException {
 		float w = font.getStringWidth(url) / 1000f * fontSize;
 		if (w <= maxWidth) {
@@ -395,7 +392,8 @@ public class PdfGeneratorService {
 		if (w <= maxWidth) {
 			return display;
 		}
-		// Truncate with ellipsis (MIN_URL_DISPLAY_LENGTH ensures a readable stub remains)
+		// Truncate with ellipsis (MIN_URL_DISPLAY_LENGTH ensures a readable stub
+		// remains)
 		while (display.length() > MIN_URL_DISPLAY_LENGTH) {
 			display = display.substring(0, display.length() - 4) + "...";
 			w = font.getStringWidth(display) / 1000f * fontSize;
@@ -410,9 +408,9 @@ public class PdfGeneratorService {
 	 * Downloads and decodes a logo image from an HTTP/HTTPS URL or a local file path.
 	 *
 	 * Supports JPEG, PNG, and WebP (via TwelveMonkeys ImageIO plugin on the class path).
-	 * Other formats are attempted via ImageIO and converted to PNG as a fallback.
-	 * Local paths starting with {@code src/main/resources/} are also resolved as
-	 * classpath resources for portability in packaged JARs.
+	 * Other formats are attempted via ImageIO and converted to PNG as a fallback. Local
+	 * paths starting with {@code src/main/resources/} are also resolved as classpath
+	 * resources for portability in packaged JARs.
 	 */
 	private PDImageXObject loadLogoImage(PDDocument document, String logoUrl) {
 		if (logoUrl.startsWith("http://") || logoUrl.startsWith("https://")) {
@@ -427,11 +425,11 @@ public class PdfGeneratorService {
 			uri = URI.create(logoUrl);
 		}
 		catch (IllegalArgumentException ex) {
-			LOGGER.warn("Invalid logo URL '{}': {}", logoUrl, ex.getMessage());
+			LOGGER.error("Invalid logo URL '{}': {}", logoUrl, ex.getMessage(), ex);
 			return null;
 		}
 		try {
-			java.net.URLConnection connection = uri.toURL().openConnection();
+			URLConnection connection = uri.toURL().openConnection();
 			connection.setConnectTimeout(LOGO_CONNECT_TIMEOUT_MS);
 			connection.setReadTimeout(LOGO_READ_TIMEOUT_MS);
 			byte[] imageData;
@@ -441,7 +439,7 @@ public class PdfGeneratorService {
 			return createLogoImageFromBytes(document, imageData, logoUrl);
 		}
 		catch (IOException ex) {
-			LOGGER.warn("Could not load logo from URL '{}': {}", logoUrl, ex.getMessage());
+			LOGGER.error("Could not load logo from URL '{}': {}", logoUrl, ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -454,13 +452,13 @@ public class PdfGeneratorService {
 				return createLogoImageFromBytes(document, Files.readAllBytes(filePath), path);
 			}
 			catch (IOException ex) {
-				LOGGER.warn("Could not read logo from file '{}': {}", path, ex.getMessage());
+				LOGGER.error("Could not read logo from file '{}': {}", path, ex.getMessage(), ex);
 				return null;
 			}
 		}
-		// Fallback: classpath resource (strip src/main/resources/ prefix for JAR portability)
-		String resourcePath = path.startsWith(RESOURCES_PREFIX)
-				? "/" + path.substring(RESOURCES_PREFIX.length())
+		// Fallback: classpath resource (strip src/main/resources/ prefix for JAR
+		// portability)
+		String resourcePath = path.startsWith(RESOURCES_PREFIX) ? "/" + path.substring(RESOURCES_PREFIX.length())
 				: (path.startsWith("/") ? path : "/" + path);
 		try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
 			if (is == null) {
@@ -470,7 +468,7 @@ public class PdfGeneratorService {
 			return createLogoImageFromBytes(document, is.readAllBytes(), path);
 		}
 		catch (IOException ex) {
-			LOGGER.warn("Could not load logo from classpath '{}': {}", resourcePath, ex.getMessage());
+			LOGGER.error("Could not load logo from classpath '{}': {}", resourcePath, ex.getMessage(), ex);
 			return null;
 		}
 	}
@@ -484,7 +482,7 @@ public class PdfGeneratorService {
 		catch (IOException | IllegalArgumentException ex) {
 			// PDFBox doesn't know this format (e.g. WebP) — fall back to ImageIO,
 			// which supports WebP when TwelveMonkeys imageio-webp is on the class path.
-			BufferedImage bufferedImage = ImageIO.read(new java.io.ByteArrayInputStream(imageData));
+			BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
 			if (bufferedImage == null) {
 				LOGGER.warn("Could not decode logo from '{}' (unsupported format)", source);
 				return null;
@@ -503,7 +501,8 @@ public class PdfGeneratorService {
 			content.setStrokingColor(CUTTING_LINE_GRAY, CUTTING_LINE_GRAY, CUTTING_LINE_GRAY);
 			content.setLineWidth(CUTTING_LINE_WIDTH);
 
-			// All x positions where vertical cuts happen (left boundary, column dividers, right boundary)
+			// All x positions where vertical cuts happen (left boundary, column dividers,
+			// right boundary)
 			float[] xCuts = new float[gridColumns + 1];
 			xCuts[0] = MARGIN;
 			for (int col = 1; col < gridColumns; col++) {
@@ -511,7 +510,8 @@ public class PdfGeneratorService {
 			}
 			xCuts[gridColumns] = pageWidth - MARGIN;
 
-			// All y positions where horizontal cuts happen (top boundary, row dividers, bottom boundary)
+			// All y positions where horizontal cuts happen (top boundary, row dividers,
+			// bottom boundary)
 			float[] yCuts = new float[gridRows + 1];
 			yCuts[0] = pageHeight - MARGIN;
 			for (int row = 1; row < gridRows; row++) {
@@ -529,7 +529,8 @@ public class PdfGeneratorService {
 				content.stroke();
 			}
 
-			// For each horizontal cut y-position: short ticks in the left and right margins
+			// For each horizontal cut y-position: short ticks in the left and right
+			// margins
 			for (float y : yCuts) {
 				content.moveTo(MARGIN, y);
 				content.lineTo(MARGIN - CUTTING_MARK_LENGTH, y);
