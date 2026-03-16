@@ -113,6 +113,34 @@ class CodeGeneratorServiceTest {
 	}
 
 	@Test
+	void passwordsAlwaysContainAtLeastOneDigit() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 200);
+
+		assertThat(codes).allSatisfy(code -> assertThat(code.password()).containsPattern("[234679]"));
+	}
+
+	@Test
+	void passwordsAlwaysContainAtLeastOneUppercaseLetter() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 200);
+
+		assertThat(codes).allSatisfy(code -> assertThat(code.password()).containsPattern("[A-Z]"));
+	}
+
+	@Test
+	void passwordsAlwaysContainAtLeastOneLowercaseLetter() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 200);
+
+		assertThat(codes).allSatisfy(code -> assertThat(code.password()).containsPattern("[a-km-z]"));
+	}
+
+	@Test
+	void passwordsAlwaysContainAtLeastOneSpecialCharacter() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 200);
+
+		assertThat(codes).allSatisfy(code -> assertThat(code.password()).containsPattern("[!@#$%&+]"));
+	}
+
+	@Test
 	void generatesUniquePasswords() {
 		List<GalleryCode> codes = service.generateCodes("XY9G", 50);
 
