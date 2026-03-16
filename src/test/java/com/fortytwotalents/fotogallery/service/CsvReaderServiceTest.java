@@ -125,6 +125,27 @@ class CsvReaderServiceTest {
 		assertThat(result.eventName()).isEqualTo("My Event");
 	}
 
+	@Test
+	void readsPasswordFromHeaderCsv() throws Exception {
+		Path csv = writeCsv(
+				"Number,Code,Event Name,Password\n1,XY9G-AB7K-92QF,My Event,ABC1234\n2,TK2H-XY3M-88PL,My Event,DEF5678\n");
+
+		CsvReadResult result = service.readCodes(csv);
+
+		assertThat(result.codes()).hasSize(2);
+		assertThat(result.codes()).extracting(GalleryCode::password).containsExactly("ABC1234", "DEF5678");
+	}
+
+	@Test
+	void passwordDefaultsToEmptyWhenColumnMissing() throws Exception {
+		Path csv = writeCsv("Number,Code,Event Name\n1,XY9G-AB7K-92QF,My Event\n");
+
+		CsvReadResult result = service.readCodes(csv);
+
+		assertThat(result.codes()).hasSize(1);
+		assertThat(result.codes().getFirst().password()).isEmpty();
+	}
+
 	private Path writeCsv(String content) throws IOException {
 		Path csv = tempDir.resolve("test.csv");
 		Files.writeString(csv, content, StandardCharsets.UTF_8);

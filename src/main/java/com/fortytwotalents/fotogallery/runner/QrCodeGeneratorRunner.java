@@ -70,7 +70,7 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
 		}
 
 		PdfOptions pdfOptions = new PdfOptions(outputPath, appProperties.gridColumns(), appProperties.gridRows(),
-				appProperties.showCuttingLines(), eventName);
+				appProperties.showCuttingLines(), eventName, appProperties.galleryUrl(), appProperties.logoUrl());
 
 		int pages = pdfGeneratorService.createPdf(codes, qrImages, appProperties.baseUrl(), pdfOptions);
 

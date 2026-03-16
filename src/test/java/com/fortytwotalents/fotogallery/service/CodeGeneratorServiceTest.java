@@ -77,4 +77,21 @@ class CodeGeneratorServiceTest {
 			.hasMessageContaining("positive");
 	}
 
+	@Test
+	void generatesPasswordForEachCode() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 10);
+
+		assertThat(codes).allSatisfy(code -> {
+			assertThat(code.password()).isNotBlank();
+			assertThat(code.password()).hasSize(7);
+		});
+	}
+
+	@Test
+	void generatesUniquePasswords() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 50);
+
+		assertThat(codes).extracting(GalleryCode::password).doesNotHaveDuplicates();
+	}
+
 }

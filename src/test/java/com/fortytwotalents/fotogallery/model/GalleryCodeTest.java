@@ -38,4 +38,26 @@ class GalleryCodeTest {
 		assertThat(url).isEqualTo("https://my.site/gallery/XY9G-AB7K-92QF");
 	}
 
+	@Test
+	void singleArgConstructorSetsEmptyPassword() {
+		GalleryCode code = new GalleryCode("XY9G-AB7K-92QF");
+
+		assertThat(code.password()).isEmpty();
+	}
+
+	@Test
+	void twoArgConstructorStoresPassword() {
+		GalleryCode code = new GalleryCode("XY9G-AB7K-92QF", "ABC1234");
+
+		assertThat(code.code()).isEqualTo("XY9G-AB7K-92QF");
+		assertThat(code.password()).isEqualTo("ABC1234");
+	}
+
+	@Test
+	void nullPasswordNormalisedToEmpty() {
+		GalleryCode code = new GalleryCode("XY9G-AB7K-92QF", null);
+
+		assertThat(code.password()).isEmpty();
+	}
+
 }

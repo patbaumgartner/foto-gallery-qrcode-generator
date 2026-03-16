@@ -19,6 +19,10 @@ public class CodeGeneratorService {
 
 	private static final int GROUP_LENGTH = 4;
 
+	private static final String PASSWORD_CHARSET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+	private static final int PASSWORD_LENGTH = 7;
+
 	private final SecureRandom random = new SecureRandom();
 
 	public List<GalleryCode> generateCodes(String eventCode, int count) {
@@ -52,7 +56,7 @@ public class CodeGeneratorService {
 
 		List<GalleryCode> codes = new ArrayList<>();
 		for (String code : uniqueCodes) {
-			codes.add(new GalleryCode(code));
+			codes.add(new GalleryCode(code, generatePassword()));
 		}
 
 		LOGGER.atInfo()
@@ -66,6 +70,14 @@ public class CodeGeneratorService {
 		StringBuilder sb = new StringBuilder(GROUP_LENGTH);
 		for (int i = 0; i < GROUP_LENGTH; i++) {
 			sb.append(CHARSET.charAt(random.nextInt(CHARSET.length())));
+		}
+		return sb.toString();
+	}
+
+	private String generatePassword() {
+		StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
+		for (int i = 0; i < PASSWORD_LENGTH; i++) {
+			sb.append(PASSWORD_CHARSET.charAt(random.nextInt(PASSWORD_CHARSET.length())));
 		}
 		return sb.toString();
 	}

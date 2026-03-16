@@ -9,7 +9,8 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app")
 public record AppProperties(String mode, String csvInputPath, String csvOutputPath, String outputPath,
 		@NotBlank String baseUrl, @Positive int qrSize, @Positive int gridColumns, @Positive int gridRows,
-		String eventCode, @Positive int codeCount, boolean showCuttingLines, String eventName) {
+		String eventCode, @Positive int codeCount, boolean showCuttingLines, String eventName, String galleryUrl,
+		String logoUrl) {
 	public AppProperties {
 		if (mode == null) {
 			mode = "";
@@ -46,6 +47,12 @@ public record AppProperties(String mode, String csvInputPath, String csvOutputPa
 		}
 		if (eventName == null) {
 			eventName = "";
+		}
+		if (galleryUrl == null) {
+			galleryUrl = "";
+		}
+		if (logoUrl == null) {
+			logoUrl = "";
 		}
 	}
 }
