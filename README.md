@@ -263,7 +263,6 @@ Output files are named after the class (e.g. `GS1d-BA-codes.csv` and `GS1d-BA-qr
 # Examples
 ./schulfotos-mel-rohrer.sh "GS1d BA"              # 17 codes, random EVENT_CODE
 ./schulfotos-mel-rohrer.sh "GS1d BA" 30
-./schulfotos-mel-rohrer.sh "GS1d BA" 30 --app.show-cutting-lines=true
 ```
 
 **Windows (`schulfotos-mel-rohrer.bat`):**
@@ -274,7 +273,6 @@ schulfotos-mel-rohrer.bat <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
 rem Examples
 schulfotos-mel-rohrer.bat "GS1d BA"
 schulfotos-mel-rohrer.bat "GS1d BA" 30
-schulfotos-mel-rohrer.bat "GS1d BA" 30 --app.show-cutting-lines=true
 ```
 
 | Argument       | Required | Default | Description                                           |

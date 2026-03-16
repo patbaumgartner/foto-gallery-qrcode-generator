@@ -24,7 +24,6 @@ rem Examples:
 rem   schulfotos-mel-rohrer.bat
 rem   schulfotos-mel-rohrer.bat "GS1d BA"
 rem   schulfotos-mel-rohrer.bat "GS1d BA" 30
-rem   schulfotos-mel-rohrer.bat "GS1d BA" 30 --app.show-cutting-lines=true
 
 setlocal enabledelayedexpansion
 
@@ -60,7 +59,6 @@ echo Examples:
 echo   %~nx0
 echo   %~nx0 "GS1d BA"
 echo   %~nx0 "GS1d BA" 30
-echo   %~nx0 "GS1d BA" 30 --app.show-cutting-lines=true
 echo.
 echo Defaults:
 echo   Base URL (back of PDF)  %BASE_URL%

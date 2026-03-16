@@ -25,7 +25,6 @@
 #   ./schulfotos-mel-rohrer.sh
 #   ./schulfotos-mel-rohrer.sh "GS1d BA"
 #   ./schulfotos-mel-rohrer.sh "GS1d BA" 30
-#   ./schulfotos-mel-rohrer.sh "GS1d BA" 30 --app.show-cutting-lines=true
 #
 set -euo pipefail
 
@@ -58,7 +57,6 @@ Examples:
   $0
   $0 "GS1d BA"
   $0 "GS1d BA" 30
-  $0 "GS1d BA" 30 --app.show-cutting-lines=true
 
 Defaults:
   Base URL (back of PDF)  $BASE_URL
