@@ -39,7 +39,7 @@ public record AppProperties(String mode, String csvInputPath, String csvOutputPa
 			eventCode = "";
 		}
 		if (codeCount <= 0) {
-			codeCount = 50;
+			codeCount = 17;
 		}
 		if (eventName == null) {
 			eventName = "";

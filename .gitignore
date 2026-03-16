@@ -35,6 +35,7 @@ build/
 ### Generated outputs ###
 codes.csv
 qr-codes.pdf
+generated/
 schulfotos/
 
 ### Local PicPeak credentials (never commit) ###

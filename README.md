@@ -98,7 +98,7 @@ java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
   --app.mode=generate-codes \
   --app.event-code=XY9G \
   --app.event-name="My Photo Event" \
-  --app.code-count=50
+  --app.code-count=17
 ```
 
 **Using native binary:**
@@ -108,10 +108,10 @@ java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
   --app.mode=generate-codes \
   --app.event-code=XY9G \
   --app.event-name="My Photo Event" \
-  --app.code-count=50
+  --app.code-count=17
 ```
 
-This generates `codes.csv` with 50 codes like:
+This generates `codes.csv` with 17 codes like:
 
 ```
 XY9G-AB7K-92QF
@@ -127,7 +127,7 @@ The CSV file includes a header row (`Number,Code,Password,Event Name,URL`) with 
 | Property              | Default                                    | Description                                          |
 |-----------------------|--------------------------------------------|------------------------------------------------------|
 | `app.event-code`      | *(blank — prompted interactively if unset)* | 4-character alphanumeric event prefix (e.g. `XY9G`) |
-| `app.code-count`      | `50`                                       | Number of codes to generate                          |
+| `app.code-count`      | `17`                                       | Number of codes to generate                          |
 | `app.csv-output-path` | `codes.csv`                                | Output CSV file path                                 |
 | `app.event-name`      | *(empty)*                                  | Event name for CSV column & PDF label                |
 | `app.gallery-url`     | `https://my.site/gallery?code=`            | Full URL used in CSV URL column (gallery URL + code) |
@@ -180,12 +180,12 @@ cells with `--app.show-cutting-lines=true`.
 ### Full Workflow Example
 
 ```bash
-# Step 1: Generate 50 codes for event XY9G
+# Step 1: Generate 17 codes for event XY9G
 java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
   --app.mode=generate-codes \
   --app.event-code=XY9G \
   --app.event-name="My Photo Event" \
-  --app.code-count=50
+  --app.code-count=17
 
 # Step 2: Generate the PDF (event name is read from CSV)
 java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
@@ -213,7 +213,7 @@ precedence).
 ./generate-qrcodes.sh --app.mode=generate-codes --app.event-code=XY9G
 
 # Examples
-./generate-qrcodes.sh XY9G                                                        # 50 codes (default)
+./generate-qrcodes.sh XY9G                                                        # 17 codes (default)
 ./generate-qrcodes.sh XY9G 100                                                    # 100 codes
 ./generate-qrcodes.sh XY9G 100 "My Photo Event"
 ./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.gallery-url=https://my.site/gallery?code=
@@ -241,7 +241,7 @@ generate-qrcodes.bat XY9G 100 "My Photo Event" --app.gallery-url=https://my.site
 | Argument       | Required  | Default   | Description                                            |
 |----------------|-----------|-----------|--------------------------------------------------------|
 | `EVENT_CODE`   | yes\*     | —         | 4-character alphanumeric event prefix (e.g. `XY9G`)    |
-| `CODE_COUNT`   | no        | `50`      | Number of codes to generate                            |
+| `CODE_COUNT`   | no        | `17`      | Number of codes to generate                            |
 | `EVENT_NAME`   | no        | *(empty)* | Event name for CSV header & PDF label                  |
 | `EXTRA_ARGS`   | no        | —         | Any additional `--app.*` options passed to both steps  |
 
@@ -318,7 +318,7 @@ write the resulting share link back into the CSV file.
 
    ```bash
    ./schulfotos-mel-rohrer.sh "GS1d BA"
-   ./generate-qrcodes.sh XY9G 17 "My Event"
+   ./generate-qrcodes.sh XY9G 50 "My Event"
    ```
 
 `picpeak.properties` is listed in `.gitignore` and will never be committed to
@@ -372,7 +372,7 @@ export APP_PICPEAK_CUSTOMER_EMAIL=customer@example.com
 You can also pass any PicPeak setting as an `EXTRA_ARGS` flag:
 
 ```bash
-./generate-qrcodes.sh XY9G 17 "My Event" \
+./generate-qrcodes.sh XY9G 50 "My Event" \
   --app.picpeak.enabled=true \
   --app.picpeak.api-url=https://pics.example.com \
   --app.picpeak.username=admin@example.com \

@@ -23,10 +23,10 @@ This is a **Spring Boot CLI application** (Java 25) that generates gallery acces
 
 ```
 src/main/java/com/fortytwotalents/fotogallery/
-├── config/       - AppProperties (Spring @ConfigurationProperties)
+├── config/       - AppProperties, PicPeakProperties (Spring @ConfigurationProperties)
 ├── model/        - GalleryCode, CsvReadResult, PdfOptions (domain model)
 ├── runner/       - CodeGeneratorRunner, QrCodeGeneratorRunner, InteractiveRunner (CLI runners)
-└── service/      - Business logic services (CSV, QR code, PDF generation)
+└── service/      - Business logic services (CSV, QR code, PDF generation, PicPeak integration)
 
 src/test/java/com/fortytwotalents/fotogallery/
 ├── integration/  - EndToEndIntegrationTest
@@ -74,7 +74,7 @@ src/test/java/com/fortytwotalents/fotogallery/
 | `app.mode` | *(blank — launches interactive shell)* | `generate-codes`, `generate-pdf`, or blank |
 | `app.event-code` | *(blank — prompted interactively if unset)* | 4-character alphanumeric event prefix |
 | `app.event-name` | *(empty)* | Event name for CSV and PDF labels |
-| `app.code-count` | `50` | Number of codes to generate |
+| `app.code-count` | `17` | Number of codes to generate |
 | `app.csv-input-path` | `codes.csv` | CSV input file path (used by generate-pdf) |
 | `app.csv-output-path` | `codes.csv` | CSV output file path (used by generate-codes) |
 | `app.output-path` | `qr-codes.pdf` | PDF output file path |
@@ -85,3 +85,33 @@ src/test/java/com/fortytwotalents/fotogallery/
 | `app.grid-columns` | `3` | Number of columns per PDF page |
 | `app.grid-rows` | `4` | Number of rows per PDF page |
 | `app.show-cutting-lines` | `false` | Draw dashed cutting lines between cells |
+| `app.gallery-code-label` | `GALERIE CODE` | Label text shown above the gallery code on the front of each card |
+| `app.gallery-password-label` | `GALERIE PASSWORT` | Label text shown above the password on the back of each card |
+
+## PicPeak Integration Properties (`app.picpeak.*`)
+
+| Property | Default | Description |
+|---|---|---|
+| `app.picpeak.enabled` | `false` | Set to `true` to activate the PicPeak integration |
+| `app.picpeak.api-url` | `https://pics.example.com` | Base URL of your PicPeak instance (no trailing slash) |
+| `app.picpeak.username` | *(blank)* | Admin login username |
+| `app.picpeak.password` | *(blank)* | Admin login password |
+| `app.picpeak.event-type` | `schule` | Event type passed to the PicPeak API |
+| `app.picpeak.event-date` | *(today)* | Fixed event date (`YYYY-MM-DD`); defaults to today when blank |
+| `app.picpeak.customer-email` | *(blank)* | Customer e-mail shown in the gallery event |
+| `app.picpeak.admin-email` | *(customer-email)* | Admin notification e-mail; falls back to `customer-email` |
+| `app.picpeak.require-password` | `true` | Require a password to view the gallery |
+| `app.picpeak.welcome-message` | *(blank)* | Welcome message shown to gallery visitors |
+| `app.picpeak.expiration-days` | `30` | Days until the gallery expires |
+| `app.picpeak.allow-user-uploads` | `false` | Allow visitors to upload photos |
+| `app.picpeak.feedback-enabled` | `true` | Enable visitor feedback |
+| `app.picpeak.allow-ratings` | `true` | Allow photo ratings |
+| `app.picpeak.allow-likes` | `false` | Allow photo likes |
+| `app.picpeak.allow-comments` | `false` | Allow photo comments |
+| `app.picpeak.allow-favorites` | `true` | Allow photo favourites |
+| `app.picpeak.require-name-email` | `false` | Require name & e-mail before viewing |
+| `app.picpeak.moderate-comments` | `true` | Hold comments for moderation |
+| `app.picpeak.show-feedback-to-guests` | `false` | Show feedback to unauthenticated guests |
+| `app.picpeak.header-style` | `minimal` | Header style (`minimal`, `classic`, `hero`) |
+| `app.picpeak.hero-divider-style` | `wave` | Hero divider style |
+| `app.picpeak.css-template-id` | `2` | CSS template ID (integer) |

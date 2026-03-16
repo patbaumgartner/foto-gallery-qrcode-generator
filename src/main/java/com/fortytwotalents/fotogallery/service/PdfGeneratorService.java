@@ -91,7 +91,7 @@ public class PdfGeneratorService {
 	// Local resource path prefix stripped when resolving classpath resources
 	private static final String RESOURCES_PREFIX = "src/main/resources/";
 
-	// ── Palette: black / white only ─────────────────────────────────────────────
+	// Palette: black / white only
 	// Pure black — for all text, borders, rules
 	private static final float INK = 0.0f;
 
@@ -287,13 +287,13 @@ public class PdfGeneratorService {
 		try (PDPageContentStream cs = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND,
 				true, true)) {
 
-			// ── OUTER CARD BORDER ─────────────────────────────────────────────────────
+			// OUTER CARD BORDER
 			cs.setStrokingColor(INK, INK, INK);
 			cs.setLineWidth(BACK_CARD_BORDER_WIDTH);
 			cs.addRect(innerX, innerY, innerWidth, innerHeight);
 			cs.stroke();
 
-			// ── LOGO ZONE (top BACK_LOGO_RATIO of inner height) ──────────────────────
+			// LOGO ZONE (top BACK_LOGO_RATIO of inner height)
 			float logoZoneH = innerHeight * BACK_LOGO_RATIO;
 			float logoZoneTopY = innerY + innerHeight;
 			float logoZoneBotY = logoZoneTopY - logoZoneH;
@@ -313,7 +313,7 @@ public class PdfGeneratorService {
 				cs.drawImage(logoImage, logoX, logoY, logoW, logoH);
 			}
 
-			// ── TOP RULE (below logo zone) ────────────────────────────────────────────
+			// TOP RULE (below logo zone)
 			float rule1Y = logoZoneBotY - BACK_RULE_GAP;
 			cs.setStrokingColor(RULE_GRAY, RULE_GRAY, RULE_GRAY);
 			cs.setLineWidth(BACK_RULE_WIDTH);
@@ -321,7 +321,7 @@ public class PdfGeneratorService {
 			cs.lineTo(innerX + innerWidth - BACK_RULE_INSET, rule1Y);
 			cs.stroke();
 
-			// ── PASSWORD SECTION ──────────────────────────────────────────────────────
+			// PASSWORD SECTION
 			// Stack: label then password, centered vertically in remaining space above
 			// the bottom rule.
 			float bottomRuleY = innerY + BACK_RULE_GAP * 2f
@@ -355,14 +355,14 @@ public class PdfGeneratorService {
 			cs.showText(password);
 			cs.endText();
 
-			// ── BOTTOM RULE ───────────────────────────────────────────────────────────
+			// BOTTOM RULE
 			cs.setStrokingColor(RULE_GRAY, RULE_GRAY, RULE_GRAY);
 			cs.setLineWidth(BACK_RULE_WIDTH);
 			cs.moveTo(innerX + BACK_RULE_INSET, bottomRuleY);
 			cs.lineTo(innerX + innerWidth - BACK_RULE_INSET, bottomRuleY);
 			cs.stroke();
 
-			// ── BASE URL (below bottom rule) ─────────────────────────────────────────
+			// BASE URL (below bottom rule)
 			if (!baseUrl.isBlank()) {
 				String displayUrl = truncateUrl(baseUrl, fontBold, BACK_URL_FONT_SIZE, innerWidth - 8f);
 				float urlW = fontBold.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;

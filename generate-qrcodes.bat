@@ -116,12 +116,18 @@ shift
 goto parse_extra
 :done_extra
 
+rem --- Output directory --------------------------------------------------------
+set "OUTPUT_DIR=generated"
+if not exist "!OUTPUT_DIR!" mkdir "!OUTPUT_DIR!"
+set "CSV_PATH=!OUTPUT_DIR!\codes.csv"
+set "PDF_PATH=!OUTPUT_DIR!\qr-codes.pdf"
+
 rem --- Step 1: Generate codes -------------------------------------------------
 echo ==^> Generating %CODE_COUNT% codes for event %EVENT_CODE% ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
+    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" --app.csv-output-path="!CSV_PATH!" !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
 ) else (
-    "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
+    "%RUN%" --app.mode=generate-codes --app.event-code=%EVENT_CODE% --app.code-count=%CODE_COUNT% --app.event-name="%EVENT_NAME%" --app.csv-output-path="!CSV_PATH!" !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
 )
 if errorlevel 1 (
     echo ERROR: Code generation failed. >&2
@@ -131,14 +137,16 @@ if errorlevel 1 (
 rem --- Step 2: Generate PDF ---------------------------------------------------
 echo ==^> Generating QR-code PDF ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-pdf !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
+    java -jar "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
 ) else (
-    "%RUN%" --app.mode=generate-pdf !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
+    "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" !PICPEAK_ARGS! !QUIET_ARGS! %EXTRA_ARGS%
 )
 if errorlevel 1 (
     echo ERROR: PDF generation failed. >&2
     exit /b 1
 )
 
-echo ==^> Done.
+echo ==^> Done. Output files:
+echo     CSV: !CSV_PATH!
+echo     PDF: !PDF_PATH!
 endlocal

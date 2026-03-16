@@ -96,6 +96,12 @@ fi
 
 EXTRA_ARGS=("$@")
 
+# --- Output directory ----------------------------------------------------------
+OUTPUT_DIR="generated"
+mkdir -p "$OUTPUT_DIR"
+CSV_PATH="${OUTPUT_DIR}/codes.csv"
+PDF_PATH="${OUTPUT_DIR}/qr-codes.pdf"
+
 # --- Step 1: Generate codes ---------------------------------------------------
 echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
 "${RUN[@]}" \
@@ -103,6 +109,7 @@ echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
   --app.event-code="$EVENT_CODE" \
   --app.code-count="$CODE_COUNT" \
   --app.event-name="$EVENT_NAME" \
+  --app.csv-output-path="$CSV_PATH" \
   ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
@@ -111,8 +118,12 @@ echo "==> Generating $CODE_COUNT codes for event $EVENT_CODE ..."
 echo "==> Generating QR-code PDF ..."
 "${RUN[@]}" \
   --app.mode=generate-pdf \
+  --app.csv-input-path="$CSV_PATH" \
+  --app.output-path="$PDF_PATH" \
   ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
-echo "==> Done."
+echo "==> Done. Output files:"
+echo "    CSV: $CSV_PATH"
+echo "    PDF: $PDF_PATH"
