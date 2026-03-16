@@ -195,6 +195,43 @@ class PdfGeneratorServiceTest {
 	}
 
 	@Test
+	void pdfContainsGalleryCodeLabelOnFrontPage() throws Exception {
+		List<GalleryCode> codes = createCodes("XY9G-AB7K-92QF", "TK2H-XY3M-88PL");
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+		Path output = tempDir.resolve("gallery-code-label.pdf");
+
+		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(output, 3, 4));
+
+		assertThat(pages).isEqualTo(1);
+
+		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+			PDFTextStripper stripper = new PDFTextStripper();
+			String text = stripper.getText(doc);
+			assertThat(text).contains("GALLERY CODE");
+			assertThat(text).contains("XY9G-AB7K-92QF");
+			assertThat(text).contains("TK2H-XY3M-88PL");
+		}
+	}
+
+	@Test
+	void pdfContainsGalleryCodeLabelWithEventName() throws Exception {
+		List<GalleryCode> codes = createCodes("XY9G-AB7K-92QF");
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+		Path output = tempDir.resolve("gallery-code-label-with-event.pdf");
+
+		PdfOptions options = new PdfOptions(output, 3, 4, false, "My Photo Event");
+		pdfService.createPdf(codes, qrImages, BASE_URL, options);
+
+		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+			PDFTextStripper stripper = new PDFTextStripper();
+			String text = stripper.getText(doc);
+			assertThat(text).contains("GALLERY CODE");
+			assertThat(text).contains("My Photo Event");
+			assertThat(text).contains("XY9G-AB7K-92QF");
+		}
+	}
+
+	@Test
 	void noBackPagesWhenGalleryUrlAndLogoUrlAreBlank() throws Exception {
 		List<GalleryCode> codes = createCodes("XY9G-AB7K-92QF");
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
