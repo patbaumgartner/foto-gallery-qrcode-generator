@@ -75,11 +75,13 @@ Event name []: My Photo Event
 CSV output path [codes.csv]:
 CSV input path [codes.csv]:
 PDF output path [qr-codes.pdf]:
-Base URL for QR codes [https://my.site/gallery/]:
+Base URL (displayed on back of PDF) [https://my.site]:
+Gallery URL for QR codes (must start with https://) [https://my.site/gallery?code=]:
 QR code size (pixels) [200]:
 Grid columns per page [3]:
 Grid rows per page [4]:
 Show cutting lines (yes/no) [no]: yes
+Logo URL for back page (JPEG/PNG) [logo.png]:
 ```
 
 The event code is validated at the prompt — it must be exactly 4 alphanumeric characters.
@@ -131,38 +133,48 @@ The CSV file includes a header row (`Number,Code,Event Name`) with numbered rows
 
 ### 2. Generate PDF with QR Codes
 
-Reads the CSV file and produces a PDF with QR codes arranged in a grid.
+Reads the CSV file and produces a PDF with QR codes arranged in a grid. Each page pair
+consists of a **front page** (QR code + gallery code) and a **back page** (gallery password +
+base URL, for duplex printing).
 
 **Using JAR:**
 
 ```bash
 java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
-  --app.mode=generate-pdf
+  --app.mode=generate-pdf \
+  --app.gallery-url=https://my.site/gallery?code= \
+  --app.base-url=https://my.site
 ```
 
 **Using native binary:**
 
 ```bash
 ./target/foto-gallery-qrcode-generator \
-  --app.mode=generate-pdf
+  --app.mode=generate-pdf \
+  --app.gallery-url=https://my.site/gallery?code= \
+  --app.base-url=https://my.site
 ```
 
 This reads `codes.csv` and generates `qr-codes.pdf` with a 3×4 grid of QR codes per page.
-Each QR code links to `https://my.site/gallery/{code}`, shows a sequential number overlay in the centre,
-and has the code printed below. When the CSV contains an event name, it appears above the code.
-Optionally, dashed cutting lines can be drawn between cells with `--app.show-cutting-lines=true`.
+Each QR code encodes the full gallery URL (`app.gallery-url` + code), shows a sequential
+number overlay in the centre, and has the code printed below. When the CSV contains an event
+name, it appears above the code. The back of every page always contains the gallery password
+and the base URL (`app.base-url`). Optionally, dashed cutting lines can be drawn between
+cells with `--app.show-cutting-lines=true`.
 
 **Options:**
 
-| Property                 | Default                    | Description                      |
-|--------------------------|----------------------------|----------------------------------|
-| `app.csv-input-path`     | `codes.csv`                | Input CSV file path              |
-| `app.output-path`        | `qr-codes.pdf`             | Output PDF file path             |
-| `app.base-url`           | `https://my.site/gallery/` | Base URL for QR codes            |
-| `app.qr-size`            | `200`                      | QR code image size in px         |
-| `app.grid-columns`       | `3`                        | Columns per page                 |
-| `app.grid-rows`          | `4`                        | Rows per page                    |
-| `app.show-cutting-lines` | `false`                    | Draw dashed cutting lines on PDF |
+| Property                 | Default                           | Description                                               |
+|--------------------------|-----------------------------------|-----------------------------------------------------------|
+| `app.csv-input-path`     | `codes.csv`                       | Input CSV file path                                       |
+| `app.output-path`        | `qr-codes.pdf`                    | Output PDF file path                                      |
+| `app.gallery-url`        | `https://my.site/gallery?code=`   | Full URL used in QR codes (must start with `https://`)    |
+| `app.base-url`           | `https://my.site`                 | Base URL printed on the back of the PDF                   |
+| `app.logo-url`           | *(empty)*                         | Logo image for back page (JPEG, PNG, or WebP)             |
+| `app.qr-size`            | `200`                             | QR code image size in px                                  |
+| `app.grid-columns`       | `3`                               | Columns per page                                          |
+| `app.grid-rows`          | `4`                               | Rows per page                                             |
+| `app.show-cutting-lines` | `false`                           | Draw dashed cutting lines on PDF                          |
 
 ### Full Workflow Example
 
@@ -176,7 +188,9 @@ java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
 
 # Step 2: Generate the PDF (event name is read from CSV)
 java -jar target/foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar \
-  --app.mode=generate-pdf
+  --app.mode=generate-pdf \
+  --app.gallery-url=https://my.site/gallery?code= \
+  --app.base-url=https://my.site
 ```
 
 ### Convenience Scripts
@@ -201,7 +215,7 @@ precedence).
 ./generate-qrcodes.sh XY9G                                                        # 50 codes (default)
 ./generate-qrcodes.sh XY9G 100                                                    # 100 codes
 ./generate-qrcodes.sh XY9G 100 "My Photo Event"
-./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
+./generate-qrcodes.sh XY9G 100 "My Photo Event" --app.gallery-url=https://my.site/gallery?code=
 ```
 
 **Windows (`generate-qrcodes.bat`):**
@@ -220,7 +234,7 @@ rem Examples
 generate-qrcodes.bat XY9G
 generate-qrcodes.bat XY9G 100
 generate-qrcodes.bat XY9G 100 "My Photo Event"
-generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/gallery/
+generate-qrcodes.bat XY9G 100 "My Photo Event" --app.gallery-url=https://my.site/gallery?code=
 ```
 
 | Argument       | Required  | Default   | Description                                            |
@@ -235,35 +249,36 @@ generate-qrcodes.bat XY9G 100 "My Photo Event" --app.base-url=https://my.site/ga
 ### School Photo Scripts (mel-rohrer.ch/schulfotos)
 
 Two dedicated scripts for generating school photo gallery codes on `mel-rohrer.ch/schulfotos`.
-The base URL `https://mel-rohrer.ch/schulfotos/?code=` is hardcoded, cutting lines are enabled by
-default, and a back page with the gallery URL `https://mel-rohrer.ch/schulfotos` is added
-automatically. Output files are named after the class (e.g. `GS1d-BA-codes.csv` and `GS1d-BA-qr-codes.pdf`).
+The gallery URL `https://mel-rohrer.ch/schulfotos/?code=` is used for QR codes, the base URL
+`https://mel-rohrer.ch/schulfotos` is printed on the back page, cutting lines are enabled by
+default, and a back page with the gallery password is always included.
+Output files are named after the class (e.g. `GS1d-BA-codes.csv` and `GS1d-BA-qr-codes.pdf`).
 
 **Linux / macOS (`schulfotos-mel-rohrer.sh`):**
 
 ```bash
-./schulfotos-mel-rohrer.sh <EVENT_CODE> <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
+./schulfotos-mel-rohrer.sh <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
 
 # Examples
-./schulfotos-mel-rohrer.sh XY9G "GS1d BA"
-./schulfotos-mel-rohrer.sh XY9G "GS1d BA" 30
-./schulfotos-mel-rohrer.sh XY9G "GS1d BA" 30 --app.show-cutting-lines=true
+./schulfotos-mel-rohrer.sh "GS1d BA"
+./schulfotos-mel-rohrer.sh "GS1d BA" 30
+./schulfotos-mel-rohrer.sh "GS1d BA" 30 --app.show-cutting-lines=true
 ```
 
 **Windows (`schulfotos-mel-rohrer.bat`):**
 
 ```cmd
-schulfotos-mel-rohrer.bat <EVENT_CODE> <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
+schulfotos-mel-rohrer.bat <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
 
 rem Examples
-schulfotos-mel-rohrer.bat XY9G "GS1d BA"
-schulfotos-mel-rohrer.bat XY9G "GS1d BA" 30
-schulfotos-mel-rohrer.bat XY9G "GS1d BA" 30 --app.show-cutting-lines=true
+schulfotos-mel-rohrer.bat "GS1d BA"
+schulfotos-mel-rohrer.bat "GS1d BA" 30
+schulfotos-mel-rohrer.bat "GS1d BA" 30 --app.show-cutting-lines=true
 ```
 
 | Argument       | Required | Default | Description                                           |
 |----------------|----------|---------|-------------------------------------------------------|
-| `EVENT_CODE`   | yes      | —       | 4-character alphanumeric code prefix (e.g. `XY9G`)   |
 | `KLASSENNAME`  | yes      | —       | Class name used as the event label in the PDF         |
-| `CODE_COUNT`   | no       | `50`    | Number of codes to generate                           |
+| `CODE_COUNT`   | no       | `17`    | Number of codes to generate                           |
 | `EXTRA_ARGS`   | no       | —       | Any additional `--app.*` options passed to both steps |
+

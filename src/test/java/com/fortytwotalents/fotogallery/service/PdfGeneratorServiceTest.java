@@ -25,7 +25,7 @@ class PdfGeneratorServiceTest {
 
 	private QrCodeGeneratorService qrService;
 
-	private static final String BASE_URL = "https://my.site/gallery/";
+	private static final String GALLERY_URL = "https://my.site/gallery?code=";
 
 	@TempDir
 	Path tempDir;
@@ -42,13 +42,14 @@ class PdfGeneratorServiceTest {
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
 		Path output = tempDir.resolve("test-output.pdf");
 
-		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(output, 3, 4));
+		int pages = pdfService.createPdf(codes, qrImages, PdfOptions.of(output, 3, 4));
 
 		assertThat(pages).isEqualTo(1);
 		assertThat(output).exists();
 
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
-			assertThat(doc.getNumberOfPages()).isEqualTo(1);
+			// 1 front page + 1 back page (back is always generated)
+			assertThat(doc.getNumberOfPages()).isEqualTo(2);
 
 			PDFTextStripper stripper = new PDFTextStripper();
 			String text = stripper.getText(doc);
@@ -60,33 +61,33 @@ class PdfGeneratorServiceTest {
 
 	@Test
 	void generatesMultiplePages() throws Exception {
-		// 15 codes with 3x4 grid = 12 per page -> 2 pages
+		// 15 codes with 3x4 grid = 12 per page -> 2 front pages + 2 back pages
 		List<GalleryCode> codes = createNumberedCodes(15);
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
 		Path output = tempDir.resolve("multi-page.pdf");
 
-		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(output, 3, 4));
+		int pages = pdfService.createPdf(codes, qrImages, PdfOptions.of(output, 3, 4));
 
 		assertThat(pages).isEqualTo(2);
 
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
-			assertThat(doc.getNumberOfPages()).isEqualTo(2);
+			assertThat(doc.getNumberOfPages()).isEqualTo(4);
 		}
 	}
 
 	@Test
 	void generatesExactlyOneFullPage() throws Exception {
-		// Exactly 12 codes with 3x4 grid = 1 full page
+		// Exactly 12 codes with 3x4 grid = 1 full front page + 1 back page
 		List<GalleryCode> codes = createNumberedCodes(12);
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
 		Path output = tempDir.resolve("full-page.pdf");
 
-		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(output, 3, 4));
+		int pages = pdfService.createPdf(codes, qrImages, PdfOptions.of(output, 3, 4));
 
 		assertThat(pages).isEqualTo(1);
 
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
-			assertThat(doc.getNumberOfPages()).isEqualTo(1);
+			assertThat(doc.getNumberOfPages()).isEqualTo(2);
 		}
 	}
 
@@ -96,7 +97,7 @@ class PdfGeneratorServiceTest {
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
 		Path output = tempDir.resolve("single.pdf");
 
-		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(output, 3, 4));
+		int pages = pdfService.createPdf(codes, qrImages, PdfOptions.of(output, 3, 4));
 
 		assertThat(pages).isEqualTo(1);
 		assertThat(output).exists();
@@ -109,7 +110,7 @@ class PdfGeneratorServiceTest {
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
 		Path output = tempDir.resolve("a4-test.pdf");
 
-		pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(output, 3, 4));
+		pdfService.createPdf(codes, qrImages, PdfOptions.of(output, 3, 4));
 
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
 			PDPage page = doc.getPage(0);
@@ -127,8 +128,8 @@ class PdfGeneratorServiceTest {
 		Path withoutLines = tempDir.resolve("no-lines.pdf");
 		Path withLines = tempDir.resolve("with-lines.pdf");
 
-		pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(withoutLines, 3, 4, false));
-		pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(withLines, 3, 4, true));
+		pdfService.createPdf(codes, qrImages, PdfOptions.of(withoutLines, 3, 4, false));
+		pdfService.createPdf(codes, qrImages, PdfOptions.of(withLines, 3, 4, true));
 
 		assertThat(withLines.toFile().length()).isGreaterThan(withoutLines.toFile().length());
 	}
@@ -141,8 +142,8 @@ class PdfGeneratorServiceTest {
 		Path defaultCall = tempDir.resolve("default.pdf");
 		Path explicitFalse = tempDir.resolve("explicit-false.pdf");
 
-		pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(defaultCall, 3, 4));
-		pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(explicitFalse, 3, 4, false));
+		pdfService.createPdf(codes, qrImages, PdfOptions.of(defaultCall, 3, 4));
+		pdfService.createPdf(codes, qrImages, PdfOptions.of(explicitFalse, 3, 4, false));
 
 		assertThat(defaultCall.toFile().length()).isEqualTo(explicitFalse.toFile().length());
 	}
@@ -154,7 +155,7 @@ class PdfGeneratorServiceTest {
 		Path output = tempDir.resolve("event-name.pdf");
 
 		PdfOptions options = new PdfOptions(output, 3, 4, false, "My Photo Event");
-		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, options);
+		int pages = pdfService.createPdf(codes, qrImages, options);
 
 		assertThat(pages).isEqualTo(1);
 		assertThat(output).exists();
@@ -169,13 +170,13 @@ class PdfGeneratorServiceTest {
 	}
 
 	@Test
-	void backPagesAreAddedWhenGalleryUrlIsSet() throws Exception {
+	void backPagesContainPasswordAndBaseUrl() throws Exception {
 		List<GalleryCode> codes = createCodesWithPasswords("XY9G-AB7K-92QF", "PW12345", "TK2H-XY3M-88PL", "PW67890");
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
 		Path output = tempDir.resolve("back-pages.pdf");
 
 		PdfOptions options = new PdfOptions(output, 3, 4, false, "My Event", "https://gallery.example.com", "");
-		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, options);
+		int pages = pdfService.createPdf(codes, qrImages, options);
 
 		// createPdf returns number of front pages only
 		assertThat(pages).isEqualTo(1);
@@ -189,7 +190,7 @@ class PdfGeneratorServiceTest {
 			// Passwords should appear on back page
 			assertThat(text).contains("PW12345");
 			assertThat(text).contains("PW67890");
-			// Gallery URL should appear on back page
+			// Base URL should appear on back page
 			assertThat(text).contains("gallery.example.com");
 		}
 	}
@@ -200,7 +201,7 @@ class PdfGeneratorServiceTest {
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
 		Path output = tempDir.resolve("gallery-code-label.pdf");
 
-		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, PdfOptions.of(output, 3, 4));
+		int pages = pdfService.createPdf(codes, qrImages, PdfOptions.of(output, 3, 4));
 
 		assertThat(pages).isEqualTo(1);
 
@@ -220,7 +221,7 @@ class PdfGeneratorServiceTest {
 		Path output = tempDir.resolve("gallery-code-label-with-event.pdf");
 
 		PdfOptions options = new PdfOptions(output, 3, 4, false, "My Photo Event");
-		pdfService.createPdf(codes, qrImages, BASE_URL, options);
+		pdfService.createPdf(codes, qrImages, options);
 
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
 			PDFTextStripper stripper = new PDFTextStripper();
@@ -232,16 +233,17 @@ class PdfGeneratorServiceTest {
 	}
 
 	@Test
-	void noBackPagesWhenGalleryUrlAndLogoUrlAreBlank() throws Exception {
+	void backPagesAreAlwaysGenerated() throws Exception {
 		List<GalleryCode> codes = createCodes("XY9G-AB7K-92QF");
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
-		Path output = tempDir.resolve("no-back.pdf");
+		Path output = tempDir.resolve("always-back.pdf");
 
 		PdfOptions options = new PdfOptions(output, 3, 4, false, "", "", "");
-		pdfService.createPdf(codes, qrImages, BASE_URL, options);
+		pdfService.createPdf(codes, qrImages, options);
 
 		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
-			assertThat(doc.getNumberOfPages()).isEqualTo(1);
+			// back page is always generated regardless of baseUrl / logoUrl
+			assertThat(doc.getNumberOfPages()).isEqualTo(2);
 		}
 	}
 
@@ -253,7 +255,7 @@ class PdfGeneratorServiceTest {
 		Path output = tempDir.resolve("multi-back.pdf");
 
 		PdfOptions options = new PdfOptions(output, 3, 4, false, "", "https://gallery.example.com", "");
-		int pages = pdfService.createPdf(codes, qrImages, BASE_URL, options);
+		int pages = pdfService.createPdf(codes, qrImages, options);
 
 		assertThat(pages).isEqualTo(2);
 
@@ -306,7 +308,7 @@ class PdfGeneratorServiceTest {
 		LinkedHashMap<GalleryCode, BufferedImage> images = new LinkedHashMap<>();
 		int number = 1;
 		for (GalleryCode code : codes) {
-			images.put(code, qrService.generateQrCode(code, BASE_URL, 200, number++));
+			images.put(code, qrService.generateQrCode(code, GALLERY_URL, 200, number++));
 		}
 		return images;
 	}

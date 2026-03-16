@@ -64,15 +64,15 @@ public class QrCodeGeneratorRunner implements CommandLineRunner {
 		LinkedHashMap<GalleryCode, BufferedImage> qrImages = new LinkedHashMap<>();
 		for (int i = 0; i < codes.size(); i++) {
 			GalleryCode code = codes.get(i);
-			BufferedImage qrImage = qrCodeGeneratorService.generateQrCode(code, appProperties.baseUrl(),
+			BufferedImage qrImage = qrCodeGeneratorService.generateQrCode(code, appProperties.galleryUrl(),
 					appProperties.qrSize(), i + 1);
 			qrImages.put(code, qrImage);
 		}
 
 		PdfOptions pdfOptions = new PdfOptions(outputPath, appProperties.gridColumns(), appProperties.gridRows(),
-				appProperties.showCuttingLines(), eventName, appProperties.galleryUrl(), appProperties.logoUrl());
+				appProperties.showCuttingLines(), eventName, appProperties.baseUrl(), appProperties.logoUrl());
 
-		int pages = pdfGeneratorService.createPdf(codes, qrImages, appProperties.baseUrl(), pdfOptions);
+		int pages = pdfGeneratorService.createPdf(codes, qrImages, pdfOptions);
 
 		LOGGER.atInfo()
 			.addArgument(() -> codes.size())

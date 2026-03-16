@@ -1,9 +1,10 @@
 @echo off
 rem schulfotos-mel-rohrer.bat — Generate school photo gallery codes for mel-rohrer.ch/schulfotos.
 rem
-rem The base URL is hardcoded to https://mel-rohrer.ch/schulfotos/?code= and all standard
-rem settings are used (3x4 grid, 200 px QR size, cutting lines enabled).
-rem A back page with the gallery URL https://mel-rohrer.ch/schulfotos is added automatically.
+rem The gallery URL used in QR codes is hardcoded to https://mel-rohrer.ch/schulfotos/?code=
+rem and the base URL printed on the back of the PDF is https://mel-rohrer.ch/schulfotos.
+rem All standard settings are used (3x4 grid, 200 px QR size, cutting lines enabled).
+rem A back page with the gallery password is always included.
 rem
 rem When run without arguments the script prompts interactively for every parameter.
 rem A random 4-character alphanumeric EVENT_CODE is generated automatically
@@ -30,8 +31,8 @@ setlocal enabledelayedexpansion
 set "SCRIPT_DIR=%~dp0"
 set "JAR_NAME=foto-gallery-qrcode-generator-0.0.1-SNAPSHOT.jar"
 set "NATIVE_NAME=foto-gallery-qrcode-generator.exe"
-set "BASE_URL=https://mel-rohrer.ch/schulfotos/?code="
-set "GALLERY_URL=https://mel-rohrer.ch/schulfotos"
+set "BASE_URL=https://mel-rohrer.ch/schulfotos"
+set "GALLERY_URL=https://mel-rohrer.ch/schulfotos/?code="
 set "DEFAULT_CODE_COUNT=17"
 
 rem --- Help -------------------------------------------------------------------
@@ -62,8 +63,8 @@ echo   %~nx0 "GS1d BA" 30
 echo   %~nx0 "GS1d BA" 30 --app.show-cutting-lines=true
 echo.
 echo Defaults:
-echo   Base URL         %BASE_URL%
-echo   Gallery URL      %GALLERY_URL%
+echo   Base URL (back of PDF)  %BASE_URL%
+echo   Gallery URL (QR codes)  %GALLERY_URL%
 echo   Grid             3 columns x 4 rows
 echo   QR size          200 px
 echo   Cutting lines    on
@@ -169,9 +170,9 @@ echo.
 rem --- Step 1: Generate codes -------------------------------------------------
 echo ==^> Generating !CODE_COUNT! codes for class '!KLASSENNAME!' ^(event: !EVENT_CODE!^) ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.base-url=%BASE_URL% !EXTRA_ARGS!
+    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" !EXTRA_ARGS!
 ) else (
-    "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.base-url=%BASE_URL% !EXTRA_ARGS!
+    "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" !EXTRA_ARGS!
 )
 if errorlevel 1 (
     echo ERROR: Code generation failed. >&2

@@ -51,7 +51,7 @@ class InteractiveRunnerTest {
 	@Test
 	void skipsWhenModeIsAlreadySet() throws Exception {
 		AppProperties props = new AppProperties("generate-codes", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "XY9G", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "XY9G", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -63,7 +63,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptModeAcceptsNumericChoice() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -80,7 +80,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptModeAcceptsNamedChoice() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -97,7 +97,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptModeDefaultsToBothOnBlankInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -108,7 +108,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptModeRetriesOnInvalidInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -119,7 +119,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptRequiredReturnsValue() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -130,7 +130,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptRequiredRetriesOnBlankInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -141,7 +141,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptEventCodeAcceptsValidCode() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -152,7 +152,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptEventCodeNormalizesToUpperCase() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -163,7 +163,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptEventCodeRetriesOnTooShort() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -174,7 +174,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptEventCodeRetriesOnTooLong() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -185,7 +185,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptEventCodeUsesRandomDefaultOnBlankInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -197,7 +197,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptOptionalReturnsDefaultOnBlankInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -208,7 +208,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptOptionalReturnsProvidedValue() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -219,7 +219,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptIntReturnsDefaultOnBlankInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -230,7 +230,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptIntReturnsProvidedValue() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -241,7 +241,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptIntReturnsDefaultOnInvalidInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -252,7 +252,7 @@ class InteractiveRunnerTest {
 	@Test
 	void runsGenerateCodesWhenModeBlankAndUserSelectsGenerateCodes() throws Exception {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -273,7 +273,7 @@ class InteractiveRunnerTest {
 	@Test
 	void doesNotAskForEventCodeIfAlreadyProvided() throws Exception {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "XY9G", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "XY9G", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -293,7 +293,7 @@ class InteractiveRunnerTest {
 	@Test
 	void handlesIoExceptionGracefullyWhenCsvFileMissing() throws Exception {
 		AppProperties props = new AppProperties("", "missing.csv", "missing.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -310,7 +310,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptBooleanReturnsTrueForYesInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
 				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
 
@@ -322,7 +322,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptBooleanReturnsFalseForNoInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, true, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, true, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
 				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
 
@@ -334,7 +334,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptBooleanReturnsDefaultOnBlankInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
 				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
 
@@ -345,7 +345,7 @@ class InteractiveRunnerTest {
 	@Test
 	void promptBooleanReturnsDefaultOnInvalidInput() {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
 				csvReaderService, qrCodeGeneratorService, pdfGeneratorService);
 
@@ -355,7 +355,7 @@ class InteractiveRunnerTest {
 	@Test
 	void logoUrlDefaultsToLogoWhenNotConfigured() throws Exception {
 		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf",
-				"https://my.site/gallery/", 200, 3, 4, "", 50, false, "", "", "");
+				"https://my.site", 200, 3, 4, "", 50, false, "", "", "");
 		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService, csvReaderService,
 				qrCodeGeneratorService, pdfGeneratorService);
 
@@ -363,7 +363,7 @@ class InteractiveRunnerTest {
 			.thenReturn(new CsvReadResult(List.of(new GalleryCode("XY9G-AB7K-92QF")), "Test Event"));
 		when(qrCodeGeneratorService.generateQrCode(any(), anyString(), anyInt(), anyInt()))
 			.thenReturn(new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB));
-		when(pdfGeneratorService.createPdf(any(), any(), anyString(), any())).thenReturn(1);
+		when(pdfGeneratorService.createPdf(any(), any(), any())).thenReturn(1);
 
 		// User selects "generate-pdf", accepts all defaults (csvInputPath, outputPath, baseUrl, qrSize, gridColumns, gridRows, showCuttingLines, galleryUrl, logoUrl)
 		ByteArrayInputStream input = new ByteArrayInputStream("2\n\n\n\n\n\n\n\n\n\n".getBytes(StandardCharsets.UTF_8));
@@ -372,7 +372,7 @@ class InteractiveRunnerTest {
 		runner.run(new DefaultApplicationArguments());
 
 		ArgumentCaptor<PdfOptions> captor = ArgumentCaptor.forClass(PdfOptions.class);
-		verify(pdfGeneratorService).createPdf(any(), any(), anyString(), captor.capture());
+		verify(pdfGeneratorService).createPdf(any(), any(), captor.capture());
 		assertThat(captor.getValue().logoUrl()).isEqualTo("logo.png");
 	}
 
