@@ -48,6 +48,7 @@ public class CsvReaderService {
 			boolean hasCodeColumn = hasHeader && parser.getHeaderNames().contains("Code");
 			boolean hasEventNameColumn = hasHeader && parser.getHeaderNames().contains("Event Name");
 			boolean hasPasswordColumn = hasHeader && parser.getHeaderNames().contains("Password");
+			boolean hasUrlColumn = hasHeader && parser.getHeaderNames().contains("URL");
 
 			for (CSVRecord record : parser) {
 				if (record.size() == 0) {
@@ -81,7 +82,8 @@ public class CsvReaderService {
 				}
 
 				String password = hasPasswordColumn ? record.get("Password").trim() : "";
-				codes.add(new GalleryCode(rawCode, password));
+				String shareUrl = hasUrlColumn ? record.get("URL").trim() : "";
+				codes.add(new GalleryCode(rawCode, password, shareUrl));
 			}
 		}
 
