@@ -63,7 +63,10 @@ class CsvWriterServiceTest {
 		service.writeCodes(codes, output, "Test Event", "https://my.site/gallery/");
 		var result = readerService.readCodes(output);
 
-		assertThat(result.codes()).isEqualTo(codes);
+		List<GalleryCode> expected = List.of(
+				new GalleryCode("XY9G-AB7K-92QF", "PW12345", "https://my.site/gallery/XY9G-AB7K-92QF"),
+				new GalleryCode("XY9G-TK2H-88PL", "PW67890", "https://my.site/gallery/XY9G-TK2H-88PL"));
+		assertThat(result.codes()).isEqualTo(expected);
 		assertThat(result.eventName()).isEqualTo("Test Event");
 	}
 
