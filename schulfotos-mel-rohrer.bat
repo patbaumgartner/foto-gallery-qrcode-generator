@@ -15,6 +15,9 @@ rem   schulfotos-mel-rohrer.bat                                   :: interactive
 rem   schulfotos-mel-rohrer.bat <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
 rem   schulfotos-mel-rohrer.bat --help
 rem
+rem Options:
+rem   -v, --verbose   Show Spring Boot log output (hidden by default)
+rem
 rem Arguments:
 rem   KLASSENNAME   Class name used as the event label in the PDF (e.g. "GS1d BA")
 rem   CODE_COUNT    Number of codes to generate (default: 17)
@@ -34,6 +37,18 @@ set "BASE_URL=https://mel-rohrer.ch/schulfotos"
 set "GALLERY_URL=https://mel-rohrer.ch/schulfotos/?code="
 set "DEFAULT_CODE_COUNT=17"
 
+rem --- Detect -v / --verbose (scan without consuming arguments) ----------------
+set "VERBOSE=0"
+set "QUIET_ARGS=--logging.level.root=WARN --spring.main.banner-mode=off"
+for %%a in (%*) do (
+    if /i "%%~a"=="-v"       set "VERBOSE=1"& set "QUIET_ARGS="
+    if /i "%%~a"=="--verbose" set "VERBOSE=1"& set "QUIET_ARGS="
+)
+
+rem --- Skip -v / --verbose if it is the first argument -----------------------
+if /i "%~1"=="-v"       shift
+if /i "%~1"=="--verbose" shift
+
 rem --- Help -------------------------------------------------------------------
 if "%~1"=="--help" goto show_help
 if "%~1"=="-h" goto show_help
@@ -46,6 +61,9 @@ echo Usage:
 echo   %~nx0                                   Interactive mode (prompts for all settings)
 echo   %~nx0 ^<KLASSENNAME^> [CODE_COUNT] [EXTRA_ARGS...]
 echo   %~nx0 --help                            Show this help message
+echo.
+echo Options:
+echo   -v, --verbose   Show Spring Boot log output (hidden by default)
 echo.
 echo Arguments:
 echo   KLASSENNAME   Class name used as the event label in the PDF (e.g. "GS1d BA").
@@ -138,6 +156,8 @@ rem Collect remaining extra arguments
 set "EXTRA_ARGS="
 :parse_extra
 if "%~1"=="" goto done_extra
+if /i "%~1"=="-v"       ( shift & goto parse_extra )
+if /i "%~1"=="--verbose" ( shift & goto parse_extra )
 set "EXTRA_ARGS=!EXTRA_ARGS! %~1"
 shift
 goto parse_extra
@@ -168,9 +188,9 @@ echo.
 rem --- Step 1: Generate codes -------------------------------------------------
 echo ==^> Generating !CODE_COUNT! codes for class '!KLASSENNAME!' ^(event: !EVENT_CODE!^) ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% !EXTRA_ARGS!
+    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% !QUIET_ARGS! !EXTRA_ARGS!
 ) else (
-    "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% !EXTRA_ARGS!
+    "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% !QUIET_ARGS! !EXTRA_ARGS!
 )
 if errorlevel 1 (
     echo ERROR: Code generation failed. >&2
@@ -180,9 +200,9 @@ if errorlevel 1 (
 rem --- Step 2: Generate PDF ---------------------------------------------------
 echo ==^> Generating QR-code PDF ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !EXTRA_ARGS!
+    java -jar "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !QUIET_ARGS! !EXTRA_ARGS!
 ) else (
-    "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !EXTRA_ARGS!
+    "%RUN%" --app.mode=generate-pdf --app.csv-input-path="!CSV_PATH!" --app.output-path="!PDF_PATH!" --app.base-url=%BASE_URL% --app.gallery-url=%GALLERY_URL% --app.show-cutting-lines=true --app.logo-url=logo.png !QUIET_ARGS! !EXTRA_ARGS!
 )
 if errorlevel 1 (
     echo ERROR: PDF generation failed. >&2

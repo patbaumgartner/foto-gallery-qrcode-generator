@@ -16,6 +16,9 @@
 #   ./schulfotos-mel-rohrer.sh <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
 #   ./schulfotos-mel-rohrer.sh --help
 #
+# Options:
+#   -v, --verbose   Show Spring Boot log output (hidden by default)
+#
 # Arguments:
 #   KLASSENNAME   Class name used as the event label in the PDF (e.g. "GS1d BA")
 #   CODE_COUNT    Number of codes to generate (default: 17)
@@ -45,6 +48,9 @@ Usage:
   $0 <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
   $0 --help                            Show this help message
 
+Options:
+  -v, --verbose   Show Spring Boot log output (hidden by default)
+
 Arguments:
   KLASSENNAME   Class name used as the event label in the PDF (e.g. "GS1d BA").
                 A random 4-character alphanumeric EVENT_CODE is generated
@@ -68,8 +74,25 @@ EOF
   exit 0
 }
 
+# --- Parse early flags --------------------------------------------------------
+VERBOSE=false
+args=()
+for arg in "$@"; do
+  case "$arg" in
+    -v|--verbose) VERBOSE=true ;;
+    *)            args+=("$arg") ;;
+  esac
+done
+set -- "${args[@]+"${args[@]}"}"
+
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   show_help
+fi
+
+# When not verbose, suppress Spring Boot log output
+QUIET_ARGS=()
+if [[ "$VERBOSE" == false ]]; then
+  QUIET_ARGS=(--logging.level.root=WARN --spring.main.banner-mode=off)
 fi
 
 # --- Resolve executable -------------------------------------------------------
@@ -155,6 +178,7 @@ echo "==> Generating $CODE_COUNT codes for class '$KLASSENNAME' (event: $EVENT_C
   --app.event-name="$KLASSENNAME" \
   --app.csv-output-path="$CSV_PATH" \
   --app.gallery-url="$GALLERY_URL" \
+  ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 # --- Step 2: Generate PDF -----------------------------------------------------
@@ -167,6 +191,7 @@ echo "==> Generating QR-code PDF ..."
   --app.gallery-url="$GALLERY_URL" \
   --app.show-cutting-lines=true \
   --app.logo-url=logo.png \
+  ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
 
 echo "==> Done. Output files:"
