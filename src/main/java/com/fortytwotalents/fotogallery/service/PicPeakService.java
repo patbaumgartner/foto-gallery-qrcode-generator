@@ -7,6 +7,7 @@ import com.fortytwotalents.fotogallery.config.PicPeakProperties;
 import com.fortytwotalents.fotogallery.model.GalleryCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -22,16 +23,27 @@ public class PicPeakService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PicPeakService.class);
 
+	private static final int MAX_PASSWORD_RETRIES = 3;
+
 	private final PicPeakProperties picPeakProperties;
+
+	private final CodeGeneratorService codeGeneratorService;
 
 	private final ObjectMapper objectMapper;
 
 	private final HttpClient httpClient;
 
-	public PicPeakService(PicPeakProperties picPeakProperties) {
+	@Autowired
+	public PicPeakService(PicPeakProperties picPeakProperties, CodeGeneratorService codeGeneratorService) {
+		this(picPeakProperties, codeGeneratorService, HttpClient.newHttpClient());
+	}
+
+	PicPeakService(PicPeakProperties picPeakProperties, CodeGeneratorService codeGeneratorService,
+			HttpClient httpClient) {
 		this.picPeakProperties = picPeakProperties;
+		this.codeGeneratorService = codeGeneratorService;
 		this.objectMapper = new ObjectMapper();
-		this.httpClient = HttpClient.newHttpClient();
+		this.httpClient = httpClient;
 	}
 
 	public List<GalleryCode> enrichWithShareLinks(List<GalleryCode> codes, String eventName) {
@@ -50,14 +62,28 @@ public class PicPeakService {
 		List<GalleryCode> enrichedCodes = new ArrayList<>(codes.size());
 		int number = 1;
 		for (GalleryCode code : codes) {
-			String shareLink = createEvent(token, code, eventName, number);
+			GalleryCode currentCode = code;
+			String shareLink = null;
+			for (int attempt = 1; attempt <= MAX_PASSWORD_RETRIES; attempt++) {
+				shareLink = createEvent(token, currentCode, eventName, number);
+				if (shareLink != null && !shareLink.isBlank()) {
+					break;
+				}
+				if (attempt < MAX_PASSWORD_RETRIES) {
+					String newPassword = codeGeneratorService.generatePassword();
+					currentCode = new GalleryCode(currentCode.code(), newPassword);
+					LOGGER.warn("Retrying PicPeak event #{} with a new password (attempt {}/{})", number, attempt + 1,
+							MAX_PASSWORD_RETRIES);
+				}
+			}
 			if (shareLink != null && !shareLink.isBlank()) {
-				enrichedCodes.add(new GalleryCode(code.code(), code.password(), shareLink));
+				enrichedCodes.add(new GalleryCode(currentCode.code(), currentCode.password(), shareLink));
 				LOGGER.atInfo().addArgument(number).addArgument(shareLink).log("Created PicPeak event #{}: {}");
 			}
 			else {
-				enrichedCodes.add(code);
-				LOGGER.warn("Failed to create PicPeak event for code #{}: {}", number, code.code());
+				throw new IllegalStateException(
+						"Failed to create PicPeak event for code #" + number + " (" + code.code() + ") after "
+								+ MAX_PASSWORD_RETRIES + " attempts. Aborting to prevent wrong URLs in the CSV.");
 			}
 			number++;
 		}

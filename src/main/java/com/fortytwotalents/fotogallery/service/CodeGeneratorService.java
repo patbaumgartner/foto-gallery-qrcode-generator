@@ -86,7 +86,7 @@ public class CodeGeneratorService {
 		return sb.toString();
 	}
 
-	private String generatePassword() {
+	public String generatePassword() {
 		List<Character> available = new ArrayList<>(PASSWORD_CHARSET.length());
 		for (int i = 0; i < PASSWORD_CHARSET.length(); i++) {
 			available.add(PASSWORD_CHARSET.charAt(i));
