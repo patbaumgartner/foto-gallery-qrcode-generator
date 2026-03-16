@@ -39,6 +39,20 @@ class GalleryCodeTest {
 	}
 
 	@Test
+	void toUrlUsesShareUrlWhenSet() {
+		GalleryCode code = new GalleryCode("XY9G-AB7K-92QF", "pass", "https://pics.example.com/gallery/abc123");
+
+		assertThat(code.toUrl("https://my.site/gallery/")).isEqualTo("https://pics.example.com/gallery/abc123");
+	}
+
+	@Test
+	void toUrlFallsBackToBaseUrlWhenShareUrlEmpty() {
+		GalleryCode code = new GalleryCode("XY9G-AB7K-92QF", "pass", "");
+
+		assertThat(code.toUrl("https://my.site/gallery/")).isEqualTo("https://my.site/gallery/XY9G-AB7K-92QF");
+	}
+
+	@Test
 	void singleArgConstructorSetsEmptyPassword() {
 		GalleryCode code = new GalleryCode("XY9G-AB7K-92QF");
 
