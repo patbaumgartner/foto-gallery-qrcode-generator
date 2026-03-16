@@ -35,11 +35,11 @@ public class PdfGeneratorService {
 
 	private static final float CELL_PADDING = 14f;
 
-	private static final float TEXT_HEIGHT = 65f;
+	private static final float TEXT_HEIGHT = 75f;
 
-	private static final float CODE_FONT_SIZE = 18f;
+	private static final float CODE_FONT_SIZE = 22f;
 
-	private static final float EVENT_NAME_FONT_SIZE = 12f;
+	private static final float EVENT_NAME_FONT_SIZE = 13f;
 
 	private static final float EVENT_NAME_GAP = 3f;
 
@@ -71,14 +71,14 @@ public class PdfGeneratorService {
 	private static final float BACK_RULE_GAP = 3.5f;
 
 	// Typography
-	private static final float BACK_LABEL_FONT_SIZE = 8f;
+	private static final float BACK_LABEL_FONT_SIZE = 10f;
 
-	private static final float BACK_PASSWORD_FONT_SIZE = 18f;
+	private static final float BACK_PASSWORD_FONT_SIZE = 22f;
 
-	private static final float BACK_URL_FONT_SIZE = 9f;
+	private static final float BACK_URL_FONT_SIZE = 12f;
 
 	// Vertical gap between label text and password text
-	private static final float BACK_LABEL_PW_GAP = 4f;
+	private static final float BACK_LABEL_PW_GAP = 5f;
 
 	// Minimum character count when truncating a URL with ellipsis
 	private static final int MIN_URL_DISPLAY_LENGTH = 6;
@@ -132,7 +132,7 @@ public class PdfGeneratorService {
 		int numFrontPages = (int) Math.ceil((double) codes.size() / codesPerPage);
 
 		try (PDDocument document = new PDDocument()) {
-			PDType1Font fontBold = new PDType1Font(Standard14Fonts.FontName.TIMES_BOLD);
+			PDType1Font fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
 			PDType1Font fontRegular = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
 
 			// Load logo image once (if URL provided)
