@@ -252,6 +252,7 @@ Two dedicated scripts for generating school photo gallery codes on `mel-rohrer.c
 The gallery URL `https://mel-rohrer.ch/schulfotos/?code=` is used for QR codes, the base URL
 `https://mel-rohrer.ch/schulfotos` is printed on the back page, cutting lines are enabled by
 default, and a back page with the gallery password is always included.
+A random 4-character `EVENT_CODE` is generated automatically (no need to pass it).
 Output files are named after the class (e.g. `GS1d-BA-codes.csv` and `GS1d-BA-qr-codes.pdf`).
 
 **Linux / macOS (`schulfotos-mel-rohrer.sh`):**
@@ -260,7 +261,7 @@ Output files are named after the class (e.g. `GS1d-BA-codes.csv` and `GS1d-BA-qr
 ./schulfotos-mel-rohrer.sh <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
 
 # Examples
-./schulfotos-mel-rohrer.sh "GS1d BA"
+./schulfotos-mel-rohrer.sh "GS1d BA"              # 17 codes, random EVENT_CODE
 ./schulfotos-mel-rohrer.sh "GS1d BA" 30
 ./schulfotos-mel-rohrer.sh "GS1d BA" 30 --app.show-cutting-lines=true
 ```

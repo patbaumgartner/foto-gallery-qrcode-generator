@@ -91,9 +91,8 @@ public class InteractiveRunner implements ApplicationRunner {
 				csvInputPath = promptOptional(scanner, "CSV input path", csvInputPath);
 				outputPath = promptOptional(scanner, "PDF output path", outputPath);
 				baseUrl = promptOptional(scanner, "Base URL (displayed on back of PDF)", baseUrl);
-				String galleryUrlDefault = galleryUrl.isBlank() ? "https://my.site/gallery?code=" : galleryUrl;
 				galleryUrl = promptOptional(scanner, "Gallery URL for QR codes (must start with https://)",
-						galleryUrlDefault);
+						galleryUrl);
 				qrSize = promptInt(scanner, "QR code size (pixels)", qrSize);
 				gridColumns = promptInt(scanner, "Grid columns per page", gridColumns);
 				gridRows = promptInt(scanner, "Grid rows per page", gridRows);
