@@ -19,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -339,18 +338,33 @@ public class PdfGeneratorService {
 	}
 
 	private PDImageXObject loadLogoImage(PDDocument document, String logoUrl) {
+		URI uri;
 		try {
-			URL url = URI.create(logoUrl).toURL();
+			uri = URI.create(logoUrl);
+		}
+		catch (IllegalArgumentException ex) {
+			LOGGER.warn("Invalid logo URL '{}': {}", logoUrl, ex.getMessage());
+			return null;
+		}
+		String scheme = uri.getScheme();
+		if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+			LOGGER.warn("Logo URL '{}' uses unsupported scheme '{}' (only http/https allowed)", logoUrl, scheme);
+			return null;
+		}
+		try {
+			java.net.URLConnection connection = uri.toURL().openConnection();
+			connection.setConnectTimeout(5000);
+			connection.setReadTimeout(10000);
 			byte[] imageData;
-			try (InputStream inputStream = url.openStream()) {
+			try (InputStream inputStream = connection.getInputStream()) {
 				imageData = inputStream.readAllBytes();
 			}
 			// Try PDFBox direct load first (handles JPEG, PNG, etc.)
 			try {
 				return PDImageXObject.createFromByteArray(document, imageData, "logo");
 			}
-			catch (Exception ex) {
-				// Fall back to ImageIO for other formats
+			catch (IOException ex) {
+				// Fall back to ImageIO for other formats (e.g. formats not natively supported)
 				BufferedImage bufferedImage = ImageIO.read(new java.io.ByteArrayInputStream(imageData));
 				if (bufferedImage == null) {
 					LOGGER.warn("Could not decode logo image from URL '{}' (unsupported format)", logoUrl);
@@ -362,7 +376,7 @@ public class PdfGeneratorService {
 				}
 			}
 		}
-		catch (Exception ex) {
+		catch (IOException ex) {
 			LOGGER.warn("Could not load logo from URL '{}': {}", logoUrl, ex.getMessage());
 			return null;
 		}
