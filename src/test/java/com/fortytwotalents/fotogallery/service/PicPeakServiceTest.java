@@ -48,17 +48,13 @@ class PicPeakServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		enabledProperties = new PicPeakProperties(true, "https://pics.example.com", "admin", "secret", "schule", "",
-				"test@example.com", "", true, "", 30, false, true, true, false, false, true, false, true, false,
-				"minimal", "wave", 2);
+		enabledProperties = picPeakProps(true);
 		service = new PicPeakService(enabledProperties, codeGeneratorService, httpClient);
 	}
 
 	@Test
 	void returnsCodesUnchangedWhenDisabled() {
-		PicPeakProperties disabled = new PicPeakProperties(false, "", "", "", "schule", "", "", "", false, "", 30,
-				false, false, false, false, false, false, false, false, false, "minimal", "wave", 2);
-		service = new PicPeakService(disabled, codeGeneratorService, httpClient);
+		service = new PicPeakService(picPeakProps(false), codeGeneratorService, httpClient);
 
 		List<GalleryCode> codes = List.of(new GalleryCode("XY9G-AB7K-92QF", "pass1"));
 
@@ -152,6 +148,15 @@ class PicPeakServiceTest {
 		when(response.body()).thenReturn(body);
 		when(response.headers()).thenReturn(EMPTY_HEADERS);
 		return response;
+	}
+
+	private static PicPeakProperties picPeakProps(boolean enabled) {
+		String apiUrl = enabled ? "https://pics.example.com" : "";
+		String username = enabled ? "admin" : "";
+		String password = enabled ? "secret" : "";
+		return new PicPeakProperties(enabled, apiUrl, username, password, "schule", "",
+				"test@example.com", "", true, "", 30, false, true, true, false, false, true, false, true, false,
+				"minimal", "wave", 2);
 	}
 
 }
