@@ -281,6 +281,41 @@ class PdfGeneratorServiceTest {
 		}
 	}
 
+	@Test
+	void pdfWithWideCodeStillContainsCodeText() throws Exception {
+		// A code whose text is wider than the default cell inner-width forces fitFontSize
+		// to scale the font down. The code must still appear in the PDF text.
+		List<GalleryCode> codes = createCodes("WWWW-WWWW-WWWW");
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+		Path output = tempDir.resolve("wide-code.pdf");
+
+		int pages = pdfService.createPdf(codes, qrImages, PdfOptions.of(output, 3, 4));
+
+		assertThat(pages).isEqualTo(1);
+		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+			PDFTextStripper stripper = new PDFTextStripper();
+			String text = stripper.getText(doc);
+			assertThat(text).contains("WWWW-WWWW-WWWW");
+		}
+	}
+
+	@Test
+	void pdfWithLongPasswordStillContainsPasswordText() throws Exception {
+		// A very long password forces fitFontSize to scale down on the back page.
+		List<GalleryCode> codes = createCodesWithPasswords("XY9G-AB7K-92QF", "WWWWWWWWWWWWWWWW");
+		LinkedHashMap<GalleryCode, BufferedImage> qrImages = generateQrImages(codes);
+		Path output = tempDir.resolve("long-password.pdf");
+
+		PdfOptions options = new PdfOptions(output, 3, 4, false, "", "https://gallery.example.com", "");
+		pdfService.createPdf(codes, qrImages, options);
+
+		try (PDDocument doc = Loader.loadPDF(output.toFile())) {
+			PDFTextStripper stripper = new PDFTextStripper();
+			String text = stripper.getText(doc);
+			assertThat(text).contains("WWWWWWWWWWWWWWWW");
+		}
+	}
+
 	private List<GalleryCode> createCodes(String... codeStrings) {
 		List<GalleryCode> codes = new ArrayList<>();
 		for (String c : codeStrings) {

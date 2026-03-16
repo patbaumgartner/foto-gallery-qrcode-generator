@@ -83,6 +83,12 @@ public class PdfGeneratorService {
 	// Minimum character count when truncating a URL with ellipsis
 	private static final int MIN_URL_DISPLAY_LENGTH = 6;
 
+	// Minimum font size used when auto-fitting text within a cell
+	private static final float MIN_FONT_SIZE = 8f;
+
+	// Horizontal margin subtracted from cell width when calculating fitting font size
+	private static final float FIT_FONT_MARGIN = 4f;
+
 	// Logo download timeouts (ms)
 	private static final int LOGO_CONNECT_TIMEOUT_MS = 5000;
 
@@ -170,10 +176,19 @@ public class PdfGeneratorService {
 
 					try (PDPageContentStream content = new PDPageContentStream(document, frontPage,
 							PDPageContentStream.AppendMode.APPEND, true, true)) {
+
+						// FRONT CELL BORDER
+						content.setStrokingColor(INK, INK, INK);
+						content.setLineWidth(BACK_CARD_BORDER_WIDTH);
+						content.addRect(innerX, innerY, innerWidth, innerHeight);
+						content.stroke();
+
 						content.drawImage(pdImage, qrX, qrY, qrSize, qrSize);
 
 						String codeLabel = code.code();
-						float codeLabelWidth = fontBold.getStringWidth(codeLabel) / 1000 * CODE_FONT_SIZE;
+						float actualCodeFontSize = fitFontSize(fontBold, codeLabel, innerWidth - FIT_FONT_MARGIN, CODE_FONT_SIZE,
+								MIN_FONT_SIZE);
+						float codeLabelWidth = fontBold.getStringWidth(codeLabel) / 1000f * actualCodeFontSize;
 						float codeLabelX = innerX + (innerWidth - codeLabelWidth) / 2;
 
 						float galleryCodeLabelWidth = fontRegular.getStringWidth(galleryCodeLabel) / 1000f
@@ -181,17 +196,17 @@ public class PdfGeneratorService {
 						float galleryCodeLabelX = innerX + (innerWidth - galleryCodeLabelWidth) / 2;
 
 						if (hasEventName) {
-							float combinedHeight = CODE_FONT_SIZE + BACK_LABEL_PW_GAP + BACK_LABEL_FONT_SIZE
+							float combinedHeight = actualCodeFontSize + BACK_LABEL_PW_GAP + BACK_LABEL_FONT_SIZE
 									+ EVENT_NAME_GAP + EVENT_NAME_FONT_SIZE;
 							float blockStartY = innerY + (TEXT_HEIGHT - combinedHeight) / 2;
 
 							content.beginText();
-							content.setFont(fontBold, CODE_FONT_SIZE);
+							content.setFont(fontBold, actualCodeFontSize);
 							content.newLineAtOffset(codeLabelX, blockStartY);
 							content.showText(codeLabel);
 							content.endText();
 
-							float galleryCodeLabelY = blockStartY + CODE_FONT_SIZE + BACK_LABEL_PW_GAP;
+							float galleryCodeLabelY = blockStartY + actualCodeFontSize + BACK_LABEL_PW_GAP;
 							content.beginText();
 							content.setFont(fontRegular, BACK_LABEL_FONT_SIZE);
 							content.newLineAtOffset(galleryCodeLabelX, galleryCodeLabelY);
@@ -208,16 +223,16 @@ public class PdfGeneratorService {
 							content.showText(eventName);
 							content.endText();
 						} else {
-							float combinedHeight = CODE_FONT_SIZE + BACK_LABEL_PW_GAP + BACK_LABEL_FONT_SIZE;
+							float combinedHeight = actualCodeFontSize + BACK_LABEL_PW_GAP + BACK_LABEL_FONT_SIZE;
 							float blockStartY = innerY + (TEXT_HEIGHT - combinedHeight) / 2;
 
 							content.beginText();
-							content.setFont(fontBold, CODE_FONT_SIZE);
+							content.setFont(fontBold, actualCodeFontSize);
 							content.newLineAtOffset(codeLabelX, blockStartY);
 							content.showText(codeLabel);
 							content.endText();
 
-							float galleryCodeLabelY = blockStartY + CODE_FONT_SIZE + BACK_LABEL_PW_GAP;
+							float galleryCodeLabelY = blockStartY + actualCodeFontSize + BACK_LABEL_PW_GAP;
 							content.beginText();
 							content.setFont(fontRegular, BACK_LABEL_FONT_SIZE);
 							content.newLineAtOffset(galleryCodeLabelX, galleryCodeLabelY);
@@ -329,14 +344,16 @@ public class PdfGeneratorService {
 			float passwordSectionBotY = bottomRuleY + BACK_RULE_GAP;
 
 			// Combined height of the password block (label + gap + password)
-			float blockH = BACK_LABEL_FONT_SIZE + BACK_LABEL_PW_GAP + BACK_PASSWORD_FONT_SIZE;
+			String password = code.password().isBlank() ? "\u2014" : code.password();
+			float actualPwFontSize = fitFontSize(fontBold, password, innerWidth - FIT_FONT_MARGIN, BACK_PASSWORD_FONT_SIZE, MIN_FONT_SIZE);
+			float blockH = BACK_LABEL_FONT_SIZE + BACK_LABEL_PW_GAP + actualPwFontSize;
 			float blockBotY = passwordSectionBotY + ((rule1Y - BACK_RULE_GAP - passwordSectionBotY) - blockH) / 2f;
 
 			// password label
 			String label = galleryPasswordLabel;
 			float labelW = fontRegular.getStringWidth(label) / 1000f * BACK_LABEL_FONT_SIZE;
 			float labelX = innerX + (innerWidth - labelW) / 2f;
-			float labelY = blockBotY + BACK_PASSWORD_FONT_SIZE + BACK_LABEL_PW_GAP;
+			float labelY = blockBotY + actualPwFontSize + BACK_LABEL_PW_GAP;
 			cs.beginText();
 			cs.setNonStrokingColor(GRAY, GRAY, GRAY);
 			cs.setFont(fontRegular, BACK_LABEL_FONT_SIZE);
@@ -345,12 +362,11 @@ public class PdfGeneratorService {
 			cs.endText();
 
 			// Password in large bold black
-			String password = code.password().isBlank() ? "\u2014" : code.password();
-			float pwW = fontBold.getStringWidth(password) / 1000f * BACK_PASSWORD_FONT_SIZE;
+			float pwW = fontBold.getStringWidth(password) / 1000f * actualPwFontSize;
 			float pwX = innerX + (innerWidth - pwW) / 2f;
 			cs.beginText();
 			cs.setNonStrokingColor(INK, INK, INK);
-			cs.setFont(fontBold, BACK_PASSWORD_FONT_SIZE);
+			cs.setFont(fontBold, actualPwFontSize);
 			cs.newLineAtOffset(pwX, blockBotY);
 			cs.showText(password);
 			cs.endText();
@@ -364,7 +380,7 @@ public class PdfGeneratorService {
 
 			// BASE URL (below bottom rule)
 			if (!baseUrl.isBlank()) {
-				String displayUrl = truncateUrl(baseUrl, fontBold, BACK_URL_FONT_SIZE, innerWidth - 8f);
+				String displayUrl = truncateUrl(baseUrl, fontBold, BACK_URL_FONT_SIZE, innerWidth - FIT_FONT_MARGIN);
 				float urlW = fontBold.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;
 				float urlX = innerX + (innerWidth - urlW) / 2f;
 				float urlY = innerY + (bottomRuleY - innerY - BACK_URL_FONT_SIZE) / 2f;
@@ -402,6 +418,23 @@ public class PdfGeneratorService {
 			}
 		}
 		return display;
+	}
+
+	/**
+	 * Returns the largest font size <= maxFontSize such that {@code text} renders
+	 * within {@code maxWidth} points. Falls back to {@code minFontSize} if nothing fits.
+	 */
+	private float fitFontSize(PDType1Font font, String text, float maxWidth, float maxFontSize, float minFontSize)
+			throws IOException {
+		float size = maxFontSize;
+		while (size > minFontSize) {
+			float w = font.getStringWidth(text) / 1000f * size;
+			if (w <= maxWidth) {
+				break;
+			}
+			size -= 0.5f;
+		}
+		return size;
 	}
 
 	/**
