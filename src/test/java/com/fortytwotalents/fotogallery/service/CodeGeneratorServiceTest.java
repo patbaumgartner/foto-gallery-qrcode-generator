@@ -83,8 +83,16 @@ class CodeGeneratorServiceTest {
 
 		assertThat(codes).allSatisfy(code -> {
 			assertThat(code.password()).isNotBlank();
-			assertThat(code.password()).hasSize(7);
+			assertThat(code.password()).hasSize(9);
 		});
+	}
+
+	@Test
+	void passwordsMatchRequiredPattern() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 50);
+
+		assertThat(codes).allSatisfy(
+				code -> assertThat(code.password()).matches("^[A-Za-z0-9!@#$%&*+\\-_.]+$"));
 	}
 
 	@Test
