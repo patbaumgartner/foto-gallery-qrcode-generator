@@ -33,7 +33,13 @@ public class PdfGeneratorService {
 
 	private static final float MARGIN = 30f;
 
-	private static final float CELL_PADDING = 14f;
+	// Conversion factor: millimetres to PDF points
+	private static final float MM_TO_PT = 72f / 25.4f;
+
+	// The card box is expanded 3 mm beyond the original 14 pt padding on every side
+	private static final float BOX_EXPANSION_MM = 3f;
+
+	private static final float CELL_PADDING = 14f - BOX_EXPANSION_MM * MM_TO_PT;
 
 	private static final float TEXT_HEIGHT = 75f;
 
