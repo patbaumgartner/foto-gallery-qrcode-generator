@@ -2,17 +2,24 @@ package com.fortytwotalents.fotogallery.model;
 
 import java.util.regex.Pattern;
 
-public record GalleryCode(String code, String password) {
+public record GalleryCode(String code, String password, String shareUrl) {
 
 	private static final Pattern CODE_PATTERN = Pattern.compile("^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$");
 
+	public GalleryCode(String code, String password) {
+		this(code, password, "");
+	}
+
 	public GalleryCode(String code) {
-		this(code, "");
+		this(code, "", "");
 	}
 
 	public GalleryCode {
 		if (password == null) {
 			password = "";
+		}
+		if (shareUrl == null) {
+			shareUrl = "";
 		}
 	}
 
@@ -21,6 +28,10 @@ public record GalleryCode(String code, String password) {
 	}
 
 	public String toUrl(String baseUrl) {
+		if (!shareUrl.isBlank()) {
+			return shareUrl;
+		}
 		return baseUrl + code;
 	}
+
 }

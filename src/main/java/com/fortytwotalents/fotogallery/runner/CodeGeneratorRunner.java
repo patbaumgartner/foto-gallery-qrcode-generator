@@ -4,8 +4,10 @@ import com.fortytwotalents.fotogallery.config.AppProperties;
 import com.fortytwotalents.fotogallery.model.GalleryCode;
 import com.fortytwotalents.fotogallery.service.CodeGeneratorService;
 import com.fortytwotalents.fotogallery.service.CsvWriterService;
+import com.fortytwotalents.fotogallery.service.PicPeakService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -22,13 +24,23 @@ public class CodeGeneratorRunner implements CommandLineRunner {
 
 	private final CsvWriterService csvWriterService;
 
+	private final PicPeakService picPeakService;
+
 	private final AppProperties appProperties;
 
+	@Autowired
 	public CodeGeneratorRunner(CodeGeneratorService codeGeneratorService, CsvWriterService csvWriterService,
-			AppProperties appProperties) {
+			PicPeakService picPeakService, AppProperties appProperties) {
 		this.codeGeneratorService = codeGeneratorService;
 		this.csvWriterService = csvWriterService;
+		this.picPeakService = picPeakService;
 		this.appProperties = appProperties;
+	}
+
+	// Backward-compatible constructor for tests and InteractiveRunner (PicPeak disabled)
+	CodeGeneratorRunner(CodeGeneratorService codeGeneratorService, CsvWriterService csvWriterService,
+			AppProperties appProperties) {
+		this(codeGeneratorService, csvWriterService, null, appProperties);
 	}
 
 	@Override
@@ -49,12 +61,18 @@ public class CodeGeneratorRunner implements CommandLineRunner {
 		LOGGER.info("Generating {} gallery codes with event prefix '{}'...", codeCount, eventCode);
 
 		List<GalleryCode> codes = codeGeneratorService.generateCodes(eventCode, codeCount);
-		csvWriterService.writeCodes(codes, outputPath, appProperties.eventName(), appProperties.galleryUrl());
 
+		if (picPeakService != null) {
+			codes = picPeakService.enrichWithShareLinks(codes, appProperties.eventName());
+		}
+
+		csvWriterService.writeCodes(codes, outputPath, appProperties.eventName(), appProperties.baseUrl());
+
+		int finalCount = codes.size();
 		LOGGER.atInfo()
-				.addArgument(() -> codes.size())
-				.addArgument(() -> outputPath.toAbsolutePath())
-				.log("Done! Generated {} codes written to: {}");
+			.addArgument(() -> finalCount)
+			.addArgument(() -> outputPath.toAbsolutePath())
+			.log("Done! Generated {} codes written to: {}");
 	}
 
 }
