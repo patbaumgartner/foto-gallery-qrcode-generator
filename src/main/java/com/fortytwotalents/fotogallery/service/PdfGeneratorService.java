@@ -80,7 +80,7 @@ public class PdfGeneratorService {
 	// Typography
 	private static final float BACK_LABEL_FONT_SIZE = 10f;
 
-	private static final float BACK_PASSWORD_FONT_SIZE = 22f;
+	private static final float BACK_PASSWORD_FONT_SIZE = 18f;
 
 	private static final float BACK_URL_FONT_SIZE = 12f;
 
