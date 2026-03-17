@@ -142,6 +142,17 @@ class CodeGeneratorServiceTest {
 	}
 
 	@Test
+	void passwordsNeverStartOrEndWithSpecialCharacter() {
+		List<GalleryCode> codes = service.generateCodes("XY9G", 200);
+
+		assertThat(codes).allSatisfy(code -> {
+			String pw = code.password();
+			assertThat(String.valueOf(pw.charAt(0))).doesNotContainPattern("[!@#$%&+]");
+			assertThat(String.valueOf(pw.charAt(pw.length() - 1))).doesNotContainPattern("[!@#$%&+]");
+		});
+	}
+
+	@Test
 	void generatesUniquePasswords() {
 		List<GalleryCode> codes = service.generateCodes("XY9G", 50);
 
