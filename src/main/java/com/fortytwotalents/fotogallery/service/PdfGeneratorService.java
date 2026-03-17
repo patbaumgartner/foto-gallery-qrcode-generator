@@ -46,6 +46,9 @@ public class PdfGeneratorService {
 	// Minimum gap between the QR code and the inner box border (top and sides)
 	private static final float QR_BORDER_PAD = 3f;
 
+	// Downward vertical offset applied to the QR code image (in mm)
+	private static final float QR_VERTICAL_OFFSET_MM = 2f;
+
 	private static final float CODE_FONT_SIZE = 14f;
 
 	private static final float EVENT_NAME_FONT_SIZE = 17f;
@@ -175,7 +178,7 @@ public class PdfGeneratorService {
 					float innerX = cellX + CELL_PADDING;
 					float innerY = cellY + CELL_PADDING;
 					float qrX = innerX + (innerWidth - qrSize) / 2;
-					float qrY = innerY + TEXT_HEIGHT;
+					float qrY = innerY + TEXT_HEIGHT - QR_VERTICAL_OFFSET_MM * MM_TO_PT;
 
 					byte[] imageBytes = toByteArray(qrImage);
 					PDImageXObject pdImage = PDImageXObject.createFromByteArray(document, imageBytes,
