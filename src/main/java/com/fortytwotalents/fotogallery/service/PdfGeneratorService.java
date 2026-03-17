@@ -43,6 +43,9 @@ public class PdfGeneratorService {
 
 	private static final float TEXT_HEIGHT = 75f;
 
+	// Minimum gap between the QR code and the inner box border (top and sides)
+	private static final float QR_BORDER_PAD = 3f;
+
 	private static final float CODE_FONT_SIZE = 18f;
 
 	private static final float EVENT_NAME_FONT_SIZE = 17f;
@@ -139,7 +142,7 @@ public class PdfGeneratorService {
 		float cellHeight = usableHeight / gridRows;
 		float innerWidth = cellWidth - 2 * CELL_PADDING;
 		float innerHeight = cellHeight - 2 * CELL_PADDING;
-		float qrSize = Math.min(innerWidth, innerHeight - TEXT_HEIGHT);
+		float qrSize = Math.min(innerWidth - 2 * QR_BORDER_PAD, innerHeight - TEXT_HEIGHT - QR_BORDER_PAD);
 
 		boolean hasEventName = eventName != null && !eventName.isBlank();
 		boolean hasBackPage = true;
