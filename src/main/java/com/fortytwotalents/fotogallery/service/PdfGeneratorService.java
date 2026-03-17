@@ -54,8 +54,6 @@ public class PdfGeneratorService {
 
 	private static final float CUTTING_LINE_WIDTH = 0.5f;
 
-	private static final float CUTTING_LINE_GRAY = 0.0f;
-
 	private static final float CUTTING_MARK_LENGTH = 10f;
 
 	// Back-page layout — logo takes the dominant top portion of each cell
@@ -67,7 +65,7 @@ public class PdfGeneratorService {
 
 	private static final float BACK_LOGO_H_PAD = 8f;
 
-	// Outer card border (thin black hairline drawn around the whole inner area)
+	// Outer card border (thin gray hairline drawn around the whole inner area)
 	private static final float BACK_CARD_BORDER_WIDTH = 0.5f;
 
 	// Hairline rules separating logo / password / url zones
@@ -106,18 +104,15 @@ public class PdfGeneratorService {
 	// Local resource path prefix stripped when resolving classpath resources
 	private static final String RESOURCES_PREFIX = "src/main/resources/";
 
-	// Palette: black / white only
-	// Pure black — for all text, borders, rules
+	// Palette: gray lines / black text
+	// Pure black — for all text
 	private static final float INK = 0.0f;
 
-	// Kept for backward-compatible naming; equals INK (full black for printing)
+	// Used as non-stroking (fill) color for text; kept for backward-compatible naming
 	private static final float GRAY = 0.0f;
 
-	// Kept for backward-compatible naming; equals INK (full black for printing)
-	private static final float RULE_GRAY = 0.0f;
-
-	// Light gray used for the card box border (not black)
-	private static final float BOX_BORDER_GRAY = 0.75f;
+	// Uniform gray for all drawn lines: card borders, separator rules, cutting marks
+	private static final float LINE_GRAY = 0.75f;
 
 	public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages,
 			PdfOptions options) throws IOException {
@@ -190,7 +185,7 @@ public class PdfGeneratorService {
 							PDPageContentStream.AppendMode.APPEND, true, true)) {
 
 						// FRONT CELL BORDER
-						content.setStrokingColor(BOX_BORDER_GRAY, BOX_BORDER_GRAY, BOX_BORDER_GRAY);
+						content.setStrokingColor(LINE_GRAY, LINE_GRAY, LINE_GRAY);
 						content.setLineWidth(BACK_CARD_BORDER_WIDTH);
 						content.addRect(innerX, innerY, innerWidth, innerHeight);
 						content.stroke();
@@ -300,11 +295,11 @@ public class PdfGeneratorService {
 	/**
 	 * Draws the back of a single card cell.
 	 *
-	 * Layout (top → bottom, full black): ┌─────────────────────────────────────┐ ← thin
-	 * black card border │ │ │ [LOGO — fills ~55% of height] │ ← logo centered, max size │
-	 * │ │ ─────────────────────────────────── │ ← 0.4 pt black rule │ GALLERY PASSWORD │
-	 * ← 6 pt uppercase black label │ XY9G-AB7K-92QF │ ← 14 pt bold black password │
-	 * ─────────────────────────────────── │ ← 0.4 pt black rule │ my.site │ ← 6.5 pt
+	 * Layout (top → bottom): ┌─────────────────────────────────────┐ ← thin gray card
+	 * border │ │ │ [LOGO — fills ~55% of height] │ ← logo centered, max size │ │ │
+	 * ─────────────────────────────────── │ ← 0.4 pt gray rule │ GALLERY PASSWORD │ ← 6
+	 * pt uppercase black label │ XY9G-AB7K-92QF │ ← 14 pt bold black password │
+	 * ─────────────────────────────────── │ ← 0.4 pt gray rule │ my.site │ ← 6.5 pt
 	 * black base URL └─────────────────────────────────────┘
 	 */
 	private void drawBackCell(PDDocument document, PDPage page, GalleryCode code, float innerX, float innerY,
@@ -315,7 +310,7 @@ public class PdfGeneratorService {
 				true, true)) {
 
 			// OUTER CARD BORDER
-			cs.setStrokingColor(BOX_BORDER_GRAY, BOX_BORDER_GRAY, BOX_BORDER_GRAY);
+			cs.setStrokingColor(LINE_GRAY, LINE_GRAY, LINE_GRAY);
 			cs.setLineWidth(BACK_CARD_BORDER_WIDTH);
 			cs.addRect(innerX, innerY, innerWidth, innerHeight);
 			cs.stroke();
@@ -342,7 +337,7 @@ public class PdfGeneratorService {
 
 			// TOP RULE (below logo zone)
 			float rule1Y = logoZoneBotY - BACK_RULE_GAP;
-			cs.setStrokingColor(RULE_GRAY, RULE_GRAY, RULE_GRAY);
+			cs.setStrokingColor(LINE_GRAY, LINE_GRAY, LINE_GRAY);
 			cs.setLineWidth(BACK_RULE_WIDTH);
 			cs.moveTo(innerX + BACK_RULE_INSET, rule1Y);
 			cs.lineTo(innerX + innerWidth - BACK_RULE_INSET, rule1Y);
@@ -384,7 +379,7 @@ public class PdfGeneratorService {
 			cs.endText();
 
 			// BOTTOM RULE
-			cs.setStrokingColor(RULE_GRAY, RULE_GRAY, RULE_GRAY);
+			cs.setStrokingColor(LINE_GRAY, LINE_GRAY, LINE_GRAY);
 			cs.setLineWidth(BACK_RULE_WIDTH);
 			cs.moveTo(innerX + BACK_RULE_INSET, bottomRuleY);
 			cs.lineTo(innerX + innerWidth - BACK_RULE_INSET, bottomRuleY);
@@ -543,7 +538,7 @@ public class PdfGeneratorService {
 			int gridRows, float cellWidth, float cellHeight) throws IOException {
 		try (PDPageContentStream content = new PDPageContentStream(document, page,
 				PDPageContentStream.AppendMode.APPEND, true, true)) {
-			content.setStrokingColor(CUTTING_LINE_GRAY, CUTTING_LINE_GRAY, CUTTING_LINE_GRAY);
+			content.setStrokingColor(LINE_GRAY, LINE_GRAY, LINE_GRAY);
 			content.setLineWidth(CUTTING_LINE_WIDTH);
 
 			// All x positions where vertical cuts happen (left boundary, column dividers,
