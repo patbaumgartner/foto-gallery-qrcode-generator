@@ -36,18 +36,21 @@ public class PdfGeneratorService {
 	// Conversion factor: millimetres to PDF points
 	private static final float MM_TO_PT = 72f / 25.4f;
 
-	// The card box is expanded 3 mm beyond the original 14 pt padding on every side
-	private static final float BOX_EXPANSION_MM = 3f;
+	// The card box is expanded 2 mm beyond the original 14 pt padding on every side
+	private static final float BOX_EXPANSION_MM = 2f;
 
 	private static final float CELL_PADDING = 14f - BOX_EXPANSION_MM * MM_TO_PT;
 
 	private static final float TEXT_HEIGHT = 75f;
 
-	private static final float CODE_FONT_SIZE = 22f;
+	// Minimum gap between the QR code and the inner box border (top and sides)
+	private static final float QR_BORDER_PAD = 3f;
 
-	private static final float EVENT_NAME_FONT_SIZE = 13f;
+	private static final float CODE_FONT_SIZE = 18f;
 
-	private static final float EVENT_NAME_GAP = 3f;
+	private static final float EVENT_NAME_FONT_SIZE = 17f;
+
+	private static final float EVENT_NAME_GAP = 3f + MM_TO_PT;
 
 	private static final float CUTTING_LINE_WIDTH = 0.5f;
 
@@ -113,6 +116,9 @@ public class PdfGeneratorService {
 	// Kept for backward-compatible naming; equals INK (full black for printing)
 	private static final float RULE_GRAY = 0.0f;
 
+	// Light gray used for the card box border (not black)
+	private static final float BOX_BORDER_GRAY = 0.75f;
+
 	public int createPdf(List<GalleryCode> codes, LinkedHashMap<GalleryCode, BufferedImage> qrImages,
 			PdfOptions options) throws IOException {
 
@@ -136,7 +142,7 @@ public class PdfGeneratorService {
 		float cellHeight = usableHeight / gridRows;
 		float innerWidth = cellWidth - 2 * CELL_PADDING;
 		float innerHeight = cellHeight - 2 * CELL_PADDING;
-		float qrSize = Math.min(innerWidth, innerHeight - TEXT_HEIGHT);
+		float qrSize = Math.min(innerWidth - 2 * QR_BORDER_PAD, innerHeight - TEXT_HEIGHT - QR_BORDER_PAD);
 
 		boolean hasEventName = eventName != null && !eventName.isBlank();
 		boolean hasBackPage = true;
@@ -184,7 +190,7 @@ public class PdfGeneratorService {
 							PDPageContentStream.AppendMode.APPEND, true, true)) {
 
 						// FRONT CELL BORDER
-						content.setStrokingColor(INK, INK, INK);
+						content.setStrokingColor(BOX_BORDER_GRAY, BOX_BORDER_GRAY, BOX_BORDER_GRAY);
 						content.setLineWidth(BACK_CARD_BORDER_WIDTH);
 						content.addRect(innerX, innerY, innerWidth, innerHeight);
 						content.stroke();
@@ -309,7 +315,7 @@ public class PdfGeneratorService {
 				true, true)) {
 
 			// OUTER CARD BORDER
-			cs.setStrokingColor(INK, INK, INK);
+			cs.setStrokingColor(BOX_BORDER_GRAY, BOX_BORDER_GRAY, BOX_BORDER_GRAY);
 			cs.setLineWidth(BACK_CARD_BORDER_WIDTH);
 			cs.addRect(innerX, innerY, innerWidth, innerHeight);
 			cs.stroke();

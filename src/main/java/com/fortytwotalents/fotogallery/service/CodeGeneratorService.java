@@ -142,11 +142,35 @@ public class CodeGeneratorService {
 		}
 
 		Collections.shuffle(passwordChars, random);
+		// Ensure the password does not start or end with a special character.
+		// There are always at least 3 non-special characters (mandatory digit,
+		// uppercase, and lowercase), so a non-special swap target is guaranteed.
+		if (isSpecialCharacter(passwordChars.getFirst())) {
+			for (int i = 1; i < passwordChars.size(); i++) {
+				if (!isSpecialCharacter(passwordChars.get(i))) {
+					Collections.swap(passwordChars, 0, i);
+					break;
+				}
+			}
+		}
+		int last = passwordChars.size() - 1;
+		if (isSpecialCharacter(passwordChars.getLast())) {
+			for (int i = last - 1; i >= 0; i--) {
+				if (!isSpecialCharacter(passwordChars.get(i))) {
+					Collections.swap(passwordChars, last, i);
+					break;
+				}
+			}
+		}
 		StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
 		for (char c : passwordChars) {
 			sb.append(c);
 		}
 		return sb.toString();
+	}
+
+	private boolean isSpecialCharacter(char c) {
+		return PASSWORD_SPECIAL.indexOf(c) >= 0;
 	}
 
 }
