@@ -46,7 +46,7 @@ public class PdfGeneratorService {
 	// Minimum gap between the QR code and the inner box border (top and sides)
 	private static final float QR_BORDER_PAD = 3f;
 
-	private static final float CODE_FONT_SIZE = 18f;
+	private static final float CODE_FONT_SIZE = 14f;
 
 	private static final float EVENT_NAME_FONT_SIZE = 17f;
 
@@ -222,7 +222,7 @@ public class PdfGeneratorService {
 
 							float eventNameWidth = fontRegular.getStringWidth(eventName) / 1000 * EVENT_NAME_FONT_SIZE;
 							float eventNameX = innerX + (innerWidth - eventNameWidth) / 2;
-							float eventNameY = galleryCodeLabelY + BACK_LABEL_FONT_SIZE + EVENT_NAME_GAP;
+							float eventNameY = galleryCodeLabelY + BACK_LABEL_FONT_SIZE + EVENT_NAME_GAP + MM_TO_PT;
 
 							content.beginText();
 							content.setFont(fontRegular, EVENT_NAME_FONT_SIZE);
@@ -390,7 +390,7 @@ public class PdfGeneratorService {
 				String displayUrl = truncateUrl(baseUrl, fontBold, BACK_URL_FONT_SIZE, innerWidth - FIT_FONT_MARGIN);
 				float urlW = fontBold.getStringWidth(displayUrl) / 1000f * BACK_URL_FONT_SIZE;
 				float urlX = innerX + (innerWidth - urlW) / 2f;
-				float urlY = innerY + (bottomRuleY - innerY - BACK_URL_FONT_SIZE) / 2f;
+				float urlY = innerY + (bottomRuleY - innerY - BACK_URL_FONT_SIZE) / 2f + MM_TO_PT;
 				cs.beginText();
 				cs.setNonStrokingColor(INK, INK, INK);
 				cs.setFont(fontBold, BACK_URL_FONT_SIZE);
