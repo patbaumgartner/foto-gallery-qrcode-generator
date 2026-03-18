@@ -6,8 +6,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record PicPeakProperties(boolean enabled, String apiUrl, String username, String password, String eventType,
 		String eventDate, String customerEmail, String adminEmail, boolean requirePassword, String welcomeMessage,
 		int expirationDays, boolean allowUserUploads, boolean feedbackEnabled, boolean allowRatings, boolean allowLikes,
-		boolean allowComments, boolean allowFavorites, boolean requireNameEmail, boolean moderateComments,
-		boolean showFeedbackToGuests, String headerStyle, String heroDividerStyle, int cssTemplateId) {
+		boolean allowComments, boolean allowFavorites, boolean allowDownloads, boolean disableRightClick,
+		boolean enableDevtoolsProtection, boolean useCanvasRendering, boolean watermarkDownloads,
+		boolean heroLogoVisible, boolean requireNameEmail, boolean moderateComments,
+		boolean showFeedbackToGuests, String headerStyle, String heroDividerStyle, int cssTemplateId,
+		String colorTheme, String protectionLevel, String sourceMode, String heroImageAnchor,
+		String heroLogoSize, String heroLogoPosition, Integer uploadCategoryId, String externalPath,
+		Integer heroPhotoId) {
 
 	public PicPeakProperties {
 		if (apiUrl == null) {
@@ -38,7 +43,7 @@ public record PicPeakProperties(boolean enabled, String apiUrl, String username,
 			welcomeMessage = "";
 		}
 		if (headerStyle == null) {
-			headerStyle = "minimal";
+			headerStyle = "standard";
 		}
 		if (heroDividerStyle == null) {
 			heroDividerStyle = "wave";
@@ -47,7 +52,25 @@ public record PicPeakProperties(boolean enabled, String apiUrl, String username,
 			expirationDays = 30;
 		}
 		if (cssTemplateId <= 0) {
-			cssTemplateId = 2;
+			cssTemplateId = 1;
+		}
+		if (colorTheme == null) {
+			colorTheme = "default";
+		}
+		if (protectionLevel == null) {
+			protectionLevel = "standard";
+		}
+		if (sourceMode == null) {
+			sourceMode = "managed";
+		}
+		if (heroImageAnchor == null) {
+			heroImageAnchor = "center";
+		}
+		if (heroLogoSize == null) {
+			heroLogoSize = "medium";
+		}
+		if (heroLogoPosition == null) {
+			heroLogoPosition = "top";
 		}
 	}
 

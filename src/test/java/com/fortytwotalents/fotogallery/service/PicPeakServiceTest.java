@@ -155,8 +155,9 @@ class PicPeakServiceTest {
 		String username = enabled ? "admin" : "";
 		String password = enabled ? "secret" : "";
 		return new PicPeakProperties(enabled, apiUrl, username, password, "schulfotos", "",
-				"test@example.com", "", true, "", 30, false, true, true, false, false, true, false, true, false,
-				"minimal", "wave", 2);
+				"test@example.com", "", true, "", 30, false, true, true, true, false, false, false,
+				true, true, true, false, false, false, false, false, "standard", "wave", 1,
+				"default", "standard", "managed", "center", "medium", "top", null, null, null);
 	}
 
 }

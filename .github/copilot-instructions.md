@@ -106,12 +106,27 @@ src/test/java/com/fortytwotalents/fotogallery/
 | `app.picpeak.allow-user-uploads` | `false` | Allow visitors to upload photos |
 | `app.picpeak.feedback-enabled` | `true` | Enable visitor feedback |
 | `app.picpeak.allow-ratings` | `true` | Allow photo ratings |
-| `app.picpeak.allow-likes` | `false` | Allow photo likes |
+| `app.picpeak.allow-likes` | `true` | Allow photo likes |
 | `app.picpeak.allow-comments` | `false` | Allow photo comments |
-| `app.picpeak.allow-favorites` | `true` | Allow photo favourites |
+| `app.picpeak.allow-favorites` | `false` | Allow photo favourites |
+| `app.picpeak.allow-downloads` | `false` | Allow photo downloads |
+| `app.picpeak.disable-right-click` | `true` | Block right-click context menu on gallery photos |
+| `app.picpeak.enable-devtools-protection` | `true` | Detect and block browser developer tools |
+| `app.picpeak.use-canvas-rendering` | `true` | Use canvas rendering for advanced photo protection |
+| `app.picpeak.watermark-downloads` | `false` | Add watermark to downloaded photos |
+| `app.picpeak.hero-logo-visible` | `false` | Display logo in hero section |
 | `app.picpeak.require-name-email` | `false` | Require name & e-mail before viewing |
-| `app.picpeak.moderate-comments` | `true` | Hold comments for moderation |
+| `app.picpeak.moderate-comments` | `false` | Hold comments for moderation |
 | `app.picpeak.show-feedback-to-guests` | `false` | Show feedback to unauthenticated guests |
-| `app.picpeak.header-style` | `minimal` | Header style (`minimal`, `classic`, `hero`) |
+| `app.picpeak.header-style` | `standard` | Header style (`minimal`, `classic`, `hero`) |
 | `app.picpeak.hero-divider-style` | `wave` | Hero divider style |
-| `app.picpeak.css-template-id` | `2` | CSS template ID (integer) |
+| `app.picpeak.css-template-id` | `1` | CSS template ID (integer) |
+| `app.picpeak.color-theme` | `default` | Gallery colour theme |
+| `app.picpeak.protection-level` | `standard` | Download protection level |
+| `app.picpeak.source-mode` | `managed` | Photo source mode (`managed` or `reference`) |
+| `app.picpeak.hero-image-anchor` | `center` | Hero image anchor position |
+| `app.picpeak.hero-logo-size` | `medium` | Hero logo size (`small`, `medium`, `large`, `extra-large`) |
+| `app.picpeak.hero-logo-position` | `top` | Hero logo position (`top`, `center`, `bottom`) |
+| `app.picpeak.upload-category-id` | *(null)* | Upload category ID (integer; blank = null) |
+| `app.picpeak.external-path` | *(null)* | External media folder path (blank = null) |
+| `app.picpeak.hero-photo-id` | *(null)* | Default hero photo ID (integer; blank = null) |

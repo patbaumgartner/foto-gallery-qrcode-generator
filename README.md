@@ -350,7 +350,7 @@ version control.
 | `app.picpeak.show-feedback-to-guests` | `false` | Show feedback to unauthenticated guests |
 | `app.picpeak.header-style` | `minimal` | Header style (`minimal`, `classic`, `hero`) |
 | `app.picpeak.hero-divider-style` | `wave` | Hero divider style |
-| `app.picpeak.css-template-id` | `2` | CSS template ID (integer) |
+| `app.picpeak.css-template-id` | `1` | CSS template ID (integer) |
 
 ### Alternative: Environment Variables
 

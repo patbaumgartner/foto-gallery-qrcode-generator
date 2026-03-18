@@ -13,21 +13,23 @@
 #
 # Usage:
 #   ./schulfotos-mel-rohrer.sh                                   # interactive mode
-#   ./schulfotos-mel-rohrer.sh <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
+#   ./schulfotos-mel-rohrer.sh <KLASSENNAME> [SHOOTING_DATE] [CODE_COUNT] [EXTRA_ARGS...]
 #   ./schulfotos-mel-rohrer.sh --help
 #
 # Options:
 #   -v, --verbose   Show Spring Boot log output (hidden by default)
 #
 # Arguments:
-#   KLASSENNAME   Class name used as the event label in the PDF (e.g. "GS1d BA")
-#   CODE_COUNT    Number of codes to generate (default: 17)
-#   EXTRA_ARGS    Any additional --app.* flags passed to both steps
+#   KLASSENNAME    Class name used as the event label in the PDF (e.g. "GS1d BA")
+#   SHOOTING_DATE  Shooting date in German format DD.MM.YYYY (default: today)
+#   CODE_COUNT     Number of codes to generate (default: 17)
+#   EXTRA_ARGS     Any additional --app.* flags passed to both steps
 #
 # Examples:
 #   ./schulfotos-mel-rohrer.sh
 #   ./schulfotos-mel-rohrer.sh "GS1d BA"
-#   ./schulfotos-mel-rohrer.sh "GS1d BA" 30
+#   ./schulfotos-mel-rohrer.sh "GS1d BA" 25.03.2026
+#   ./schulfotos-mel-rohrer.sh "GS1d BA" 25.03.2026 30
 #
 set -euo pipefail
 
@@ -45,24 +47,26 @@ schulfotos-mel-rohrer.sh — Generate school photo gallery codes & QR-code PDFs.
 
 Usage:
   $0                                   Interactive mode (prompts for all settings)
-  $0 <KLASSENNAME> [CODE_COUNT] [EXTRA_ARGS...]
+  $0 <KLASSENNAME> [SHOOTING_DATE] [CODE_COUNT] [EXTRA_ARGS...]
   $0 --help                            Show this help message
 
 Options:
   -v, --verbose   Show Spring Boot log output (hidden by default)
 
 Arguments:
-  KLASSENNAME   Class name used as the event label in the PDF (e.g. "GS1d BA").
-                A random 4-character alphanumeric EVENT_CODE is generated
-                automatically. You will be asked to confirm or override it in
-                interactive mode.
-  CODE_COUNT    Number of codes to generate (default: $DEFAULT_CODE_COUNT)
-  EXTRA_ARGS    Any additional --app.* flags passed to both steps
+  KLASSENNAME    Class name used as the event label in the PDF (e.g. "GS1d BA").
+                 A random 4-character alphanumeric EVENT_CODE is generated
+                 automatically. You will be asked to confirm or override it in
+                 interactive mode.
+  SHOOTING_DATE  Shooting date in German format DD.MM.YYYY (default: today)
+  CODE_COUNT     Number of codes to generate (default: $DEFAULT_CODE_COUNT)
+  EXTRA_ARGS     Any additional --app.* flags passed to both steps
 
 Examples:
   $0
   $0 "GS1d BA"
-  $0 "GS1d BA" 30
+  $0 "GS1d BA" 25.03.2026
+  $0 "GS1d BA" 25.03.2026 30
 
 Defaults:
   Base URL (back of PDF)  $BASE_URL
@@ -125,11 +129,33 @@ generate_event_code() {
   echo "${chars:0:4}"
 }
 
+# --- Helper: convert DD.MM.YYYY to YYYY-MM-DD --------------------------------
+convert_date() {
+  local input="$1"
+  if [[ "$input" =~ ^([0-9]{2})\.([0-9]{2})\.([0-9]{4})$ ]]; then
+    echo "${BASH_REMATCH[3]}-${BASH_REMATCH[2]}-${BASH_REMATCH[1]}"
+  else
+    echo "ERROR: Invalid date format '$input'. Expected DD.MM.YYYY." >&2
+    return 1
+  fi
+}
+
+# --- Helper: today in DD.MM.YYYY format ---------------------------------------
+today_german() {
+  date +%d.%m.%Y
+}
+
 # --- Collect parameters -------------------------------------------------------
 if [[ $# -ge 1 ]]; then
   # --- Non-interactive: positional arguments ----------------------------------
   KLASSENNAME="$1"
   shift
+
+  SHOOTING_DATE_DE="$(today_german)"
+  if [[ $# -gt 0 && "$1" =~ ^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$ ]]; then
+    SHOOTING_DATE_DE="$1"
+    shift
+  fi
 
   CODE_COUNT="$DEFAULT_CODE_COUNT"
   if [[ $# -gt 0 && "$1" =~ ^[0-9]+$ ]]; then
@@ -154,12 +180,19 @@ else
   read -rp "Event-Code [$SUGGESTED_CODE]: " EVENT_CODE_INPUT
   EVENT_CODE="${EVENT_CODE_INPUT:-$SUGGESTED_CODE}"
 
+  DEFAULT_SHOOTING_DATE="$(today_german)"
+  read -rp "Shooting-Datum (DD.MM.YYYY) [$DEFAULT_SHOOTING_DATE]: " SHOOTING_DATE_INPUT
+  SHOOTING_DATE_DE="${SHOOTING_DATE_INPUT:-$DEFAULT_SHOOTING_DATE}"
+
   read -rp "Anzahl Codes [$DEFAULT_CODE_COUNT]: " CODE_COUNT_INPUT
   CODE_COUNT="${CODE_COUNT_INPUT:-$DEFAULT_CODE_COUNT}"
 
   EXTRA_ARGS=()
   echo ""
 fi
+
+# Convert shooting date from DD.MM.YYYY to YYYY-MM-DD
+SHOOTING_DATE="$(convert_date "$SHOOTING_DATE_DE")" || exit 1
 
 # --- Derive output filenames from class name ----------------------------------
 # Replace spaces and slashes with hyphens to produce a safe file name prefix.
@@ -172,11 +205,12 @@ PDF_PATH="${OUTPUT_DIR}/${SAFE_NAME}-qr-codes.pdf"
 
 # --- Summary ------------------------------------------------------------------
 echo "==> Settings:"
-echo "    Klassenname : $KLASSENNAME"
-echo "    Event-Code  : $EVENT_CODE"
-echo "    Code Count  : $CODE_COUNT"
-echo "    CSV         : $CSV_PATH"
-echo "    PDF         : $PDF_PATH"
+echo "    Klassenname    : $KLASSENNAME"
+echo "    Event-Code     : $EVENT_CODE"
+echo "    Shooting-Datum : $SHOOTING_DATE_DE ($SHOOTING_DATE)"
+echo "    Code Count     : $CODE_COUNT"
+echo "    CSV            : $CSV_PATH"
+echo "    PDF            : $PDF_PATH"
 echo ""
 
 # --- Step 1: Generate codes ---------------------------------------------------
@@ -188,6 +222,7 @@ echo "==> Generating $CODE_COUNT codes for class '$KLASSENNAME' (event: $EVENT_C
   --app.event-name="$KLASSENNAME" \
   --app.csv-output-path="$CSV_PATH" \
   --app.gallery-url="$GALLERY_URL" \
+  --app.picpeak.event-date="$SHOOTING_DATE" \
   ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
