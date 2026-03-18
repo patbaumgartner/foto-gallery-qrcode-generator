@@ -1,26 +1,86 @@
+[![CI](https://github.com/patbaumgartner/foto-gallery-qrcode-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/patbaumgartner/foto-gallery-qrcode-generator/actions/workflows/ci.yml) [![Release](https://github.com/patbaumgartner/foto-gallery-qrcode-generator/actions/workflows/release.yml/badge.svg)](https://github.com/patbaumgartner/foto-gallery-qrcode-generator/actions/workflows/release.yml) [![Java](https://img.shields.io/badge/Java-25-blue?logo=openjdk)](https://openjdk.org/) [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.3-6DB33F?logo=spring-boot)](https://spring.io/projects/spring-boot) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 # Foto Gallery QR Code Generator
 
-A Spring Boot CLI application that generates gallery access codes and produces PDF documents with QR codes.
+A Spring Boot command-line tool that generates gallery access codes and produces print-ready PDF documents containing QR codes — with an optional [PicPeak](https://picpeak.app) integration to automatically create online gallery events for each code.
+
+---
+
+## Table of Contents
+
+* [Features](#features)
+* [Prerequisites](#prerequisites)
+* [Getting Started](#getting-started)
+  * [Download a release](#download-a-release)
+  * [Build from source](#build-from-source)
+* [Usage](#usage)
+  * [Interactive mode](#interactive-mode-default)
+  * [Generate gallery codes](#1-generate-gallery-codes)
+  * [Generate PDF with QR codes](#2-generate-pdf-with-qr-codes)
+  * [Full workflow example](#full-workflow-example)
+  * [Convenience scripts](#convenience-scripts)
+  * [School photo scripts](#school-photo-scripts-mel-rohrerchschulfotos)
+* [Configuration](#configuration)
+  * [PicPeak integration](#picpeak-integration)
+* [Contributing](#contributing)
+* [Code of Conduct](#code-of-conduct)
+* [License](#license)
+
+---
+
+## Features
+
+* 🔑 **Access code generation** — creates unique, random gallery codes in the format `XY9G-AB7K-92QF` and writes them to a CSV file
+* 📄 **PDF output** — arranges QR codes in a configurable grid layout ready for duplex printing (front page with QR code, back page with password and base URL)
+* 🖨️ **Cutting lines** — optionally draws dashed cutting guides between cells for easy trimming
+* 🖼️ **Logo support** — embeds a custom logo (JPEG, PNG, or WebP) on the back page of the PDF
+* 💬 **Interactive shell** — guided prompts with sensible defaults when run without arguments
+* ⚙️ **Flexible configuration** — all settings configurable via properties file, environment variables, or command-line flags
+* 🔗 **PicPeak integration** — automatically creates gallery events on a [PicPeak](https://picpeak.app) instance and writes the share links back to the CSV
+* 🚀 **Native image support** — can be compiled to a GraalVM native binary for instant startup and no JVM dependency
+
+---
 
 ## Prerequisites
 
-- **Java 25** (or later)
-- **Maven** (or use the included `./mvnw` wrapper)
-- **GraalVM with `native-image`** (only needed for native binary builds)
+| Requirement | Version |
+|---|---|
+| Java (JDK) | 25+ |
+| Maven | 3.9+ |
 
-## Build
+> **Tip:** A Maven wrapper (`./mvnw` / `mvnw.cmd`) is included, so you only need Java installed.
 
-### JVM (JAR)
+---
+
+## Getting Started
+
+### Download a release
+
+Download the pre-built JAR or native binary for your platform from the [Releases](https://github.com/patbaumgartner/foto-gallery-qrcode-generator/releases) page.
+
+Each release contains:
+
+* `foto-gallery-qrcode-generator-<version>.jar` — runnable fat JAR (requires Java 25)
+* `foto-gallery-qrcode-generator-<version>-linux.zip` — native binary + `generate-qrcodes.sh` for Linux
+* `foto-gallery-qrcode-generator-<version>-windows.zip` — native binary + `generate-qrcodes.bat` for Windows
+
+### Build from source
 
 ```bash
+# Clone the repository
+git clone https://github.com/patbaumgartner/foto-gallery-qrcode-generator.git
+cd foto-gallery-qrcode-generator
+
+# Build (skipping tests for speed)
 ./mvnw clean package -DskipTests
+
+# Build including tests
+./mvnw clean verify
 ```
 
-### GraalVM Native Image
+The fat JAR is produced at `target/foto-gallery-qrcode-generator-*.jar`.
 
-Requires GraalVM with `native-image` installed. The build uses the
-GraalVM Reachability Metadata Repository for automatic reflection and
-resource configuration of third-party libraries (PDFBox, ZXing, etc.).
+To build a **GraalVM native image** (requires GraalVM with `native-image` installed):
 
 ```bash
 ./mvnw clean package -Pnative -DskipTests
@@ -28,12 +88,14 @@ resource configuration of third-party libraries (PDFBox, ZXing, etc.).
 
 The native binary will be at `target/foto-gallery-qrcode-generator`.
 
+---
+
 ## Usage
 
 The application supports two usage styles:
 
-- **Interactive mode** (default) — run the app with no arguments and answer prompts
-- **Command-line mode** — pass `--app.*` flags directly for scripting and automation
+* **Interactive mode** (default) — run the app with no arguments and answer prompts
+* **Command-line mode** — pass `--app.*` flags directly for scripting and automation
 
 ### Interactive Mode (default)
 
@@ -288,13 +350,32 @@ schulfotos-mel-rohrer.bat -v "GS1d BA"
 | `CODE_COUNT`   | no       | `17`    | Number of codes to generate                           |
 | `EXTRA_ARGS`   | no       | —       | Any additional `--app.*` options passed to both steps |
 
-## PicPeak Integration
+---
+
+## Configuration
+
+All options can be set via `application.properties`, environment variables, or command-line flags (Spring Boot relaxed-binding applies).
+
+**Example `application.properties`:**
+
+```properties
+app.event-code=XY9G
+app.event-name=My Photo Event
+app.code-count=17
+app.gallery-url=https://my.site/gallery?code=
+app.base-url=https://my.site
+app.grid-columns=3
+app.grid-rows=4
+app.show-cutting-lines=false
+```
+
+### PicPeak Integration
 
 The application can automatically create gallery events on a
 [PicPeak](https://picpeak.app) instance for every generated access code and
 write the resulting share link back into the CSV file.
 
-### Quick Start
+#### Quick Start
 
 1. Copy `picpeak.properties.example` to `picpeak.properties` in the same
    directory as the script / JAR:
@@ -324,7 +405,7 @@ write the resulting share link back into the CSV file.
 `picpeak.properties` is listed in `.gitignore` and will never be committed to
 version control.
 
-### All PicPeak Settings
+#### All PicPeak Settings
 
 | Property | Default | Description |
 |---|---|---|
@@ -352,7 +433,7 @@ version control.
 | `app.picpeak.hero-divider-style` | `wave` | Hero divider style |
 | `app.picpeak.css-template-id` | `1` | CSS template ID (integer) |
 
-### Alternative: Environment Variables
+#### Alternative: Environment Variables
 
 Spring Boot's relaxed-binding maps environment variables to properties, so you
 can also supply credentials without a file:
@@ -367,7 +448,7 @@ export APP_PICPEAK_CUSTOMER_EMAIL=customer@example.com
 ./schulfotos-mel-rohrer.sh "GS1d BA"
 ```
 
-### Alternative: Command-Line Flags
+#### Alternative: Command-Line Flags
 
 You can also pass any PicPeak setting as an `EXTRA_ARGS` flag:
 
@@ -378,4 +459,22 @@ You can also pass any PicPeak setting as an `EXTRA_ARGS` flag:
   --app.picpeak.username=admin@example.com \
   --app.picpeak.password=secret
 ```
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to open issues, suggest improvements, and submit pull requests.
+
+---
+
+## Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating you agree to uphold it.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
 
