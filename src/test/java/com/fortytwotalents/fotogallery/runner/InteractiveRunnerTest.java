@@ -8,6 +8,7 @@ import com.fortytwotalents.fotogallery.service.CodeGeneratorService;
 import com.fortytwotalents.fotogallery.service.CsvReaderService;
 import com.fortytwotalents.fotogallery.service.CsvWriterService;
 import com.fortytwotalents.fotogallery.service.PdfGeneratorService;
+import com.fortytwotalents.fotogallery.service.PicPeakService;
 import com.fortytwotalents.fotogallery.service.QrCodeGeneratorService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +49,9 @@ class InteractiveRunnerTest {
 
 	@Mock
 	PdfGeneratorService pdfGeneratorService;
+
+	@Mock
+	PicPeakService picPeakService;
 
 	@Test
 	void skipsWhenModeIsAlreadySet() throws Exception {
@@ -378,6 +382,68 @@ class InteractiveRunnerTest {
 		ArgumentCaptor<PdfOptions> captor = ArgumentCaptor.forClass(PdfOptions.class);
 		verify(pdfGeneratorService).createPdf(any(), any(), captor.capture());
 		assertThat(captor.getValue().logoUrl()).isEqualTo("logo.png");
+	}
+
+	@Test
+	void promptsForGalleryCreationAndCallsPicPeakWhenUserSaysYes() throws Exception {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf", "https://my.site", 200, 3,
+				4, "XY9G", 50, false, "", "", "", null, null);
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
+				csvReaderService, qrCodeGeneratorService, pdfGeneratorService, picPeakService);
+
+		when(codeGeneratorService.generateCodes(anyString(), anyInt()))
+			.thenReturn(List.of(new GalleryCode("XY9G-AB7K-92QF")));
+		when(picPeakService.enrichWithShareLinks(any(), anyString()))
+			.thenReturn(List.of(new GalleryCode("XY9G-AB7K-92QF", "pass", "https://share.link")));
+
+		// Mode: generate-codes, accepts code count/event name/csv defaults, says yes to PicPeak
+		ByteArrayInputStream input = new ByteArrayInputStream("1\n\n\n\nyes\n".getBytes(StandardCharsets.UTF_8));
+		System.setIn(input);
+
+		runner.run(new DefaultApplicationArguments());
+
+		verify(picPeakService).enrichWithShareLinks(any(), any());
+	}
+
+	@Test
+	void skipsGalleryCreationWhenUserSaysNo() throws Exception {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf", "https://my.site", 200, 3,
+				4, "XY9G", 50, false, "", "", "", null, null);
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
+				csvReaderService, qrCodeGeneratorService, pdfGeneratorService, picPeakService);
+
+		when(codeGeneratorService.generateCodes(anyString(), anyInt()))
+			.thenReturn(List.of(new GalleryCode("XY9G-AB7K-92QF")));
+
+		// Mode: generate-codes, accepts code count/event name/csv defaults, says no to PicPeak
+		ByteArrayInputStream input = new ByteArrayInputStream("1\n\n\n\nno\n".getBytes(StandardCharsets.UTF_8));
+		System.setIn(input);
+
+		runner.run(new DefaultApplicationArguments());
+
+		verify(picPeakService, never()).enrichWithShareLinks(any(), any());
+	}
+
+	@Test
+	void skipsGalleryCreationPromptForGeneratePdfMode() throws Exception {
+		AppProperties props = new AppProperties("", "codes.csv", "codes.csv", "qr-codes.pdf", "https://my.site", 200, 3,
+				4, "", 50, false, "", "", "", null, null);
+		InteractiveRunner runner = new InteractiveRunner(props, codeGeneratorService, csvWriterService,
+				csvReaderService, qrCodeGeneratorService, pdfGeneratorService, picPeakService);
+
+		when(csvReaderService.readCodes(any()))
+			.thenReturn(new CsvReadResult(List.of(new GalleryCode("XY9G-AB7K-92QF")), "Test Event"));
+		when(qrCodeGeneratorService.generateQrCode(any(), anyString(), anyInt(), anyInt()))
+			.thenReturn(new java.awt.image.BufferedImage(10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB));
+		when(pdfGeneratorService.createPdf(any(), any(), any())).thenReturn(1);
+
+		// Mode: generate-pdf — no PicPeak prompt expected
+		ByteArrayInputStream input = new ByteArrayInputStream("2\n\n\n\n\n\n\n\n\n\n".getBytes(StandardCharsets.UTF_8));
+		System.setIn(input);
+
+		runner.run(new DefaultApplicationArguments());
+
+		verify(picPeakService, never()).enrichWithShareLinks(any(), any());
 	}
 
 	private static Scanner scannerFrom(String text) {

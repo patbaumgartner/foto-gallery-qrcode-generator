@@ -5,9 +5,11 @@ import com.fortytwotalents.fotogallery.service.CodeGeneratorService;
 import com.fortytwotalents.fotogallery.service.CsvReaderService;
 import com.fortytwotalents.fotogallery.service.CsvWriterService;
 import com.fortytwotalents.fotogallery.service.PdfGeneratorService;
+import com.fortytwotalents.fotogallery.service.PicPeakService;
 import com.fortytwotalents.fotogallery.service.QrCodeGeneratorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -41,15 +43,28 @@ public class InteractiveRunner implements ApplicationRunner {
 
 	private final PdfGeneratorService pdfGeneratorService;
 
+	private final PicPeakService picPeakService;
+
+	@Autowired
 	public InteractiveRunner(AppProperties appProperties, CodeGeneratorService codeGeneratorService,
 			CsvWriterService csvWriterService, CsvReaderService csvReaderService,
-			QrCodeGeneratorService qrCodeGeneratorService, PdfGeneratorService pdfGeneratorService) {
+			QrCodeGeneratorService qrCodeGeneratorService, PdfGeneratorService pdfGeneratorService,
+			PicPeakService picPeakService) {
 		this.appProperties = appProperties;
 		this.codeGeneratorService = codeGeneratorService;
 		this.csvWriterService = csvWriterService;
 		this.csvReaderService = csvReaderService;
 		this.qrCodeGeneratorService = qrCodeGeneratorService;
 		this.pdfGeneratorService = pdfGeneratorService;
+		this.picPeakService = picPeakService;
+	}
+
+	// Backward-compatible constructor for tests (PicPeak disabled)
+	InteractiveRunner(AppProperties appProperties, CodeGeneratorService codeGeneratorService,
+			CsvWriterService csvWriterService, CsvReaderService csvReaderService,
+			QrCodeGeneratorService qrCodeGeneratorService, PdfGeneratorService pdfGeneratorService) {
+		this(appProperties, codeGeneratorService, csvWriterService, csvReaderService, qrCodeGeneratorService,
+				pdfGeneratorService, null);
 	}
 
 	@Override
@@ -89,6 +104,10 @@ public class InteractiveRunner implements ApplicationRunner {
 				csvOutputPath = promptOptional(scanner, "CSV output path", csvOutputPath);
 			}
 
+			boolean createGalleryEvents = false;
+			if (("generate-codes".equals(mode) || "both".equals(mode)) && picPeakService != null) {
+				createGalleryEvents = promptBoolean(scanner, "Create PicPeak gallery events", false);
+			}
 			if ("generate-pdf".equals(mode) || "both".equals(mode)) {
 				csvInputPath = promptOptional(scanner, "CSV input path", csvInputPath);
 				outputPath = promptOptional(scanner, "PDF output path", outputPath);
@@ -107,7 +126,8 @@ public class InteractiveRunner implements ApplicationRunner {
 					AppProperties codeProps = new AppProperties("generate-codes", csvInputPath, csvOutputPath,
 							outputPath, baseUrl, qrSize, gridColumns, gridRows, eventCode, codeCount, showCuttingLines,
 							eventName, galleryUrl, logoUrl, galleryCodeLabel, galleryPasswordLabel);
-					new CodeGeneratorRunner(codeGeneratorService, csvWriterService, codeProps).run();
+					new CodeGeneratorRunner(codeGeneratorService, csvWriterService,
+							createGalleryEvents ? picPeakService : null, codeProps).run();
 				}
 
 				if ("generate-pdf".equals(mode) || "both".equals(mode)) {
