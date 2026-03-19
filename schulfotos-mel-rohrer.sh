@@ -164,6 +164,8 @@ if [[ $# -ge 1 ]]; then
   fi
 
   EXTRA_ARGS=("$@")
+  CREATE_GALLERY_EVENTS=""   # controlled by picpeak.properties
+  PICPEAK_ENABLED_ARG=()
   EVENT_CODE="$(generate_event_code)"
 else
   # --- Interactive: prompt the user -------------------------------------------
@@ -187,6 +189,19 @@ else
   read -rp "Anzahl Codes [$DEFAULT_CODE_COUNT]: " CODE_COUNT_INPUT
   CODE_COUNT="${CODE_COUNT_INPUT:-$DEFAULT_CODE_COUNT}"
 
+  CREATE_GALLERY_EVENTS=false
+  PICPEAK_ENABLED_ARG=()
+  if [[ -f "$SCRIPT_DIR/picpeak.properties" ]]; then
+    read -rp "PicPeak-Galerie-Events erstellen? (yes/no) [no]: " PICPEAK_GALLERY_INPUT
+    PICPEAK_GALLERY_INPUT="${PICPEAK_GALLERY_INPUT:-no}"
+    if [[ "$PICPEAK_GALLERY_INPUT" == "yes" || "$PICPEAK_GALLERY_INPUT" == "y" ]]; then
+      CREATE_GALLERY_EVENTS=true
+      PICPEAK_ENABLED_ARG=(--app.picpeak.enabled=true)
+    else
+      PICPEAK_ENABLED_ARG=(--app.picpeak.enabled=false)
+    fi
+  fi
+
   EXTRA_ARGS=()
   echo ""
 fi
@@ -209,6 +224,7 @@ echo "    Klassenname    : $KLASSENNAME"
 echo "    Event-Code     : $EVENT_CODE"
 echo "    Shooting-Datum : $SHOOTING_DATE_DE ($SHOOTING_DATE)"
 echo "    Code Count     : $CODE_COUNT"
+echo "    PicPeak Events : ${CREATE_GALLERY_EVENTS:-from picpeak.properties}"
 echo "    CSV            : $CSV_PATH"
 echo "    PDF            : $PDF_PATH"
 echo ""
@@ -223,6 +239,7 @@ echo "==> Generating $CODE_COUNT codes for class '$KLASSENNAME' (event: $EVENT_C
   --app.csv-output-path="$CSV_PATH" \
   --app.gallery-url="$GALLERY_URL" \
   --app.picpeak.event-date="$SHOOTING_DATE" \
+  ${PICPEAK_ENABLED_ARG[@]+"${PICPEAK_ENABLED_ARG[@]}"} \
   ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
   ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
