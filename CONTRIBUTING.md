@@ -58,19 +58,50 @@ The project uses [Spring Java Format](https://github.com/spring-io/spring-javafo
 
 The CI pipeline will fail if the code is not formatted correctly.
 
+## Commit Messages
+
+This project uses **[Conventional Commits](https://www.conventionalcommits.org/)**.
+
+Format: `<type>(<scope>): <short description>`
+
+| Type | When to use |
+|------|-------------|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `docs` | Documentation only |
+| `test` | Adding or correcting tests |
+| `chore` | Build tooling, dependency updates, CI |
+| `perf` | Performance improvement |
+
+**Rules:**
+- Use the **imperative mood** in the short description ("add" not "added")
+- Keep the subject line ≤ 72 characters
+- Reference issues in the footer: `Closes #42`
+- **Make small, atomic commits** — one logical change per commit
+
+**Examples:**
+```
+feat(scripts): add PicPeak gallery event prompt in interactive mode
+fix(pdf): correct QR code padding calculation
+refactor(service): extract URL validation into helper
+docs(contributing): add conventional commit guidelines
+```
+
 ## Making a Pull Request
 
 1. **Fork** the repository and create a feature branch from `main`:
    ```bash
    git checkout -b feat/my-new-feature
    ```
-2. Make your changes and **add tests** where appropriate.
-3. Run the full test suite:
+2. Make your changes in **small, atomic commits** following the commit conventions above.
+3. **Add tests** where appropriate.
+4. Run the full test suite:
    ```bash
    ./mvnw verify
    ```
-4. Push your branch and open a pull request against `main`.
-5. Fill in the pull request template and describe *what* and *why*.
+5. Push your branch and open a pull request against `main`.
+6. Fill in the pull request template and describe *what* and *why*.
 
 PRs are reviewed promptly. Please be patient if feedback takes a day or two.
 
