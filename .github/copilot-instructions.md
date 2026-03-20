@@ -61,6 +61,29 @@ src/test/java/com/fortytwotalents/fotogallery/
 - **Testing**: JUnit 5 with Spring Boot Test; Mockito for mocking; Taikai for architecture verification
 - **No REST layer**: This is a CLI tool only — do not add web/REST endpoints
 
+## Commit Conventions
+
+Use **[Conventional Commits](https://www.conventionalcommits.org/)** for every commit.
+
+Format: `<type>(<scope>): <short description in imperative mood>`
+
+Common types: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`
+
+Common scopes: `scripts`, `sh`, `bat`, `pdf`, `csv`, `runner`, `service`, `config`, `model`
+
+Rules:
+- Subject line ≤ 72 characters, imperative mood ("add" not "added")
+- Make **small, atomic commits** — one logical change per commit
+- Reference issues in the footer: `Closes #42`
+
+Examples:
+```
+feat(scripts): add PicPeak gallery event prompt in interactive mode
+fix(pdf): correct QR code padding calculation
+refactor(service): extract URL validation into helper
+docs(contributing): add conventional commit guidelines
+```
+
 ## Architecture Rules (enforced by TaikaiVerificationTest)
 
 - Follow standard layered conventions: `config`, `model`, `runner`, `service`
