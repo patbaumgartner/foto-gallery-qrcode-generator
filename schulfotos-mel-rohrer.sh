@@ -165,6 +165,7 @@ if [[ $# -ge 1 ]]; then
 
   EXTRA_ARGS=("$@")
   EVENT_CODE="$(generate_event_code)"
+  PICPEAK_ENABLED=false
 else
   # --- Interactive: prompt the user -------------------------------------------
   echo "===  Schulfotos — mel-rohrer.ch  ==="
@@ -195,8 +196,6 @@ else
 
   EXTRA_ARGS=()
   echo ""
-else
-  PICPEAK_ENABLED=false
 fi
 
 # Convert shooting date from DD.MM.YYYY to YYYY-MM-DD
