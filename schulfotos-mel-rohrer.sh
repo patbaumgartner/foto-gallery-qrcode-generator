@@ -5,7 +5,7 @@
 # The gallery URL used in QR codes is hardcoded to https://mel-rohrer.ch/schulfotos/?code=
 # and the base URL printed on the back of the PDF is https://mel-rohrer.ch/schulfotos.
 # All standard settings are used (3x4 grid, 200 px QR size, cutting lines enabled).
-# A back page with the gallery password and the classpath logo (logo.png) is always included.
+# A back page with the gallery password and the logo (logo.png) is always included.
 #
 # When run without arguments the script prompts interactively for every parameter.
 # A random 4-character alphanumeric EVENT_CODE is generated automatically
@@ -40,7 +40,23 @@ BASE_URL="https://mel-rohrer.ch/schulfotos"
 GALLERY_URL="https://mel-rohrer.ch/schulfotos/?code="
 DEFAULT_CODE_COUNT="17"
 
-# --- Help ---------------------------------------------------------------------
+# --- Helpers ------------------------------------------------------------------
+generate_event_code() {
+  local chars
+  chars=$(head -c 100 /dev/urandom | tr -cd 'A-Z0-9')
+  echo "${chars:0:4}"
+}
+
+convert_date() {
+  local input="$1"
+  if [[ "$input" =~ ^([0-9]{2})\.([0-9]{2})\.([0-9]{4})$ ]]; then
+    echo "${BASH_REMATCH[3]}-${BASH_REMATCH[2]}-${BASH_REMATCH[1]}"
+  else
+    echo "ERROR: Invalid date format '$input'. Expected DD.MM.YYYY." >&2
+    return 1
+  fi
+}
+
 show_help() {
   cat <<EOF
 schulfotos-mel-rohrer.sh — Generate school photo gallery codes & QR-code PDFs.
@@ -62,12 +78,6 @@ Arguments:
   CODE_COUNT     Number of codes to generate (default: $DEFAULT_CODE_COUNT)
   EXTRA_ARGS     Any additional --app.* flags passed to both steps
 
-Examples:
-  $0
-  $0 "GS1d BA"
-  $0 "GS1d BA" 25.03.2026
-  $0 "GS1d BA" 25.03.2026 30
-
 Defaults:
   Base URL (back of PDF)  $BASE_URL
   Gallery URL (QR codes)  $GALLERY_URL
@@ -78,133 +88,78 @@ EOF
   exit 0
 }
 
-# --- Parse early flags --------------------------------------------------------
+# --- Parse flags --------------------------------------------------------------
 VERBOSE=false
 args=()
 for arg in "$@"; do
   case "$arg" in
     -v|--verbose) VERBOSE=true ;;
+    --help|-h)    show_help ;;
     *)            args+=("$arg") ;;
   esac
 done
 set -- "${args[@]+"${args[@]}"}"
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  show_help
-fi
+[[ "$VERBOSE" == false ]] \
+  && QUIET_ARGS=(--logging.level.root=WARN --spring.main.banner-mode=off) \
+  || QUIET_ARGS=()
 
-# When not verbose, suppress Spring Boot log output
-QUIET_ARGS=()
-if [[ "$VERBOSE" == false ]]; then
-  QUIET_ARGS=(--logging.level.root=WARN --spring.main.banner-mode=off)
-fi
-
-# --- Load optional PicPeak credentials ----------------------------------------
-# Copy picpeak.properties.example to picpeak.properties and fill in your
-# credentials.  The file is .gitignored so it will never be committed.
 PICPEAK_ARGS=()
-if [[ -f "$SCRIPT_DIR/picpeak.properties" ]]; then
-  PICPEAK_ARGS=(--spring.config.additional-location="file:$SCRIPT_DIR/picpeak.properties")
-fi
+[[ -f "$SCRIPT_DIR/picpeak.properties" ]] \
+  && PICPEAK_ARGS=(--spring.config.additional-location="file:$SCRIPT_DIR/picpeak.properties")
 
 # --- Resolve executable -------------------------------------------------------
-# Check current directory first, then target/ subdirectory
-if [[ -x "$SCRIPT_DIR/$NATIVE_NAME" ]]; then
-  RUN=("$SCRIPT_DIR/$NATIVE_NAME")
-elif [[ -x "$SCRIPT_DIR/target/$NATIVE_NAME" ]]; then
-  RUN=("$SCRIPT_DIR/target/$NATIVE_NAME")
-elif [[ -f "$SCRIPT_DIR/$JAR_NAME" ]]; then
-  RUN=(java -jar "$SCRIPT_DIR/$JAR_NAME")
-elif [[ -f "$SCRIPT_DIR/target/$JAR_NAME" ]]; then
-  RUN=(java -jar "$SCRIPT_DIR/target/$JAR_NAME")
+if   [[ -x "$SCRIPT_DIR/$NATIVE_NAME" ]];        then RUN=("$SCRIPT_DIR/$NATIVE_NAME")
+elif [[ -x "$SCRIPT_DIR/target/$NATIVE_NAME" ]]; then RUN=("$SCRIPT_DIR/target/$NATIVE_NAME")
+elif [[ -f "$SCRIPT_DIR/$JAR_NAME" ]];            then RUN=(java -jar "$SCRIPT_DIR/$JAR_NAME")
+elif [[ -f "$SCRIPT_DIR/target/$JAR_NAME" ]];     then RUN=(java -jar "$SCRIPT_DIR/target/$JAR_NAME")
 else
   echo "ERROR: No executable found (neither '$NATIVE_NAME' nor '$JAR_NAME')." >&2
   exit 1
 fi
 
-# --- Helper: generate a random 4-char alphanumeric EVENT_CODE -----------------
-generate_event_code() {
-  local chars
-  chars=$(head -c 100 /dev/urandom | tr -cd 'A-Z0-9')
-  echo "${chars:0:4}"
-}
-
-# --- Helper: convert DD.MM.YYYY to YYYY-MM-DD --------------------------------
-convert_date() {
-  local input="$1"
-  if [[ "$input" =~ ^([0-9]{2})\.([0-9]{2})\.([0-9]{4})$ ]]; then
-    echo "${BASH_REMATCH[3]}-${BASH_REMATCH[2]}-${BASH_REMATCH[1]}"
-  else
-    echo "ERROR: Invalid date format '$input'. Expected DD.MM.YYYY." >&2
-    return 1
-  fi
-}
-
-# --- Helper: today in DD.MM.YYYY format ---------------------------------------
-today_german() {
-  date +%d.%m.%Y
-}
-
 # --- Collect parameters -------------------------------------------------------
 if [[ $# -ge 1 ]]; then
-  # --- Non-interactive: positional arguments ----------------------------------
-  KLASSENNAME="$1"
-  shift
+  KLASSENNAME="$1"; shift
 
-  SHOOTING_DATE_DE="$(today_german)"
-  if [[ $# -gt 0 && "$1" =~ ^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$ ]]; then
-    SHOOTING_DATE_DE="$1"
-    shift
-  fi
+  SHOOTING_DATE_DE="$(date +%d.%m.%Y)"
+  [[ $# -gt 0 && "$1" =~ ^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$ ]] && { SHOOTING_DATE_DE="$1"; shift; }
 
   CODE_COUNT="$DEFAULT_CODE_COUNT"
-  if [[ $# -gt 0 && "$1" =~ ^[0-9]+$ ]]; then
-    CODE_COUNT="$1"
-    shift
-  fi
+  [[ $# -gt 0 && "$1" =~ ^[0-9]+$ ]] && { CODE_COUNT="$1"; shift; }
 
   EXTRA_ARGS=("$@")
   EVENT_CODE="$(generate_event_code)"
   PICPEAK_ENABLED=false
 else
-  # --- Interactive: prompt the user -------------------------------------------
   echo "===  Schulfotos — mel-rohrer.ch  ==="
   echo ""
 
   read -rp "Klassenname (e.g. GS1d BA): " KLASSENNAME
-  if [[ -z "$KLASSENNAME" ]]; then
-    echo "ERROR: Klassenname must not be empty." >&2
-    exit 1
-  fi
+  [[ -z "$KLASSENNAME" ]] && { echo "ERROR: Klassenname must not be empty." >&2; exit 1; }
 
   SUGGESTED_CODE="$(generate_event_code)"
   read -rp "Event-Code [$SUGGESTED_CODE]: " EVENT_CODE_INPUT
   EVENT_CODE="${EVENT_CODE_INPUT:-$SUGGESTED_CODE}"
 
-  DEFAULT_SHOOTING_DATE="$(today_german)"
-  read -rp "Shooting-Datum (DD.MM.YYYY) [$DEFAULT_SHOOTING_DATE]: " SHOOTING_DATE_INPUT
-  SHOOTING_DATE_DE="${SHOOTING_DATE_INPUT:-$DEFAULT_SHOOTING_DATE}"
+  TODAY="$(date +%d.%m.%Y)"
+  read -rp "Shooting-Datum (DD.MM.YYYY) [$TODAY]: " SHOOTING_DATE_INPUT
+  SHOOTING_DATE_DE="${SHOOTING_DATE_INPUT:-$TODAY}"
 
   read -rp "Anzahl Codes [$DEFAULT_CODE_COUNT]: " CODE_COUNT_INPUT
   CODE_COUNT="${CODE_COUNT_INPUT:-$DEFAULT_CODE_COUNT}"
 
   read -rp "Galerie-Events in PicPeak erstellen? [y/N]: " PICPEAK_INPUT
-  PICPEAK_ENABLED=false
-  if [[ "${PICPEAK_INPUT,,}" == "y" || "${PICPEAK_INPUT,,}" == "yes" ]]; then
-    PICPEAK_ENABLED=true
-  fi
+  [[ "${PICPEAK_INPUT,,}" =~ ^(y|yes)$ ]] && PICPEAK_ENABLED=true || PICPEAK_ENABLED=false
 
   EXTRA_ARGS=()
   echo ""
 fi
 
-# Convert shooting date from DD.MM.YYYY to YYYY-MM-DD
 SHOOTING_DATE="$(convert_date "$SHOOTING_DATE_DE")" || exit 1
 
-# --- Derive output filenames from class name ----------------------------------
-# Replace spaces and slashes with hyphens to produce a safe file name prefix.
-SAFE_NAME="${KLASSENNAME// /-}"
-SAFE_NAME="${SAFE_NAME//\//-}"
+# --- Derive output paths ------------------------------------------------------
+SAFE_NAME="${KLASSENNAME//[ \/]/-}"
 OUTPUT_DIR="schulfotos"
 mkdir -p "$OUTPUT_DIR"
 CSV_PATH="${OUTPUT_DIR}/${SAFE_NAME}-codes.csv"
