@@ -166,6 +166,11 @@ if "!CODE_COUNT_INPUT!"=="" (
     set "CODE_COUNT=!CODE_COUNT_INPUT!"
 )
 
+set /p "PICPEAK_INPUT=Galerie-Events in PicPeak erstellen? [y/N]: "
+set "PICPEAK_ENABLED=false"
+if /i "!PICPEAK_INPUT!"=="y"   set "PICPEAK_ENABLED=true"
+if /i "!PICPEAK_INPUT!"=="yes" set "PICPEAK_ENABLED=true"
+
 set "EXTRA_ARGS="
 echo.
 goto convert_date
@@ -216,6 +221,7 @@ goto parse_extra
 rem Generate a random EVENT_CODE
 call :generate_event_code
 set "EVENT_CODE=!GENERATED_CODE!"
+set "PICPEAK_ENABLED=false"
 goto convert_date
 
 rem --- Convert DD.MM.YYYY to YYYY-MM-DD ---------------------------------------
@@ -238,6 +244,7 @@ echo     Klassenname    : !KLASSENNAME!
 echo     Event-Code     : !EVENT_CODE!
 echo     Shooting-Datum : !SHOOTING_DATE_DE! ^(!SHOOTING_DATE!^)
 echo     Code Count     : !CODE_COUNT!
+echo     PicPeak        : !PICPEAK_ENABLED!
 echo     CSV            : !CSV_PATH!
 echo     PDF            : !PDF_PATH!
 echo.
@@ -245,9 +252,9 @@ echo.
 rem --- Step 1: Generate codes -------------------------------------------------
 echo ==^> Generating !CODE_COUNT! codes for class '!KLASSENNAME!' ^(event: !EVENT_CODE!^) ...
 if "%USE_JAR%"=="1" (
-    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% --app.picpeak.event-date=!SHOOTING_DATE! !PICPEAK_ARGS! !QUIET_ARGS! !EXTRA_ARGS!
+    java -jar "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% --app.picpeak.enabled=!PICPEAK_ENABLED! --app.picpeak.event-date=!SHOOTING_DATE! !PICPEAK_ARGS! !QUIET_ARGS! !EXTRA_ARGS!
 ) else (
-    "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% --app.picpeak.event-date=!SHOOTING_DATE! !PICPEAK_ARGS! !QUIET_ARGS! !EXTRA_ARGS!
+    "%RUN%" --app.mode=generate-codes --app.event-code=!EVENT_CODE! --app.code-count=!CODE_COUNT! --app.event-name="!KLASSENNAME!" --app.csv-output-path="!CSV_PATH!" --app.gallery-url=%GALLERY_URL% --app.picpeak.enabled=!PICPEAK_ENABLED! --app.picpeak.event-date=!SHOOTING_DATE! !PICPEAK_ARGS! !QUIET_ARGS! !EXTRA_ARGS!
 )
 if errorlevel 1 (
     echo ERROR: Code generation failed. >&2

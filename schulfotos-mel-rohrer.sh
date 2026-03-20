@@ -187,8 +187,16 @@ else
   read -rp "Anzahl Codes [$DEFAULT_CODE_COUNT]: " CODE_COUNT_INPUT
   CODE_COUNT="${CODE_COUNT_INPUT:-$DEFAULT_CODE_COUNT}"
 
+  read -rp "Galerie-Events in PicPeak erstellen? [y/N]: " PICPEAK_INPUT
+  PICPEAK_ENABLED=false
+  if [[ "${PICPEAK_INPUT,,}" == "y" || "${PICPEAK_INPUT,,}" == "yes" ]]; then
+    PICPEAK_ENABLED=true
+  fi
+
   EXTRA_ARGS=()
   echo ""
+else
+  PICPEAK_ENABLED=false
 fi
 
 # Convert shooting date from DD.MM.YYYY to YYYY-MM-DD
@@ -209,6 +217,7 @@ echo "    Klassenname    : $KLASSENNAME"
 echo "    Event-Code     : $EVENT_CODE"
 echo "    Shooting-Datum : $SHOOTING_DATE_DE ($SHOOTING_DATE)"
 echo "    Code Count     : $CODE_COUNT"
+echo "    PicPeak        : $PICPEAK_ENABLED"
 echo "    CSV            : $CSV_PATH"
 echo "    PDF            : $PDF_PATH"
 echo ""
@@ -222,6 +231,7 @@ echo "==> Generating $CODE_COUNT codes for class '$KLASSENNAME' (event: $EVENT_C
   --app.event-name="$KLASSENNAME" \
   --app.csv-output-path="$CSV_PATH" \
   --app.gallery-url="$GALLERY_URL" \
+  --app.picpeak.enabled="$PICPEAK_ENABLED" \
   --app.picpeak.event-date="$SHOOTING_DATE" \
   ${PICPEAK_ARGS[@]+"${PICPEAK_ARGS[@]}"} \
   ${QUIET_ARGS[@]+"${QUIET_ARGS[@]}"} \
